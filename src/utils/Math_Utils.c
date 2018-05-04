@@ -63,7 +63,7 @@ double eval_op(double op1, double op2, double op) {
 	return tmp_val;
 }
 
-double eval_infix(struct Tokens ** tokens, int num_tokens) {
+double eval_infix(struct Token ** tokens, int num_tokens) {
 	double result = 0;
 	int token_index = 0;
 
