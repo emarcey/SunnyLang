@@ -16,4 +16,10 @@ struct Variable {
 	char * name;
 	int name_hash;
 
+	union {
+		int ival;
+		float fval;
+		char* cval;
+	};
+
 };

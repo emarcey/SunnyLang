@@ -36,13 +36,13 @@ int get_precedence(unsigned int c) {
 
 double eval_op(double op1, double op2, double op) {
 	double tmp_val;
-	if (op == 43) { //+
+	if (op == '+') { //+
 		tmp_val = op1+op2;
-	} else if (op == 45) { //-
+	} else if (op == '-') { //-
 		tmp_val = op1-op2;
-	} else if (op == 42) { //*
+	} else if (op == '*') { //*
 		tmp_val = op1*op2;
-	} else if (op == 47) { // /
+	} else if (op == '/') { // /
 		if (op2 != 0) {
 			tmp_val = op1/op2;
 		} else {
@@ -73,41 +73,37 @@ double eval_infix(struct Tokens ** tokens, int num_tokens) {
 	struct Stack* operator_stack = createStack(num_tokens);
 	while (token_index < num_tokens) {
 		char tmp_token_type = get_token_type(tokens[token_index]);
-		printf("%d\n",tmp_token_type);
 
-		if (tmp_token_type==111 && strlen(get_token_value(tokens[token_index])) > 1) {
+		if (tmp_token_type=='o' && strlen(get_token_value(tokens[token_index])) > 1) {
 			char * info = malloc(sizeof(char)*1024);
 			sprintf(info,"Token, %s, is not valid for the infix expression", get_token_value(tokens[token_index]));
 			EvalError(info);
 			free(info);
 		}
-		if (tmp_token_type==110 && prev_token_type==110) {
+		if (tmp_token_type=='n' && prev_token_type=='n') {
 			char * info = malloc(sizeof(char)*1024);
 			sprintf(info,"You have back to back numbers in your expression, with token %s", get_token_value(tokens[token_index]));
 			EvalError(info);
 			free(info);
 		}
 
-
 		char * tmp_token_val = get_token_value(tokens[token_index]);
 		unsigned tmp_token_hash = get_token_hash(tokens[token_index]);
 		int tmp_token_precedence = get_token_precedence(tokens[token_index]);
 
-		printf("%s %d %d\n",tmp_token_val,tmp_token_hash,tmp_token_precedence);
-		if (tmp_token_type == 110) { //if token is operand
+		if (tmp_token_type == 'n') { //if token is operand
 			double tmp_operand = atof(tmp_token_val);
 			push(operand_stack,tmp_operand);
 
-		} else if (tmp_token_type == 111
+		} else if (tmp_token_type == 'o'
 				&& isEmpty(operator_stack)==1
-				&& tmp_token_hash != 40
-				&& tmp_token_hash != 41) { //if token is operator and stack is empty
+				&& tmp_token_hash != ')') { //if token is operator and stack is empty
 			push(operator_stack,tmp_token_hash);
 
-		} else if (tmp_token_type == 111
+		} else if (tmp_token_type == 'o'
 				&& isEmpty(operator_stack) == 0
-				&& tmp_token_hash != 40
-				&& tmp_token_hash != 41) { //if token is operator, operator stack is not empty
+				&& tmp_token_hash != '('
+				&& tmp_token_hash != ')') { //if token is operator, operator stack is not empty
 
 			double top_val = get_top(operator_stack);
 			int tmp_val = top_val;
@@ -120,14 +116,14 @@ double eval_infix(struct Tokens ** tokens, int num_tokens) {
 				if (isEmpty(operand_stack))
 					EvalError("There's something wrong with your expression!");
 				double op2 = pop(operand_stack);
-				double op = pop(operator_stack);
+				double op = tmp_token_hash;
 				double tmp_val = eval_op(op2,op1,op);
 				push(operand_stack,tmp_val);
 			}
 
-		} else if (tmp_token_type == 111 && tmp_token_hash == 40) { //if token is '('
+		} else if (tmp_token_type == 'o' && tmp_token_hash == '(') { //if token is '('
 			push(operator_stack, tmp_token_hash);
-		} else if (tmp_token_type == 111 && tmp_token_hash == 41) { //if token is ')'
+		} else if (tmp_token_type == 'o' && tmp_token_hash == ')') { //if token is ')'
 			while (get_top(operator_stack) != 40) {
 				double op1 = pop(operand_stack);
 				if (isEmpty(operand_stack))
@@ -161,12 +157,13 @@ double eval_infix(struct Tokens ** tokens, int num_tokens) {
 			EvalError("There's something wrong with your expression!");
 		double op2 = pop(operand_stack);
 		double op = pop(operator_stack);
-		if (op == 40 || op == 41)
+		if (op == '(' || op == ')')
 			EvalError("There are mismatched parentheses in your expression!");
 		double tmp_val = eval_op(op2,op1,op);
 		push(operand_stack,tmp_val);
 	}
 	result = get_top(operand_stack);
+
 
 	return result;
 }

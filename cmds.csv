@@ -1,6 +1,10 @@
 Term,Sunnython,Type
+int,Dennis,d
+float,Mac,d
+string,Charlie,d
+boolean,Dee,d
 declare,JoinTheGang,f
-=,Milksteak,c
+assign,Milksteak,c
 FunctionBegin,DirtGrub,c
 FunctionEnd,RonnieTheRat,c
 Print,BangTheWaitress,f

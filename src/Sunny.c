@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 		printf("Translated: ");
 		for (int j = 0; j < num_tokens; j++) {
 			struct Token * t = tokens[j];
-			printf("%s\n",get_token_value(t));
+			printf("%s ",get_token_value(t));
 		}
 		printf("\n");
 		double val = eval_infix(tokens,num_tokens);
