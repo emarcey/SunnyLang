@@ -4,6 +4,7 @@
  *  Created on: May 3, 2018
  *      Author: evan.marcey
  */
+#include "../struct/Token.h"
 
 #ifndef MATH_UTILS_H_
 #define MATH_UTILS_H_
@@ -48,7 +49,7 @@ double eval_op(double op1, double op2, char op);
  * returns:
  *  - result of evaluation
  */
-double eval_infix(char *** tokens, int num_tokens);
+double eval_infix(struct Token ** tokens, int num_tokens);
 
 
 #endif /* MATH_UTILS_H_ */

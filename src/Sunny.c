@@ -14,9 +14,12 @@
 
 #include "utils/File_Utils.h"
 #include "utils/String_Utils.h"
-#include "Tokenizer.h"
 #include "utils/Math_Utils.h"
+
+#include "struct/Token.h"
+
 #include "Exceptions.h"
+#include "Tokenizer.h"
 
 static char * df = "./cmds.csv";
 
@@ -57,17 +60,18 @@ int main(int argc, char* argv[]) {
 	for (int i = 0; i < sdata_num_rows; i++) {
 		int num_tokens;
 		printf("Initial phrase: %s\n",s_data[i]);
-		char *** line_tokens = tokenize_line(s_data[i],
+		struct Token ** tokens = tokenize_line(s_data[i],
 				&num_tokens,
 				cmds,
 				cmd_num_rows,
 				cmd_num_fields);
 		printf("Translated: ");
 		for (int j = 0; j < num_tokens; j++) {
-			printf("%s ",line_tokens[j][1]);
+			struct Token * t = tokens[j];
+			printf("%s\n",get_token_value(t));
 		}
 		printf("\n");
-		double val = eval_infix(line_tokens,num_tokens);
+		double val = eval_infix(tokens,num_tokens);
 		printf("Result: %f\n",val);
 	}
 

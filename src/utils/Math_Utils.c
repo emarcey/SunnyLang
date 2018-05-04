@@ -11,6 +11,7 @@
 #include <limits.h>
 
 #include "../struct/Stack.h"
+#include "../struct/Token.h"
 #include "../Exceptions.h"
 #include "String_Utils.h"
 
@@ -62,7 +63,7 @@ double eval_op(double op1, double op2, double op) {
 	return tmp_val;
 }
 
-double eval_infix(char *** tokens, int num_tokens) {
+double eval_infix(struct Tokens ** tokens, int num_tokens) {
 	double result = 0;
 	int token_index = 0;
 
@@ -71,28 +72,30 @@ double eval_infix(char *** tokens, int num_tokens) {
 	struct Stack* operand_stack = createStack(num_tokens);
 	struct Stack* operator_stack = createStack(num_tokens);
 	while (token_index < num_tokens) {
-		char tmp_token_type = tokens[token_index][0][0];
+		char tmp_token_type = get_token_type(tokens[token_index]);
+		printf("%d\n",tmp_token_type);
 
-		if (tmp_token_type==111 && strlen(tokens[token_index][1]) > 1) {
+		if (tmp_token_type==111 && strlen(get_token_value(tokens[token_index])) > 1) {
 			char * info = malloc(sizeof(char)*1024);
-			sprintf(info,"Token, %s, is not valid for the infix expression", tokens[token_index][1]);
+			sprintf(info,"Token, %s, is not valid for the infix expression", get_token_value(tokens[token_index]));
 			EvalError(info);
 			free(info);
 		}
 		if (tmp_token_type==110 && prev_token_type==110) {
 			char * info = malloc(sizeof(char)*1024);
-			sprintf(info,"You have back to back numbers in your expression, with token %s", tokens[token_index][1]);
+			sprintf(info,"You have back to back numbers in your expression, with token %s", get_token_value(tokens[token_index]));
 			EvalError(info);
 			free(info);
 		}
 
 
-		char * tmp_token_val = tokens[token_index][1];
-		char tmp_token_hash = hash(tmp_token_val);
-		int tmp_token_precedence = get_precedence(tmp_token_hash);
+		char * tmp_token_val = get_token_value(tokens[token_index]);
+		unsigned tmp_token_hash = get_token_hash(tokens[token_index]);
+		int tmp_token_precedence = get_token_precedence(tokens[token_index]);
 
+		printf("%s %d %d\n",tmp_token_val,tmp_token_hash,tmp_token_precedence);
 		if (tmp_token_type == 110) { //if token is operand
-			double tmp_operand = atof(tokens[token_index][1]);
+			double tmp_operand = atof(tmp_token_val);
 			push(operand_stack,tmp_operand);
 
 		} else if (tmp_token_type == 111

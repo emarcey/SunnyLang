@@ -42,7 +42,7 @@ int check_commands(char *** cmds,
  * returns:
  *  - array of tokens, where each row contains [type of token, token]
  */
-char *** tokenize_line(char * line,
+struct Tokens ** tokenize_line(char * line,
 		int * num_tokens,
 		char *** cmds,
 		int cmd_rows,
