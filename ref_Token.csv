@@ -1,0 +1,9 @@
+Token,Token_Desc,ASCII_Val
+e,Empty,101
+s,String,115
+n,Number,110
+c,Command,99
+v,Variable,118,
+o,Operator,111
+q,Equality,113
+f,Function,102
