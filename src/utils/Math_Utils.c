@@ -42,43 +42,46 @@ struct Variable* eval_op_numeric(struct Variable* op1, struct Variable* op2, dou
 	double op1_val, op2_val;
 	if (strcmp(get_variable_type(op1),"float")==0)
 		op1_val = get_variable_fval(op1);
-	else if (strcmp(get_variable_type(op1),"int")==0 || strcmp(get_variable_type(op1),"boolean")==0)
+	else
 		op1_val = get_variable_ival(op1);
 	if (strcmp(get_variable_type(op2),"float")==0)
 		op2_val = get_variable_fval(op2);
-	else if (strcmp(get_variable_type(op2),"int")==0 || strcmp(get_variable_type(op2),"boolean")==0)
+	else
 		op2_val = get_variable_ival(op2);
 
-	if (op == 43) { //+
+	if (op == 43) //+
 		tmp_val = op1_val+op2_val;
-	} else if (op == 45) { //-
+	else if (op == 45) //-
 		tmp_val = op1_val-op2_val;
-	} else if (op == 42) { //*
+	else if (op == 42) //*
 		tmp_val = op1_val*op2_val;
-	} else if (op == 47) { // /
-		if (op2 != 0) {
+	else if (op == 47) {// /
+		if (op2 != 0)
 			tmp_val = op1_val/op2_val;
-		} else {
+		else
 			DivideByZeroError(op1_val, op2_val);
-		}
-	} else if (op == 94) { // ^
+	} else if (op == 94) // ^
 		tmp_val = pow(op1_val,op2_val);
-	} else if (op == 37) { // %
+	else if (op == 37) { // %
 		int tmp_op1 = op1_val;
 		int tmp_op2 = op2_val;
 		if (tmp_op1==op1_val && tmp_op2 == op2_val) {
 			tmp_val = tmp_op1%tmp_op2;
-		} else {
+		} else
 			ModularArithmeticError(op1_val, op2_val);
-		}
 	}
 
 	if (strcmp(get_variable_type(op1),"int")==0 && strcmp(get_variable_type(op2),"int")==0) {
 		int tmp_int = tmp_val;
 		tmp_var = create_variable("int","int",tmp_int,0,"");
-	} else {
+	} else
 		tmp_var = create_variable("float","float",0,tmp_val,"");
-	}
+	return tmp_var;
+}
+
+struct Variable* eval_op_string(struct Variable* op1, struct Variable* op2, double op) {
+	struct Variable* tmp_var = malloc(sizeof(struct Variable*));
+
 	return tmp_var;
 }
 
@@ -86,13 +89,15 @@ struct Variable* eval_op(struct Variable* op1, struct Variable* op2, double op) 
 	struct Variable* tmp_var = malloc(sizeof(struct Variable*));
 
 	if (variable_types_compatible(get_variable_type(op1),get_variable_type(op2))==0)
-		MismatchedVariableTypesError(get_variable_name(op1), get_variable_type(op1), get_variable_name(op2), get_variable_type(op2));
+		MismatchedVariableTypesError(get_variable_name(op1),
+				get_variable_type(op1),
+				get_variable_name(op2),
+				get_variable_type(op2));
 
 	if (strcmp(get_variable_type(op1),"string")==0 && strcmp(get_variable_type(op2),"float")==0) {
-
-	} else {
+		//need to add code for handling strings
+	} else
 		tmp_var = eval_op_numeric(op1,op2,op);
-	}
 
 	return tmp_var;
 }

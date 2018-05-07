@@ -37,17 +37,14 @@ int main(int argc, char* argv[]) {
 	char * s_file_name;
 
 	//handle incorrect command line issues;
-	if (argc==1) {
+	if (argc==1)
 		CommandArgumentError("No file received from command line.");
-	}
-	else if (argc > 2) {
+	else if (argc > 2)
 		CommandArgumentError("Too many commands received.");
-	}
 	else {
 		size_t file_name_length = strlen(argv[1]);
-		if (strcmp(argv[1]+(file_name_length-3),".s\0")==0) {
+		if (strcmp(argv[1]+(file_name_length-3),".s\0")==0)
 			CommandArgumentError("File type not recognized. Use .st files.");
-		}
 		s_file_name = malloc(sizeof(char)*file_name_length+1);
 		s_file_name = argv[1];
 	}
