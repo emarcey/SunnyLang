@@ -5,6 +5,7 @@
  *      Author: evan.marcey
  */
 #include "../struct/Token.h"
+#include "../struct/Variable.h"
 
 #ifndef MATH_UTILS_H_
 #define MATH_UTILS_H_
@@ -49,7 +50,11 @@ double eval_op(double op1, double op2, char op);
  * returns:
  *  - result of evaluation
  */
-double eval_infix(struct Token ** tokens, int num_tokens,int token_index);
+double eval_infix(struct Token ** tokens,
+		int num_tokens,
+		int token_index,
+		struct Variable ** variables,
+		int variable_count);
 
 
 #endif /* MATH_UTILS_H_ */

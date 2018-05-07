@@ -12,6 +12,7 @@
 
 #include "../struct/Stack.h"
 #include "../struct/Token.h"
+#include "../struct/Variable.h"
 #include "../Exceptions.h"
 #include "String_Utils.h"
 
@@ -62,7 +63,11 @@ double eval_op(double op1, double op2, double op) {
 	return tmp_val;
 }
 
-double eval_infix(struct Token ** tokens, int num_tokens,int token_index) {
+double eval_infix(struct Token ** tokens,
+		int num_tokens,
+		int token_index,
+		struct Variable ** variables,
+		int variable_count) {
 	double result = 0;
 
 	char prev_token_type = 1;
@@ -72,11 +77,11 @@ double eval_infix(struct Token ** tokens, int num_tokens,int token_index) {
 
 	while (token_index < num_tokens) {
 		char tmp_token_type = get_token_type(tokens[token_index]);
-		if (tmp_token_type=='n' && prev_token_type=='n') {
+		if ((tmp_token_type=='n' || tmp_token_type=='v' || tmp_token_type=='s') &&
+				(prev_token_type=='n' || prev_token_type=='v' || prev_token_type=='s')) {
 			char * info = malloc(sizeof(char)*1024);
-			sprintf(info,"You have back to back numbers in your expression, with token %s", get_token_value(tokens[token_index]));
+			sprintf(info,"There is something wrong with your expression at token %s", get_token_value(tokens[token_index]));
 			EvalError(info);
-			free(info);
 		}
 
 		char * tmp_token_val = get_token_value(tokens[token_index]);
@@ -86,7 +91,8 @@ double eval_infix(struct Token ** tokens, int num_tokens,int token_index) {
 		if (tmp_token_type == 'n') { //if token is operand
 			double tmp_operand = atof(tmp_token_val);
 			push(operand_stack,tmp_operand);
-
+		} else if (tmp_token_type == 'v') {
+			int var_index = variable_index(variables,variable_index,tmp_token_hash);
 		} else if (tmp_token_type == 'o'
 				&& isEmpty(operator_stack)==1
 				&& tmp_token_hash != ')') { //if token is operator and stack is empty
@@ -155,6 +161,8 @@ double eval_infix(struct Token ** tokens, int num_tokens,int token_index) {
 		push(operand_stack,tmp_val);
 	}
 	result = get_top(operand_stack);
+	free(operand_stack);
+	free(operator_stack);
 
 	return result;
 }

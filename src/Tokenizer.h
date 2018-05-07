@@ -42,12 +42,15 @@ int check_commands(char *** cmds,
  * returns:
  *  - array of tokens, where each row contains [type of token, token]
  */
-struct Tokens ** tokenize_line(char * line,
+struct Token ** tokenize_line(char * line,
 		int * num_tokens,
 		char *** cmds,
 		int cmd_rows,
 		int cmd_fields);
 
-struct Variables ** eval_line(struct Token ** tokens, int num_tokens, struct Variables ** variables, int * num_variables);
+struct Variable ** eval_line(struct Token ** tokens,
+		int num_tokens,
+		struct Variable ** variables,
+		int * num_variables);
 
 #endif /* TOKENIZER_H_ */

@@ -153,40 +153,50 @@ struct Variable ** eval_line(struct Token ** tokens, int num_tokens, struct Vari
 		 */
 		if (num_tokens < 3) //if syntax is just not long enough to contain all necessary types
 			SyntaxError("Not enough tokens for variable declaration");
+
 		else if (tmp_num_variables > 0 &&
 				variable_index(variables,tmp_num_variables,get_token_hash(tokens[1]))!=-1) //check if variable exists
 			VariableAlreadyExistsError(get_token_value(tokens[1]));
+
 		else if (is_alphanum(get_token_value(tokens[1]))==0) //invalid variable name
 			InvalidVariableName(get_token_value(tokens[1]));
+
 		else if (get_token_hash(tokens[2])!=104431 &&
 				get_token_hash(tokens[2])!=97526364 &&
 				get_token_hash(tokens[2])!=-891985903 &&
 				get_token_hash(tokens[2])!=64711720) //if next command
 			TypeNotRecognizedError(get_token_value(tokens[2]),get_token_value(tokens[1]),"variable");
+
 		else if (num_tokens==3) { //instantiate a blank variable
 			struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),0,0,"");
 			variables[tmp_num_variables] = tmp_var;
 			tmp_num_variables++;
+
 		} else if (num_tokens == 4) //
 			SyntaxError("Not enough tokens for variable declaration");
+
 		else if (get_token_hash(tokens[3])!=-1408204561) //if we're missing an 'assign' command
 			SyntaxError("Assign block missing.");
+
 		else {
-			double tmp_val = eval_infix(tokens,num_tokens,4);
+			double tmp_val = eval_infix(tokens,num_tokens,4,variables,tmp_num_variables);
 			int tmp_int = 0;
+			float tmp_f = 0;
 			if (get_token_hash(tokens[2]) == 104431 || get_token_value(tokens[2]) == -891985903) {
 				tmp_int = tmp_val;
+			} else {
+				tmp_f = tmp_val;
 			}
-			struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_val,"");
+			struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_f,"");
 			variables[tmp_num_variables] = tmp_var;
+			printf("tmp_val: %f\n",get_variable_fval(variables[tmp_num_variables]));
 			tmp_num_variables++;
 		}
+
 	} else {
-		double tmp = eval_infix(tokens,num_tokens,0);
+		double tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
 		printf("%f\n",tmp);
 	}
 	*num_variables = tmp_num_variables;
 	return variables;
-
-
 }

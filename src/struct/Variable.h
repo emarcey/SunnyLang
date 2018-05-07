@@ -5,25 +5,60 @@
  *      Author: evan.marcey
  */
 
+//Definition for Variable structure & associated functions
 #ifndef STRUCT_VARIABLE_H_
 #define STRUCT_VARIABLE_H_
 
+//Variable structure
 struct Variable;
 
+/*
+ * create_variable:
+ *  - Create a Variable with given input
+ *
+ * params:
+ * 	- type: currently accepted types: int, string, boolean, float
+ * 	- name: name of Variable, must be alphanumeric (or '_') and cannot start with a number
+ * 	- ival: if type is boolean or int, this receives the value
+ * 	- fval: if type is float, this receives the value
+ * 	- cval: if type is string, this receives the value
+ *
+ * returns:
+ *  - pointer directed at Variable that was created
+ */
 struct Variable* create_variable(char * type,char * name,int ival,float fval,char * cval);
 
+//Function returns variable type
 char * get_variable_type(struct Variable * variable);
 
+//Function returns variable name
 char * get_variable_name(struct Variable * variable);
 
+//Function returns variable hash value
 unsigned int get_variable_hash(struct Variable * variable);
 
+//Function returns variable ival
 int get_variable_ival(struct Variable * variable);
 
-double get_variable_fval(struct Variable * variable);
+//Function returns variable fval
+float get_variable_fval(struct Variable * variable);
 
+//Function returns variable cval
 char * get_variable_cval(struct Variable * variable);
 
+/*
+ * variable_index:
+ *  - loops through a list of variables, returns index of variable with matching name
+ *  - if not present, returns -1
+ *
+ * params:
+ * 	- variables: list of Variable objects to loop through
+ * 	- variable_count: number of objects in variables
+ * 	- s_variable_hash: hash value of the name of the search variable to compare
+ *
+ * returns:
+ *  - index of variable in variables, or -1
+ */
 int variable_index(struct Variable** variables, int variable_count, unsigned int s_variable_hash);
 
 #endif /* STRUCT_VARIABLE_H_ */

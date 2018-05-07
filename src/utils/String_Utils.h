@@ -61,6 +61,7 @@ unsigned int hash (const char* word);
 /*
  * is_number:
  *  - determines if a string contains exclusively alpha-numeric values (a-z,A-Z,0-9)
+ *  - underscores are also allowed
  *
  * params:
  *  - s: string input to check
