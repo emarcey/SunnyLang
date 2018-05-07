@@ -48,4 +48,50 @@ void EvalError(char * info) {
 	RaiseError(type, message);
 }
 
+void InvalidValueError(char * info) {
+	char * type = "InvalidValueError";
 
+	RaiseError(type, info);
+}
+
+void TypeNotRecognizedError(char * v_type, char * name, char * struct_name) {
+	char * type = "TypeNotRecognizedError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Attempted to instantiate %s %s with unrecognized type %s.",struct_name,name,v_type);
+
+	RaiseError(type, message);
+}
+
+void InvalidVariableName(char * name){
+	char * type = "InvalidVariableName";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Unable to create variable %s. Variable name must be alpha-numeric and cannot start with a number.",name);
+
+	RaiseError(type,message);
+}
+
+void TokenizationError(char * token, char * info) {
+	char * type = "TokenizationError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Error occurred during tokenization at token %s:\n%s\n",token,info);
+	RaiseError(type, message);
+}
+
+void VariableAlreadyExistsError(char * variable_name) {
+	char * type = "TokenizationError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Variable %s already exists. Cannot declare again.",variable_name);
+	RaiseError(type, message);
+}
+
+void SyntaxError(char * info) {
+	char * type = "SyntaxError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Error occurred during evaluation of an expression:\n%s\n",info);
+	RaiseError(type, message);
+}

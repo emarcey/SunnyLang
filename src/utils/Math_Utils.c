@@ -36,13 +36,13 @@ int get_precedence(unsigned int c) {
 
 double eval_op(double op1, double op2, double op) {
 	double tmp_val;
-	if (op == '+') { //+
+	if (op == 43) { //+
 		tmp_val = op1+op2;
-	} else if (op == '-') { //-
+	} else if (op == 45) { //-
 		tmp_val = op1-op2;
-	} else if (op == '*') { //*
+	} else if (op == 42) { //*
 		tmp_val = op1*op2;
-	} else if (op == '/') { // /
+	} else if (op == 47) { // /
 		if (op2 != 0) {
 			tmp_val = op1/op2;
 		} else {
@@ -50,7 +50,6 @@ double eval_op(double op1, double op2, double op) {
 		}
 	} else if (op == 94) { // ^
 		tmp_val = pow(op1,op2);
-
 	} else if (op == 37) { // %
 		int tmp_op1 = op1;
 		int tmp_op2 = op2;
@@ -63,23 +62,16 @@ double eval_op(double op1, double op2, double op) {
 	return tmp_val;
 }
 
-double eval_infix(struct Token ** tokens, int num_tokens) {
+double eval_infix(struct Token ** tokens, int num_tokens,int token_index) {
 	double result = 0;
-	int token_index = 0;
 
 	char prev_token_type = 1;
 
 	struct Stack* operand_stack = createStack(num_tokens);
 	struct Stack* operator_stack = createStack(num_tokens);
+
 	while (token_index < num_tokens) {
 		char tmp_token_type = get_token_type(tokens[token_index]);
-
-		if (tmp_token_type=='o' && strlen(get_token_value(tokens[token_index])) > 1) {
-			char * info = malloc(sizeof(char)*1024);
-			sprintf(info,"Token, %s, is not valid for the infix expression", get_token_value(tokens[token_index]));
-			EvalError(info);
-			free(info);
-		}
 		if (tmp_token_type=='n' && prev_token_type=='n') {
 			char * info = malloc(sizeof(char)*1024);
 			sprintf(info,"You have back to back numbers in your expression, with token %s", get_token_value(tokens[token_index]));
@@ -163,7 +155,6 @@ double eval_infix(struct Token ** tokens, int num_tokens) {
 		push(operand_stack,tmp_val);
 	}
 	result = get_top(operand_stack);
-
 
 	return result;
 }

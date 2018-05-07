@@ -49,7 +49,7 @@ double eval_op(double op1, double op2, char op);
  * returns:
  *  - result of evaluation
  */
-double eval_infix(struct Token ** tokens, int num_tokens);
+double eval_infix(struct Token ** tokens, int num_tokens,int token_index);
 
 
 #endif /* MATH_UTILS_H_ */

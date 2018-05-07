@@ -66,3 +66,16 @@ unsigned int hash (const char* word)
     }
     return hash;
 }
+
+int is_alphanum(char * s) {
+	while (*s != '\0') {
+		if (*s < 48 ||
+				(*s > 57 && *s < 65) ||
+				(*s > 90 && *s < 97) ||
+				*s > 122) {
+			return 0;
+		}
+		s++;
+	}
+	return 1;
+}

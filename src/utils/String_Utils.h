@@ -46,6 +46,28 @@ int next_char_ind(char * phrase, char c_find);
  */
 int is_number(char * s);
 
+/*
+ * hash:
+ *  - turns a string into a hash
+ *
+ * params:
+ *  - word: char array to convert
+ *
+ * returns:
+ *  - hash value of char array
+ */
 unsigned int hash (const char* word);
+
+/*
+ * is_number:
+ *  - determines if a string contains exclusively alpha-numeric values (a-z,A-Z,0-9)
+ *
+ * params:
+ *  - s: string input to check
+ *
+ * returns:
+ *  - 1 if s is alpha-numeric, otherwise 0
+ */
+int is_alphanum(char * s);
 
 #endif /* STRING_UTILS_H_ */

@@ -48,6 +48,6 @@ struct Tokens ** tokenize_line(char * line,
 		int cmd_rows,
 		int cmd_fields);
 
-
+struct Variables ** eval_line(struct Token ** tokens, int num_tokens, struct Variables ** variables, int * num_variables);
 
 #endif /* TOKENIZER_H_ */

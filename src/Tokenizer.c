@@ -4,7 +4,12 @@
 
 #include "utils/File_Utils.h"
 #include "utils/String_Utils.h"
+#include "utils/Math_Utils.h"
 #include "struct/Token.h"
+#include "struct/Stack.h"
+#include "struct/Variable.h"
+
+#include "Exceptions.h"
 
 int check_dictionary(char *** cmds,
 		int cmd_rows,
@@ -71,9 +76,9 @@ struct Token ** tokenize_line(char * line,
 				}
 
 			} else {
-				printf("%s\n",words);
-				printf("Token already occupied. Something went wrong!\n");
-				exit(EXIT_FAILURE);
+				char * info = malloc(sizeof(char)*2014);
+				sprintf(info,"Token already occupied. Something went wrong!\n");
+				TokenizationError(words,info);
 			}
 		}
 		//printf("%d\n",tokens[token_count][0][0]);
@@ -98,9 +103,9 @@ struct Token ** tokenize_line(char * line,
 				token_count++;
 
 			} else {
-				printf("%s\n",words);
-				printf("Token already occupied. Something went wrong!\n");
-				exit(EXIT_FAILURE);
+				char * info = malloc(sizeof(char)*2014);
+				sprintf(info,"Token already occupied. Something went wrong!\n");
+				TokenizationError(words,info);
 			}
 		}
 		else {
@@ -121,12 +126,13 @@ struct Token ** tokenize_line(char * line,
 			else {
 				//but two variables back to back doesn't make sense
 				if (token_count > 0 && get_token_type(tokens[token_count-1])==118) {
-					printf("Two variables back to back? Who do you think you are?");
-					exit(EXIT_FAILURE);
+					char * info = malloc(sizeof(char)*2014);
+					sprintf(info,"Back-to-back variables found in expression.\n");
+					TokenizationError(words,info);
+				} else {
+					assign_token_type(tokens[token_count],118);
+					assign_token_value(tokens[token_count],words);
 				}
-				assign_token_type(tokens[token_count],118);
-				assign_token_value(tokens[token_count],words);
-
 			}
 
 			token_count++;
@@ -137,4 +143,50 @@ struct Token ** tokenize_line(char * line,
 	}
 	*num_tokens = token_count;
 	return tokens;
+}
+
+struct Variable ** eval_line(struct Token ** tokens, int num_tokens, struct Variable ** variables, int * num_variables) {
+	int tmp_num_variables = *num_variables;
+	if (get_token_hash(tokens[0])==1542341994) { //declare a new variable
+		/*
+		 * First, we're going to do a bunch of error handling
+		 */
+		if (num_tokens < 3) //if syntax is just not long enough to contain all necessary types
+			SyntaxError("Not enough tokens for variable declaration");
+		else if (tmp_num_variables > 0 &&
+				variable_index(variables,tmp_num_variables,get_token_hash(tokens[1]))!=-1) //check if variable exists
+			VariableAlreadyExistsError(get_token_value(tokens[1]));
+		else if (is_alphanum(get_token_value(tokens[1]))==0) //invalid variable name
+			InvalidVariableName(get_token_value(tokens[1]));
+		else if (get_token_hash(tokens[2])!=104431 &&
+				get_token_hash(tokens[2])!=97526364 &&
+				get_token_hash(tokens[2])!=-891985903 &&
+				get_token_hash(tokens[2])!=64711720) //if next command
+			TypeNotRecognizedError(get_token_value(tokens[2]),get_token_value(tokens[1]),"variable");
+		else if (num_tokens==3) { //instantiate a blank variable
+			struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),0,0,"");
+			variables[tmp_num_variables] = tmp_var;
+			tmp_num_variables++;
+		} else if (num_tokens == 4) //
+			SyntaxError("Not enough tokens for variable declaration");
+		else if (get_token_hash(tokens[3])!=-1408204561) //if we're missing an 'assign' command
+			SyntaxError("Assign block missing.");
+		else {
+			double tmp_val = eval_infix(tokens,num_tokens,4);
+			int tmp_int = 0;
+			if (get_token_hash(tokens[2]) == 104431 || get_token_value(tokens[2]) == -891985903) {
+				tmp_int = tmp_val;
+			}
+			struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_val,"");
+			variables[tmp_num_variables] = tmp_var;
+			tmp_num_variables++;
+		}
+	} else {
+		double tmp = eval_infix(tokens,num_tokens,0);
+		printf("%f\n",tmp);
+	}
+	*num_variables = tmp_num_variables;
+	return variables;
+
+
 }

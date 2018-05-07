@@ -18,6 +18,16 @@ void CommandArgumentError(char * info);
 
 void EvalError(char * info);
 
+void InvalidValueError(char * info);
 
+void TypeNotRecognizedError(char * v_type, char * name, char * struct_name);
+
+void InvalidVariableName(char * name);
+
+void TokenizationError(char * token, char * info);
+
+void VariableAlreadyExistsError(char * variable_name);
+
+void SyntaxError(char * info);
 
 #endif /* EXCEPTIONS_H_ */
