@@ -30,4 +30,6 @@ void VariableAlreadyExistsError(char * variable_name);
 
 void SyntaxError(char * info);
 
+void VariableNotfoundError(char * variable_name);
+
 #endif /* EXCEPTIONS_H_ */

@@ -80,8 +80,8 @@ double eval_infix(struct Token ** tokens,
 		if ((tmp_token_type=='n' || tmp_token_type=='v' || tmp_token_type=='s') &&
 				(prev_token_type=='n' || prev_token_type=='v' || prev_token_type=='s')) {
 			char * info = malloc(sizeof(char)*1024);
-			sprintf(info,"There is something wrong with your expression at token %s", get_token_value(tokens[token_index]));
-			EvalError(info);
+			sprintf(info,"There is an error in your expression at token %s", get_token_value(tokens[token_index]));
+			SyntaxError(info);
 		}
 
 		char * tmp_token_val = get_token_value(tokens[token_index]);
@@ -91,8 +91,20 @@ double eval_infix(struct Token ** tokens,
 		if (tmp_token_type == 'n') { //if token is operand
 			double tmp_operand = atof(tmp_token_val);
 			push(operand_stack,tmp_operand);
-		} else if (tmp_token_type == 'v') {
-			int var_index = variable_index(variables,variable_index,tmp_token_hash);
+		} else if (tmp_token_type == 'v') { //if token is variable
+			int var_index = variable_index(variables,variable_count,tmp_token_hash);
+			if (var_index==-1) {
+				VariableNotfoundError(tmp_token_val);
+			}
+			if (strcmp(get_variable_type(variables[var_index]),"string")==0) {
+				char * info = malloc(sizeof(char)*1024);
+				sprintf(info,"Strings not supported right now, %s", get_token_value(tokens[token_index]));
+				SyntaxError(info);
+			} else if (strcmp(get_variable_type(variables[var_index]),"float")==0) {
+				push(operand_stack,get_variable_fval(variables[var_index]));
+			} else {
+				push(operand_stack,get_variable_ival(variables[var_index]));
+			}
 		} else if (tmp_token_type == 'o'
 				&& isEmpty(operator_stack)==1
 				&& tmp_token_hash != ')') { //if token is operator and stack is empty

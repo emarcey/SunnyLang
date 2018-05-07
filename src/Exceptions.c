@@ -81,7 +81,7 @@ void TokenizationError(char * token, char * info) {
 }
 
 void VariableAlreadyExistsError(char * variable_name) {
-	char * type = "TokenizationError";
+	char * type = "VariableAlreadyExistsError";
 	char * message = malloc(sizeof(char)*1024);
 
 	sprintf(message,"Variable %s already exists. Cannot declare again.",variable_name);
@@ -93,5 +93,13 @@ void SyntaxError(char * info) {
 	char * message = malloc(sizeof(char)*1024);
 
 	sprintf(message,"Error occurred during evaluation of an expression:\n%s\n",info);
+	RaiseError(type, message);
+}
+
+void VariableNotfoundError(char * variable_name) {
+	char * type = "VariableNotfoundError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Variable %s has not been declared yet.",variable_name);
 	RaiseError(type, message);
 }

@@ -189,7 +189,6 @@ struct Variable ** eval_line(struct Token ** tokens, int num_tokens, struct Vari
 			}
 			struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_f,"");
 			variables[tmp_num_variables] = tmp_var;
-			printf("tmp_val: %f\n",get_variable_fval(variables[tmp_num_variables]));
 			tmp_num_variables++;
 		}
 

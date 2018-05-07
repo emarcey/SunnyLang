@@ -62,20 +62,13 @@ int main(int argc, char* argv[]) {
 				cmds,
 				cmd_num_rows,
 				cmd_num_fields);
-		free(s_data);
 		printf("Translated: ");
 		for (int j = 0; j < num_tokens; j++) {
 			struct Token * t = tokens[j];
 			printf("%s ",get_token_value(t));
 		}
 		printf("\n");
-		//double val = eval_line(tokens,num_tokens);
-		//printf("Result: %f\n",val);
 		variables = eval_line(tokens,num_tokens,variables,&num_variables);
-		printf("%d\n",num_variables);
-		for (int i = 0; i < num_variables; i++) {
-			printf("test %s %s %f\n",get_variable_name(variables[i]),get_variable_type(variables[i]),get_variable_fval(variables[i]));
-		}
 	}
 
 	return 0;
