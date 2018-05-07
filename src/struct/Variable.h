@@ -61,4 +61,17 @@ char * get_variable_cval(struct Variable * variable);
  */
 int variable_index(struct Variable** variables, int variable_count, unsigned int s_variable_hash);
 
+/*
+ * variable_types_compatible:
+ * 	- Determines if two variables have types that can be compared (i.e. float and int vs float and string)
+ *
+ * params:
+ * 	- type1: type of first variable
+ * 	- type2: type of second variable
+ *
+ * returns:
+ *  - 1 if compatible, 0 if not
+ */
+int variable_types_compatible(char * type1, char * type2);
+
 #endif /* STRUCT_VARIABLE_H_ */

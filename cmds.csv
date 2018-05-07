@@ -16,11 +16,11 @@ Print,BangTheWaitress,f
 %,PayTheTrollToll,o
 (,BlastMe,o
 ),InTheAss,o
->,WadOfHundreds,q
-<,MagnumCondoms,q
-==,ReadyToPlow,q
->=,WadOfHundredsReadyToPlow,q
-<=,MagnumCondomsReadyToPlow,q
+>,WadOfHundreds,o
+<,MagnumCondoms,o
+==,ReadyToPlow,o
+>=,WadOfHundredsReadyToPlow,o
+<=,MagnumCondomsReadyToPlow,o
 If,Dayman,c
 Elif,FighterOfTheNightman,c
 Else,ChampionOfTheSun,c

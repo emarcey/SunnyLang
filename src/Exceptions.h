@@ -30,6 +30,14 @@ void VariableAlreadyExistsError(char * variable_name);
 
 void SyntaxError(char * info);
 
-void VariableNotfoundError(char * variable_name);
+void VariableNotFoundError(char * variable_name);
+
+void EmptyStackError();
+
+void FullStackError(char * item_name);
+
+void MismatchedTypesError(char * variable_name, char * variable_type, char * target_type);
+
+void MismatchedVariableTypesError(char * variable_name1, char * variable_type1, char * variable_name2, char * variable_type2);
 
 #endif /* EXCEPTIONS_H_ */

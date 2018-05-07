@@ -11,6 +11,7 @@
 #include <limits.h>
 
 #include "../struct/Stack.h"
+#include "../struct/VariableStack.h"
 #include "../struct/Token.h"
 #include "../struct/Variable.h"
 #include "../Exceptions.h"
@@ -35,44 +36,77 @@ int get_precedence(unsigned int c) {
 	return -1;
 }
 
-double eval_op(double op1, double op2, double op) {
-	double tmp_val;
+struct Variable* eval_op_numeric(struct Variable* op1, struct Variable* op2, double op) {
+	struct Variable* tmp_var = malloc(sizeof(struct Variable*));
+	double tmp_val=0;
+	double op1_val, op2_val;
+	if (strcmp(get_variable_type(op1),"float")==0)
+		op1_val = get_variable_fval(op1);
+	else if (strcmp(get_variable_type(op1),"int")==0 || strcmp(get_variable_type(op1),"boolean")==0)
+		op1_val = get_variable_ival(op1);
+	if (strcmp(get_variable_type(op2),"float")==0)
+		op2_val = get_variable_fval(op2);
+	else if (strcmp(get_variable_type(op2),"int")==0 || strcmp(get_variable_type(op2),"boolean")==0)
+		op2_val = get_variable_ival(op2);
+
 	if (op == 43) { //+
-		tmp_val = op1+op2;
+		tmp_val = op1_val+op2_val;
 	} else if (op == 45) { //-
-		tmp_val = op1-op2;
+		tmp_val = op1_val-op2_val;
 	} else if (op == 42) { //*
-		tmp_val = op1*op2;
+		tmp_val = op1_val*op2_val;
 	} else if (op == 47) { // /
 		if (op2 != 0) {
-			tmp_val = op1/op2;
+			tmp_val = op1_val/op2_val;
 		} else {
-			DivideByZeroError(op1, op2);
+			DivideByZeroError(op1_val, op2_val);
 		}
 	} else if (op == 94) { // ^
-		tmp_val = pow(op1,op2);
+		tmp_val = pow(op1_val,op2_val);
 	} else if (op == 37) { // %
-		int tmp_op1 = op1;
-		int tmp_op2 = op2;
-		if (tmp_op1==op1 && tmp_op2 == op2) {
+		int tmp_op1 = op1_val;
+		int tmp_op2 = op2_val;
+		if (tmp_op1==op1_val && tmp_op2 == op2_val) {
 			tmp_val = tmp_op1%tmp_op2;
 		} else {
-			ModularArithmeticError(op1, op2);
+			ModularArithmeticError(op1_val, op2_val);
 		}
 	}
-	return tmp_val;
+
+	if (strcmp(get_variable_type(op1),"int")==0 && strcmp(get_variable_type(op2),"int")==0) {
+		int tmp_int = tmp_val;
+		tmp_var = create_variable("int","int",tmp_int,0,"");
+	} else {
+		tmp_var = create_variable("float","float",0,tmp_val,"");
+	}
+	return tmp_var;
 }
 
-double eval_infix(struct Token ** tokens,
+struct Variable* eval_op(struct Variable* op1, struct Variable* op2, double op) {
+	struct Variable* tmp_var = malloc(sizeof(struct Variable*));
+
+	if (variable_types_compatible(get_variable_type(op1),get_variable_type(op2))==0)
+		MismatchedVariableTypesError(get_variable_name(op1), get_variable_type(op1), get_variable_name(op2), get_variable_type(op2));
+
+	if (strcmp(get_variable_type(op1),"string")==0 && strcmp(get_variable_type(op2),"float")==0) {
+
+	} else {
+		tmp_var = eval_op_numeric(op1,op2,op);
+	}
+
+	return tmp_var;
+}
+
+struct Variable * eval_infix(struct Token ** tokens,
 		int num_tokens,
 		int token_index,
 		struct Variable ** variables,
 		int variable_count) {
-	double result = 0;
+	struct Variable* result = malloc(sizeof(struct Variable*));
 
 	char prev_token_type = 1;
 
-	struct Stack* operand_stack = createStack(num_tokens);
+	struct VariableStack* operand_stack = vs_create_stack(num_tokens);
 	struct Stack* operator_stack = createStack(num_tokens);
 
 	while (token_index < num_tokens) {
@@ -88,22 +122,24 @@ double eval_infix(struct Token ** tokens,
 		unsigned tmp_token_hash = get_token_hash(tokens[token_index]);
 		int tmp_token_precedence = get_token_precedence(tokens[token_index]);
 
-		if (tmp_token_type == 'n') { //if token is operand
-			double tmp_operand = atof(tmp_token_val);
-			push(operand_stack,tmp_operand);
+		if (tmp_token_type == 'n') { //if token is numeric operand
+			float tmp_operand = atof(tmp_token_val);
+			struct Variable* tmp_var = create_variable("float","float",0,tmp_operand,"");
+			vs_push(operand_stack,tmp_var);
+		} else if (tmp_token_type == 's') { //if token is string operand
+			struct Variable* tmp_var = create_variable("string","string",0,0,tmp_token_val);
+			vs_push(operand_stack,tmp_var);
 		} else if (tmp_token_type == 'v') { //if token is variable
 			int var_index = variable_index(variables,variable_count,tmp_token_hash);
 			if (var_index==-1) {
-				VariableNotfoundError(tmp_token_val);
+				VariableNotFoundError(tmp_token_val);
 			}
 			if (strcmp(get_variable_type(variables[var_index]),"string")==0) {
 				char * info = malloc(sizeof(char)*1024);
 				sprintf(info,"Strings not supported right now, %s", get_token_value(tokens[token_index]));
 				SyntaxError(info);
-			} else if (strcmp(get_variable_type(variables[var_index]),"float")==0) {
-				push(operand_stack,get_variable_fval(variables[var_index]));
 			} else {
-				push(operand_stack,get_variable_ival(variables[var_index]));
+				vs_push(operand_stack,variables[var_index]);
 			}
 		} else if (tmp_token_type == 'o'
 				&& isEmpty(operator_stack)==1
@@ -122,38 +158,38 @@ double eval_infix(struct Token ** tokens,
 			if (tmp_token_precedence > op_precedence) { //if token's precedence > top stack value's precedence
 				push(operator_stack, tmp_token_hash);
 			} else { //process
-				double op1 = pop(operand_stack);
-				if (isEmpty(operand_stack))
+				struct Variable* op1 = vs_pop(operand_stack);
+				if (vs_is_empty(operand_stack))
 					EvalError("There's something wrong with your expression!");
-				double op2 = pop(operand_stack);
+				struct Variable* op2 = vs_pop(operand_stack);
 				double op = tmp_token_hash;
-				double tmp_val = eval_op(op2,op1,op);
-				push(operand_stack,tmp_val);
+				struct Variable* tmp_var = eval_op(op2,op1,op);
+				vs_push(operand_stack,tmp_var);
 			}
 
 		} else if (tmp_token_type == 'o' && tmp_token_hash == '(') { //if token is '('
 			push(operator_stack, tmp_token_hash);
 		} else if (tmp_token_type == 'o' && tmp_token_hash == ')') { //if token is ')'
 			while (get_top(operator_stack) != 40) {
-				double op1 = pop(operand_stack);
-				if (isEmpty(operand_stack))
+				struct Variable* op1 = vs_pop(operand_stack);
+				if (vs_is_empty(operand_stack))
 					EvalError("There's something wrong with your expression!");
-				double op2 = pop(operand_stack);
+				struct Variable* op2 = vs_pop(operand_stack);
 				double op = pop(operator_stack);
-				double tmp_val = eval_op(op2,op1,op);
-				push(operand_stack,tmp_val);
+				struct Variable* tmp_var = eval_op(op2,op1,op);
+				vs_push(operand_stack,tmp_var);
 				if (isEmpty(operator_stack))
 					EvalError("There are mismatched parentheses in your expression!");
 			}
 			pop(operator_stack);
 		} else {
-			double op1 = pop(operand_stack);
-			if (isEmpty(operand_stack))
+			struct Variable* op1 = vs_pop(operand_stack);
+			if (vs_is_empty(operand_stack))
 				EvalError("There's something wrong with your expression!");
-			double op2 = pop(operand_stack);
+			struct Variable* op2 = vs_pop(operand_stack);
 			double op = pop(operator_stack);
-			double tmp_val = eval_op(op2,op1,op);
-			push(operand_stack,tmp_val);
+			struct Variable* tmp_var = eval_op(op2,op1,op);
+			vs_push(operand_stack,tmp_var);
 		}
 
 		prev_token_type = tmp_token_type;
@@ -162,19 +198,17 @@ double eval_infix(struct Token ** tokens,
 	}
 
 	while (isEmpty(operator_stack) == 0) {
-		double op1 = pop(operand_stack);
-		if (isEmpty(operand_stack))
+		struct Variable* op1 = vs_pop(operand_stack);
+		if (vs_is_empty(operand_stack))
 			EvalError("There's something wrong with your expression!");
-		double op2 = pop(operand_stack);
+		struct Variable* op2 = vs_pop(operand_stack);
 		double op = pop(operator_stack);
 		if (op == '(' || op == ')')
 			EvalError("There are mismatched parentheses in your expression!");
-		double tmp_val = eval_op(op2,op1,op);
-		push(operand_stack,tmp_val);
+		struct Variable* tmp_var = eval_op(op2,op1,op);
+		vs_push(operand_stack,tmp_var);
 	}
-	result = get_top(operand_stack);
-	free(operand_stack);
-	free(operator_stack);
+	result = vs_get_top(operand_stack);
 
 	return result;
 }

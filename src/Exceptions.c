@@ -96,10 +96,42 @@ void SyntaxError(char * info) {
 	RaiseError(type, message);
 }
 
-void VariableNotfoundError(char * variable_name) {
+void VariableNotFoundError(char * variable_name) {
 	char * type = "VariableNotfoundError";
 	char * message = malloc(sizeof(char)*1024);
 
 	sprintf(message,"Variable %s has not been declared yet.",variable_name);
+	RaiseError(type, message);
+}
+
+void EmptyStackError() {
+	char * type = "EmptyStackError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"You can't pop an empty stack.");
+	RaiseError(type, message);
+}
+
+void FullStackError(char * item_name) {
+	char * type = "FullStackError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Stack is full; unable to add element, %s.",item_name);
+	RaiseError(type, message);
+}
+
+void MismatchedTypesError(char * variable_name, char * variable_type, char * target_type) {
+	char * type = "MismatchedTypesError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Attempted to populate %s variable %s with %s data.",variable_type,variable_name,target_type);
+	RaiseError(type, message);
+}
+
+void MismatchedVariableTypesError(char * variable_name1, char * variable_type1, char * variable_name2, char * variable_type2) {
+	char * type = "MismatchedVariableTypesError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Cannot compare %s variable %s with %s variable %s.",variable_type1,variable_name1,variable_type2,variable_name2);
 	RaiseError(type, message);
 }

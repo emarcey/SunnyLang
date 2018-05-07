@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "utils/File_Utils.h"
 #include "utils/String_Utils.h"
@@ -27,6 +28,8 @@ static char * df = "./cmds.csv";
 //static int user_variable_ct = 0;
 
 int main(int argc, char* argv[]) {
+
+	clock_t start = clock(), diff;
 
 	int cmd_num_rows, cmd_num_fields;
 	char *** cmds = load_csv(df,',',&cmd_num_fields,&cmd_num_rows);
@@ -70,6 +73,14 @@ int main(int argc, char* argv[]) {
 		printf("\n");
 		variables = eval_line(tokens,num_tokens,variables,&num_variables);
 	}
+
+	free(s_data);
+	free(variables);
+
+	diff = clock() - start;
+
+	int msec = diff * 1000/CLOCKS_PER_SEC;
+	printf("Time taken %d seconds %d milliseconds", msec/1000, msec%1000);
 
 	return 0;
 }

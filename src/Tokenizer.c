@@ -179,22 +179,41 @@ struct Variable ** eval_line(struct Token ** tokens, int num_tokens, struct Vari
 			SyntaxError("Assign block missing.");
 
 		else {
-			double tmp_val = eval_infix(tokens,num_tokens,4,variables,tmp_num_variables);
-			int tmp_int = 0;
-			float tmp_f = 0;
-			if (get_token_hash(tokens[2]) == 104431 || get_token_value(tokens[2]) == -891985903) {
-				tmp_int = tmp_val;
-			} else {
-				tmp_f = tmp_val;
+			struct Variable* tmp = eval_infix(tokens,num_tokens,4,variables,tmp_num_variables);
+			if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[2]))==0)
+				MismatchedTypesError(get_token_value(tokens[1]),get_token_value(tokens[2]),get_variable_type(tmp));
+			printf("tmp_type: %s %d\n",get_variable_type(tmp),strcmp(get_variable_type(tmp),"float"));
+			if (strcmp(get_variable_type(tmp),"string")!=0) {
+				int tmp_int = 0;
+				float tmp_f = 0;
+				unsigned token_hash = get_token_hash(tokens[2]);
+
+				if (token_hash == 104431 || token_hash == -891985903) {
+					if (strcmp(get_variable_type(tmp),"float")==0) {
+						tmp_int = get_variable_fval(tmp);
+					} else {
+						tmp_int = get_variable_ival(tmp);
+					}
+
+				} else {
+					tmp_f = get_variable_fval(tmp);
+				}
+				struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_f,"");
+				variables[tmp_num_variables] = tmp_var;
+				tmp_num_variables++;
 			}
-			struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_f,"");
-			variables[tmp_num_variables] = tmp_var;
-			tmp_num_variables++;
 		}
 
 	} else {
-		double tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
-		printf("%f\n",tmp);
+		struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
+
+		if (strcmp(get_variable_type(tmp),"float")==0) {
+			printf("%f\n",get_variable_fval(tmp));
+		} else if (strcmp(get_variable_type(tmp),"string")==0) {
+			printf("%s\n",get_variable_cval(tmp));
+		} else {
+			printf("%d\n",get_variable_ival(tmp));
+		}
 	}
 	*num_variables = tmp_num_variables;
 	return variables;

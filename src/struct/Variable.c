@@ -92,3 +92,12 @@ int variable_index(struct Variable** variables, int variable_count, unsigned int
 
 	return -1;
 }
+
+int variable_types_compatible(char * type1, char * type2) {
+	if (strcmp(type1,"string")==0 && strcmp(type2,"string")==0) {
+		return 1;
+	} else if (strcmp(type1,"string")!=0 && (strcmp(type2,"string")!=0)) {
+		return 1;
+	}
+	return 0;
+}

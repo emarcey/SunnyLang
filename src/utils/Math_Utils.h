@@ -23,21 +23,25 @@
  */
 int get_precedence(char c);
 
+//Function that handles eval_op when both operands are numeric types
+struct Variable* eval_op_numeric(struct Variable* op1, struct Variable* op2, double op);
+
+//Function that handles eval_op when one or both operands are string types
+struct Variable* eval_op_string(struct Variable* op1, struct Variable* op2, double op);
+
 /*
  * eval_op:
  *  - evaluates a simple expression, two operands and one operator in the format: op1 op op2
- *  - i.e. (1 + 2)
- *  - currently supports +,-,/,*,^,%
  *
  * params:
- * 	- op1: first operand
- * 	- op2: second operand
+ * 	- op1: variable with first operand
+ * 	- op2: variable with second operand
  *  - op: operator
  *
  * returns:
- *  - value of operation
+ *  - variable with value of operation
  */
-double eval_op(double op1, double op2, char op);
+struct Variable* eval_op(struct Variable* op1, struct Variable* op2, char op);
 
 /*
  * eval_infix:
@@ -50,7 +54,7 @@ double eval_op(double op1, double op2, char op);
  * returns:
  *  - result of evaluation
  */
-double eval_infix(struct Token ** tokens,
+struct Variable* eval_infix(struct Token ** tokens,
 		int num_tokens,
 		int token_index,
 		struct Variable ** variables,
