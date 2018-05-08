@@ -223,7 +223,10 @@ struct Variable ** eval_line(struct Token ** tokens, int num_tokens, struct Vari
 				tmp_int,
 				tmp_float,
 				get_variable_cval(tmp));
-
+	} else if (num_tokens >= 2 && get_token_type(tokens[0])=='v') {
+		char * info = malloc(sizeof(char)*1024);
+		sprintf(info,"Syntax error at assignment without value for variable %s",get_token_value(tokens[0]));
+		SyntaxError(info);
 	} else {
 		struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
 
