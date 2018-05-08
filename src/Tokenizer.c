@@ -28,11 +28,8 @@ int check_dictionary(char *** cmds,
 
 	//for each value in the dictionary, determine if it matches the input string
 	for (int i = 0; i < cmd_rows; i++) {
-		char tmp_cmd[chk_string_len+1];
-		strncpy(tmp_cmd,cmds[i][1],chk_string_len);
-		tmp_cmd[chk_string_len] = '\0';
 
-		if (strcmp(tmp_chk_string,tmp_cmd)==0) {
+		if (strcmp(tmp_chk_string,cmds[i][1])==0) {
 			match_count++;
 			cmd_match = i;
 		}
@@ -78,7 +75,7 @@ struct Token ** tokenize_line(char * line,
 			} else {
 				char * info = malloc(sizeof(char)*2014);
 				sprintf(info,"Token already occupied. Something went wrong!\n");
-				TokenizationError(words,info);
+				TokenizationError(words,info,__LINE__,__FILE__);
 			}
 		}
 		//printf("%d\n",tokens[token_count][0][0]);
@@ -105,7 +102,7 @@ struct Token ** tokenize_line(char * line,
 			} else {
 				char * info = malloc(sizeof(char)*2014);
 				sprintf(info,"Token already occupied. Something went wrong!\n");
-				TokenizationError(words,info);
+				TokenizationError(words,info,__LINE__,__FILE__);
 			}
 		}
 		else {
@@ -128,7 +125,7 @@ struct Token ** tokenize_line(char * line,
 				if (token_count > 0 && get_token_type(tokens[token_count-1])==118) {
 					char * info = malloc(sizeof(char)*2014);
 					sprintf(info,"Back-to-back variables found in expression at token %s.\n",words);
-					SyntaxError(info);
+					SyntaxError(info,__LINE__,__FILE__);
 				} else {
 					assign_token_type(tokens[token_count],118);
 					assign_token_value(tokens[token_count],words);
@@ -145,97 +142,174 @@ struct Token ** tokenize_line(char * line,
 	return tokens;
 }
 
-struct Variable ** eval_line(struct Token ** tokens, int num_tokens, struct Variable ** variables, int * num_variables) {
+struct Variable ** eval_line(struct Token ** tokens,
+		int num_tokens,
+		struct Variable ** variables,
+		int * num_variables,
+		struct Stack * if_stack) {
 	int tmp_num_variables = *num_variables;
-	if (get_token_hash(tokens[0])==1542341994) { //declare a new variable
-		/*
-		 * First, we're going to do a bunch of error handling
-		 */
-		if (num_tokens < 3) //if syntax is just not long enough to contain all necessary types
-			SyntaxError("Not enough tokens for variable declaration");
 
-		else if (tmp_num_variables > 0 &&
-				variable_index(variables,tmp_num_variables,get_token_hash(tokens[1]))!=-1) //check if variable exists
-			VariableAlreadyExistsError(get_token_value(tokens[1]));
+	if (num_tokens==0) return variables;
 
-		else if (is_alphanum(get_token_value(tokens[1]))==0) //invalid variable name
-			InvalidVariableName(get_token_value(tokens[1]));
+	if (isEmpty(if_stack) || get_top(if_stack)==1) {
+		if (get_token_hash(tokens[0])==1542341994) { //declare a new variable
+			/*
+			 * First, we're going to do a bunch of error handling
+			 */
+			if (num_tokens < 3) //if syntax is just not long enough to contain all necessary types
+				SyntaxError("Not enough tokens for variable declaration",__LINE__,__FILE__);
 
-		else if (get_token_hash(tokens[2])!=104431 &&
-				get_token_hash(tokens[2])!=97526364 &&
-				get_token_hash(tokens[2])!=-891985903 &&
-				get_token_hash(tokens[2])!=64711720) //if next command
-			TypeNotRecognizedError(get_token_value(tokens[2]),get_token_value(tokens[1]),"variable");
+			else if (tmp_num_variables > 0 &&
+					variable_index(variables,tmp_num_variables,get_token_hash(tokens[1]))!=-1) //check if variable exists
+				VariableAlreadyExistsError(get_token_value(tokens[1]),__LINE__,__FILE__);
 
-		else if (num_tokens==3) { //instantiate a blank variable
-			struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),0,0,"");
-			variables[tmp_num_variables] = tmp_var;
-			tmp_num_variables++;
+			else if (is_alphanum(get_token_value(tokens[1]))==0) //invalid variable name
+				InvalidVariableName(get_token_value(tokens[1]),__LINE__,__FILE__);
 
-		} else if (num_tokens == 4) //
-			SyntaxError("Not enough tokens for variable declaration");
+			else if (get_token_hash(tokens[2])!=104431 &&
+					get_token_hash(tokens[2])!=97526364 &&
+					get_token_hash(tokens[2])!=-891985903 &&
+					get_token_hash(tokens[2])!=64711720) //if next command
+				TypeNotRecognizedError(get_token_value(tokens[2]),get_token_value(tokens[1]),"variable",__LINE__,__FILE__);
 
-		else if (get_token_hash(tokens[3])!=-1408204561) //if we're missing an 'assign' command
-			SyntaxError("Assign block missing.");
-
-		else {
-			struct Variable* tmp = eval_infix(tokens,num_tokens,4,variables,tmp_num_variables);
-			if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[2]))==0)
-				MismatchedTypesError(get_token_value(tokens[1]),get_token_value(tokens[2]),get_variable_type(tmp));
-			if (strcmp(get_variable_type(tmp),"string")!=0) {
-				int tmp_int = 0;
-				float tmp_f = 0;
-				unsigned token_hash = get_token_hash(tokens[2]);
-
-				if (token_hash == 104431 || token_hash == -891985903) {
-					if (strcmp(get_variable_type(tmp),"float")==0) {
-						tmp_int = get_variable_fval(tmp);
-					} else {
-						tmp_int = get_variable_ival(tmp);
-					}
-
-				} else {
-					tmp_f = get_variable_fval(tmp);
-				}
-				struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_f,"");
+			else if (num_tokens==3) { //instantiate a blank variable
+				struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),0,0,"");
 				variables[tmp_num_variables] = tmp_var;
 				tmp_num_variables++;
+
+			} else if (num_tokens == 4) //
+				SyntaxError("Not enough tokens for variable declaration",__LINE__,__FILE__);
+
+			else if (get_token_hash(tokens[3])!=-1408204561) //if we're missing an 'assign' command
+				SyntaxError("Assign block missing.",__LINE__,__FILE__);
+
+			else {
+				struct Variable* tmp = eval_infix(tokens,num_tokens,4,variables,tmp_num_variables);
+				if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[2]))==0)
+					MismatchedTypesError(get_token_value(tokens[1]),get_token_value(tokens[2]),get_variable_type(tmp),__LINE__,__FILE__);
+				if (strcmp(get_variable_type(tmp),"string")!=0) {
+					int tmp_int = 0;
+					float tmp_f = 0;
+					unsigned token_hash = get_token_hash(tokens[2]);
+
+					if (token_hash == 104431 || token_hash == -891985903) {
+						if (strcmp(get_variable_type(tmp),"float")==0) {
+							tmp_int = get_variable_fval(tmp);
+						} else {
+							tmp_int = get_variable_ival(tmp);
+						}
+
+					} else {
+						tmp_f = get_variable_fval(tmp);
+					}
+					struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_f,"");
+					variables[tmp_num_variables] = tmp_var;
+					tmp_num_variables++;
+				}
+			}
+		} else if (get_token_hash(tokens[0])==2365) { // If
+			if (num_tokens==1) SyntaxError("No statement found after If call",__LINE__,__FILE__);
+
+			struct Variable * tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables);
+			double tmp_val = 0;
+			if (strcmp(get_variable_type(tmp),"string")==0)
+				InvalidValueError("If statement cannot interpret string value.",__LINE__,__FILE__);
+			else if (strcmp(get_variable_type(tmp),"float")==0)
+				tmp_val = get_variable_fval(tmp);
+			else if (strcmp(get_variable_type(tmp),"int")==0 || strcmp(get_variable_type(tmp),"boolean")==0)
+				tmp_val = get_variable_ival(tmp);
+
+			if (tmp_val != 1 && tmp_val != 0) {
+				char * info = malloc(sizeof(char)*1024);
+				sprintf(info,"If statement cannot interpret value: %f",tmp_val);
+				InvalidValueError(info,__LINE__,__FILE__);
+			}
+
+			push(if_stack,tmp_val);
+			free(tmp);
+		} else if (get_token_hash(tokens[0])==2162724 || //Elif
+						get_token_hash(tokens[0])==2163033)  { //Else
+			pop(if_stack);
+			push(if_stack,2);
+		} else if (get_token_hash(tokens[0])==67098424) {
+			pop(if_stack);
+		} else if (num_tokens >= 2 &&
+				get_token_type(tokens[0])=='v' &&
+				get_token_hash(tokens[1])==-1408204561){
+
+			int tmp_variable_index = variable_index(variables,tmp_num_variables,get_token_hash(tokens[0]));
+			if (tmp_num_variables == 0 || tmp_variable_index==-1) //check if variable exists
+				VariableNotFoundError(get_token_value(tokens[0]),__LINE__,__FILE__);
+
+			struct Variable* tmp = eval_infix(tokens,num_tokens,2,variables,tmp_num_variables);
+			if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[0]))==0)
+				MismatchedTypesError(get_token_value(tokens[0]),
+						get_variable_type(variables[tmp_variable_index]),
+						get_variable_type(tmp),
+						__LINE__,
+						__FILE__);
+
+			int tmp_int = get_variable_fval(tmp);
+			float tmp_float = get_variable_fval(tmp);
+
+			assign_variable_value(variables[tmp_variable_index],
+					tmp_int,
+					tmp_float,
+					get_variable_cval(tmp));
+		} else if (num_tokens >= 2 && get_token_type(tokens[0])=='v') {
+			char * info = malloc(sizeof(char)*1024);
+			sprintf(info,"Syntax error at assignment without value for variable %s at line %d",get_token_value(tokens[0]),__LINE__);
+			SyntaxError(info,__LINE__,__FILE__);
+		} else {
+			struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
+
+			if (strcmp(get_variable_type(tmp),"float")==0) {
+				printf("Result: %f\n\n",get_variable_fval(tmp));
+			} else if (strcmp(get_variable_type(tmp),"string")==0) {
+				printf("Result: %s\n\n",get_variable_cval(tmp));
+			} else {
+				printf("Result: %d\n\n",get_variable_ival(tmp));
 			}
 		}
-	} else if (num_tokens >= 2 &&
-			get_token_type(tokens[0])=='v' &&
-			get_token_hash(tokens[1])==-1408204561){
+	} else if (get_token_hash(tokens[0])==2162724 || //Elif
+			get_token_hash(tokens[0])==2163033 || //Else
+			get_token_hash(tokens[0])==67098424) { // Endif
+		if (isEmpty(if_stack)) {
+			char * info = malloc(sizeof(char)*1024);
+			sprintf("If statement not found before %s statement.",get_token_value(tokens[0]));
+			SyntaxError(info,__LINE__,__FILE__);
+		}
 
-		int tmp_variable_index = variable_index(variables,tmp_num_variables,get_token_hash(tokens[0]));
-		if (tmp_num_variables == 0 || tmp_variable_index==-1) //check if variable exists
-			VariableNotFoundError(get_token_value(tokens[0]));
+		if (get_top(if_stack)==2) {
+			if (get_token_hash(tokens[0])==67098424) pop(if_stack);
+		} else if (get_top(if_stack)==0) {
+			pop(if_stack);
 
-		struct Variable* tmp = eval_infix(tokens,num_tokens,2,variables,tmp_num_variables);
-		if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[0]))==0)
-			MismatchedTypesError(get_token_value(tokens[0]),
-					get_variable_type(variables[tmp_variable_index]),
-					get_variable_type(tmp));
+			if(get_token_hash(tokens[0])==2162724) { //Else if
+				if (num_tokens==1) SyntaxError("No statement found after If call",__LINE__,__FILE__);
 
-		int tmp_int = get_variable_fval(tmp);
-		float tmp_float = get_variable_fval(tmp);
+				struct Variable * tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables);
+				double tmp_val = 0;
+				if (strcmp(get_variable_type(tmp),"string")==0)
+					InvalidValueError("If statement cannot interpret string value.",__LINE__,__FILE__);
+				else if (strcmp(get_variable_type(tmp),"float")==0)
+					tmp_val = get_variable_fval(tmp);
+				else if (strcmp(get_variable_type(tmp),"int")==0 || strcmp(get_variable_type(tmp),"boolean")==0)
+					tmp_val = get_variable_ival(tmp);
 
-		assign_variable_value(variables[tmp_variable_index],
-				tmp_int,
-				tmp_float,
-				get_variable_cval(tmp));
-	} else if (num_tokens >= 2 && get_token_type(tokens[0])=='v') {
-		char * info = malloc(sizeof(char)*1024);
-		sprintf(info,"Syntax error at assignment without value for variable %s",get_token_value(tokens[0]));
-		SyntaxError(info);
-	} else {
-		struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
+				if (tmp_val != 1 && tmp_val != 0) {
+					char * info = malloc(sizeof(char)*1024);
+					sprintf(info,"If statement cannot interpret value: %f",tmp_val);
+					InvalidValueError(info,__LINE__,__FILE__);
+				}
 
-		if (strcmp(get_variable_type(tmp),"float")==0) {
-			printf("Result: %f\n\n",get_variable_fval(tmp));
-		} else if (strcmp(get_variable_type(tmp),"string")==0) {
-			printf("Result: %s\n\n",get_variable_cval(tmp));
+				push(if_stack,tmp_val);
+				free(tmp);
+			} else if (get_token_hash(tokens[0])==2163033) { //Else
+				push(if_stack,1);
+			}
 		} else {
-			printf("Result: %d\n\n",get_variable_ival(tmp));
+			SyntaxError("Something is wrong with your expression!",__LINE__,__FILE__);
 		}
 	}
 	*num_variables = tmp_num_variables;

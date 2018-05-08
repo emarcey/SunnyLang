@@ -54,7 +54,7 @@ struct Variable* create_variable(char * type,
 	} else if (strcmp(type,"string")==0) {
 		variable->uval.cval = cval;
 	} else {
-		TypeNotRecognizedError(type,name,"variable");
+		TypeNotRecognizedError(type,name,"variable",__LINE__,__FILE__);
 	}
 
 	return variable;
@@ -82,6 +82,18 @@ float get_variable_fval(struct Variable * variable) {
 
 char * get_variable_cval(struct Variable * variable) {
 	return variable->uval.cval;
+}
+
+char * return_variable_value_as_char(struct Variable * variable) {
+	char * return_val = malloc(sizeof(char)*1024);
+	if (strcmp(variable->type,"string"))
+		return_val = variable->uval.cval;
+	else if (strcmp(variable->type,"string")==0)
+		sprintf(return_val,"%f",variable->uval.fval);
+	else if ((strcmp(variable->type,"int")==0 || strcmp(variable->type,"boolean")==0))
+		sprintf(return_val,"%d",variable->uval.ival);
+
+	return return_val;
 }
 
 void assign_variable_value(struct Variable * variable, int ival, float fval, char * cval) {

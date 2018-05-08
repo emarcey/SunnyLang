@@ -28,7 +28,6 @@ static char * df = "./cmds.csv";
 //static int user_variable_ct = 0;
 
 int main(int argc, char* argv[]) {
-
 	clock_t start = clock(), diff;
 
 	int cmd_num_rows, cmd_num_fields;
@@ -38,13 +37,13 @@ int main(int argc, char* argv[]) {
 
 	//handle incorrect command line issues;
 	if (argc==1)
-		CommandArgumentError("No file received from command line.");
+		CommandArgumentError("No file received from command line.",__LINE__,__FILE__);
 	else if (argc > 2)
-		CommandArgumentError("Too many commands received.");
+		CommandArgumentError("Too many commands received.",__LINE__,__FILE__);
 	else {
 		size_t file_name_length = strlen(argv[1]);
 		if (strcmp(argv[1]+(file_name_length-3),".s\0")==0)
-			CommandArgumentError("File type not recognized. Use .st files.");
+			CommandArgumentError("File type not recognized. Use .st files.",__LINE__,__FILE__);
 		s_file_name = malloc(sizeof(char)*file_name_length+1);
 		s_file_name = argv[1];
 	}
@@ -52,8 +51,9 @@ int main(int argc, char* argv[]) {
 	int sdata_num_rows;
 	char ** s_data = load_file(s_file_name,&sdata_num_rows);
 	struct Variable ** variables = malloc(sizeof(struct Variable *)*sdata_num_rows);
-	int num_variables = 0;
+	struct Stack * if_stack = createStack(sdata_num_rows);
 
+	int num_variables = 0;
 	for (int i = 0; i < sdata_num_rows; i++) {
 		int num_tokens;
 		printf("Initial phrase: %s\n",s_data[i]);
@@ -68,8 +68,9 @@ int main(int argc, char* argv[]) {
 			printf("%s ",get_token_value(t));
 		}
 		printf("\n\n");
-		variables = eval_line(tokens,num_tokens,variables,&num_variables);
+		variables = eval_line(tokens,num_tokens,variables,&num_variables,if_stack);
 	}
+	if (isEmpty(if_stack)==NULL) SyntaxError("No EndIf statement found at the end of your program.",__LINE__,__FILE__);
 
 	free(s_data);
 	free(variables);

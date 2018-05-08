@@ -46,6 +46,10 @@ float get_variable_fval(struct Variable * variable);
 //Function returns variable cval
 char * get_variable_cval(struct Variable * variable);
 
+//Function returns variable value as char *, converting based on type
+char * return_variable_value_as_char(struct Variable * variable);
+
+//Function assigns a value to a variable based on type
 void assign_variable_value(struct Variable * variable, int ival, float fval, char * cval);
 
 /*

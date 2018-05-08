@@ -48,7 +48,7 @@ int vs_is_empty(struct VariableStack* stack)
 void vs_push(struct VariableStack* stack, struct Variable* item)
 {
     if (vs_is_full(stack))
-    	FullStackError(get_variable_name(item));
+    	FullStackError(get_variable_name(item),__LINE__,__FILE__);
     stack->array[++stack->top] = item;
 }
 
@@ -56,14 +56,14 @@ void vs_push(struct VariableStack* stack, struct Variable* item)
 struct Variable* vs_pop(struct VariableStack* stack)
 {
     if (vs_is_empty(stack))
-        EmptyStackError();
+        return NULL;
     return stack->array[stack->top--];
 }
 
 // Function to view the top item in the stack
 struct Variable* vs_get_top(struct VariableStack* stack) {
 	if (vs_is_empty(stack))
-		EmptyStackError();
+		return NULL;
 	return stack->array[stack->top];
 }
 
