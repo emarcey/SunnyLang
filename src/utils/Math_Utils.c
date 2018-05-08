@@ -139,13 +139,7 @@ struct Variable * eval_infix(struct Token ** tokens,
 			if (var_index==-1) {
 				VariableNotFoundError(tmp_token_val);
 			}
-			if (strcmp(get_variable_type(variables[var_index]),"string")==0) {
-				char * info = malloc(sizeof(char)*1024);
-				sprintf(info,"Strings not supported right now, %s", get_token_value(tokens[token_index]));
-				SyntaxError(info);
-			} else {
-				vs_push(operand_stack,variables[var_index]);
-			}
+			vs_push(operand_stack,variables[var_index]);
 		} else if (tmp_token_type == 'o'
 				&& isEmpty(operator_stack)==1
 				&& tmp_token_hash != ')') { //if token is operator and stack is empty
@@ -165,7 +159,7 @@ struct Variable * eval_infix(struct Token ** tokens,
 			} else { //process
 				struct Variable* op1 = vs_pop(operand_stack);
 				if (vs_is_empty(operand_stack))
-					EvalError("There's something wrong with your expression!");
+					EvalError("Operand stack is empty - there's something wrong with your expression!");
 				struct Variable* op2 = vs_pop(operand_stack);
 				double op = tmp_token_hash;
 				struct Variable* tmp_var = eval_op(op2,op1,op);
@@ -178,7 +172,7 @@ struct Variable * eval_infix(struct Token ** tokens,
 			while (get_top(operator_stack) != 40) {
 				struct Variable* op1 = vs_pop(operand_stack);
 				if (vs_is_empty(operand_stack))
-					EvalError("There's something wrong with your expression!");
+					EvalError("Operand stack is empty - there's something wrong with your expression!");
 				struct Variable* op2 = vs_pop(operand_stack);
 				double op = pop(operator_stack);
 				struct Variable* tmp_var = eval_op(op2,op1,op);
@@ -190,7 +184,7 @@ struct Variable * eval_infix(struct Token ** tokens,
 		} else {
 			struct Variable* op1 = vs_pop(operand_stack);
 			if (vs_is_empty(operand_stack))
-				EvalError("There's something wrong with your expression!");
+				EvalError("Operand stack is empty - there's something wrong with your expression!");
 			struct Variable* op2 = vs_pop(operand_stack);
 			double op = pop(operator_stack);
 			struct Variable* tmp_var = eval_op(op2,op1,op);
@@ -205,7 +199,7 @@ struct Variable * eval_infix(struct Token ** tokens,
 	while (isEmpty(operator_stack) == 0) {
 		struct Variable* op1 = vs_pop(operand_stack);
 		if (vs_is_empty(operand_stack))
-			EvalError("There's something wrong with your expression!");
+			EvalError("Operand stack is empty - there's something wrong with your expression!");
 		struct Variable* op2 = vs_pop(operand_stack);
 		double op = pop(operator_stack);
 		if (op == '(' || op == ')')

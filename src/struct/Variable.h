@@ -46,6 +46,8 @@ float get_variable_fval(struct Variable * variable);
 //Function returns variable cval
 char * get_variable_cval(struct Variable * variable);
 
+void assign_variable_value(struct Variable * variable, int ival, float fval, char * cval);
+
 /*
  * variable_index:
  *  - loops through a list of variables, returns index of variable with matching name

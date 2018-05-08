@@ -84,6 +84,16 @@ char * get_variable_cval(struct Variable * variable) {
 	return variable->uval.cval;
 }
 
+void assign_variable_value(struct Variable * variable, int ival, float fval, char * cval) {
+	if ((strcmp(variable->type,"int")==0 || strcmp(variable->type,"boolean")==0)) {
+		variable->uval.ival = ival;
+	} else if (strcmp(variable->type,"float")==0) {
+		variable->uval.fval = fval;
+	} else if (strcmp(variable->type,"string")==0) {
+		variable->uval.cval = cval;
+	}
+}
+
 int variable_index(struct Variable** variables, int variable_count, unsigned int s_variable_hash) {
 	for (int i = 0; i < variable_count; i++) {
 		if (get_variable_hash(variables[i])==s_variable_hash)

@@ -127,8 +127,8 @@ struct Token ** tokenize_line(char * line,
 				//but two variables back to back doesn't make sense
 				if (token_count > 0 && get_token_type(tokens[token_count-1])==118) {
 					char * info = malloc(sizeof(char)*2014);
-					sprintf(info,"Back-to-back variables found in expression.\n");
-					TokenizationError(words,info);
+					sprintf(info,"Back-to-back variables found in expression at token %s.\n",words);
+					SyntaxError(info);
 				} else {
 					assign_token_type(tokens[token_count],118);
 					assign_token_value(tokens[token_count],words);
@@ -182,7 +182,6 @@ struct Variable ** eval_line(struct Token ** tokens, int num_tokens, struct Vari
 			struct Variable* tmp = eval_infix(tokens,num_tokens,4,variables,tmp_num_variables);
 			if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[2]))==0)
 				MismatchedTypesError(get_token_value(tokens[1]),get_token_value(tokens[2]),get_variable_type(tmp));
-			printf("tmp_type: %s %d\n",get_variable_type(tmp),strcmp(get_variable_type(tmp),"float"));
 			if (strcmp(get_variable_type(tmp),"string")!=0) {
 				int tmp_int = 0;
 				float tmp_f = 0;
@@ -203,16 +202,37 @@ struct Variable ** eval_line(struct Token ** tokens, int num_tokens, struct Vari
 				tmp_num_variables++;
 			}
 		}
+	} else if (num_tokens >= 2 &&
+			get_token_type(tokens[0])=='v' &&
+			get_token_hash(tokens[1])==-1408204561){
+
+		int tmp_variable_index = variable_index(variables,tmp_num_variables,get_token_hash(tokens[0]));
+		if (tmp_num_variables == 0 || tmp_variable_index==-1) //check if variable exists
+			VariableNotFoundError(get_token_value(tokens[0]));
+
+		struct Variable* tmp = eval_infix(tokens,num_tokens,2,variables,tmp_num_variables);
+		if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[0]))==0)
+			MismatchedTypesError(get_token_value(tokens[0]),
+					get_variable_type(variables[tmp_variable_index]),
+					get_variable_type(tmp));
+
+		int tmp_int = get_variable_fval(tmp);
+		float tmp_float = get_variable_fval(tmp);
+
+		assign_variable_value(variables[tmp_variable_index],
+				tmp_int,
+				tmp_float,
+				get_variable_cval(tmp));
 
 	} else {
 		struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
 
 		if (strcmp(get_variable_type(tmp),"float")==0) {
-			printf("%f\n",get_variable_fval(tmp));
+			printf("Result: %f\n\n",get_variable_fval(tmp));
 		} else if (strcmp(get_variable_type(tmp),"string")==0) {
-			printf("%s\n",get_variable_cval(tmp));
+			printf("Result: %s\n\n",get_variable_cval(tmp));
 		} else {
-			printf("%d\n",get_variable_ival(tmp));
+			printf("Result: %d\n\n",get_variable_ival(tmp));
 		}
 	}
 	*num_variables = tmp_num_variables;

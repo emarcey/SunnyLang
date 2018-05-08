@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 			struct Token * t = tokens[j];
 			printf("%s ",get_token_value(t));
 		}
-		printf("\n");
+		printf("\n\n");
 		variables = eval_line(tokens,num_tokens,variables,&num_variables);
 	}
 
