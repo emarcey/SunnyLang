@@ -67,10 +67,10 @@ int main(int argc, char* argv[]) {
 			struct Token * t = tokens[j];
 			printf("%s ",get_token_value(t));
 		}
-		printf("\n\n");
+		printf("\n");
 		variables = eval_line(tokens,num_tokens,variables,&num_variables,if_stack);
 	}
-	if (isEmpty(if_stack)==NULL) SyntaxError("No EndIf statement found at the end of your program.",__LINE__,__FILE__);
+	if (isEmpty(if_stack)) SyntaxError("No EndIf statement found at the end of your program.",__LINE__,__FILE__);
 
 	free(s_data);
 	free(variables);
