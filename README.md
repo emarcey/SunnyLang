@@ -27,10 +27,10 @@ The language currently supports:
  - Variable declaration and assignment for integer, float and boolean variables
   - String variables are planned, but not yet supported
  - If/Else logic
+ - A whole mess of operators
  - Well that's really it.
  
 Planned features:
-  - And/Or implemention
   - User-Defined Function implementation
   - User-Defined Class implementation
   - Additional built-in variables (i.e. arrays)
