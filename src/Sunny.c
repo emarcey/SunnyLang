@@ -28,6 +28,10 @@ static char * df = "./cmds.csv";
 //static int user_variable_ct = 0;
 
 int main(int argc, char* argv[]) {
+
+	printf("and: %u\n",hash("and"));
+	printf("or: %u\n",hash("or"));
+
 	clock_t start = clock(), diff;
 
 	int cmd_num_rows, cmd_num_fields;
@@ -70,7 +74,7 @@ int main(int argc, char* argv[]) {
 		printf("\n");
 		variables = eval_line(tokens,num_tokens,variables,&num_variables,if_stack);
 	}
-	if (isEmpty(if_stack)) SyntaxError("No EndIf statement found at the end of your program.",__LINE__,__FILE__);
+	if (!isEmpty(if_stack)) SyntaxError("No EndIf statement found at the end of your program.",__LINE__,__FILE__);
 
 	free(s_data);
 	free(variables);
@@ -78,7 +82,7 @@ int main(int argc, char* argv[]) {
 	diff = clock() - start;
 
 	int msec = diff * 1000/CLOCKS_PER_SEC;
-	printf("Time taken %d seconds %d milliseconds", msec/1000, msec%1000);
+	printf("\nTime taken %d seconds %d milliseconds", msec/1000, msec%1000);
 
 	return 0;
 }

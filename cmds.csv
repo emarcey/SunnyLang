@@ -21,6 +21,8 @@ Print,BangTheWaitress,f
 ==,ReadyToPlow,o
 >=,WadOfHundredsReadyToPlow,o
 <=,MagnumCondomsReadyToPlow,o
+and,LiamMcPoyle,o
+or,RyanMcPoyle,o
 If,Dayman,c
 Elif,FighterOfTheNightman,c
 Else,ChampionOfTheSun,c

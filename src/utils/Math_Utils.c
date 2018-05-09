@@ -19,8 +19,8 @@
 #include "Misc_Utils.h"
 
 int get_precedence(unsigned int c) {
-
-	int num_vals = 11;
+	// regular operators have positive precedence
+	// looping operators have negative precedence
 	int precedence[][2] = {
 				{94,3}, // ^
 				{42,2}, // *
@@ -28,18 +28,27 @@ int get_precedence(unsigned int c) {
 				{37,2}, // %
 				{43,1}, // +
 				{45,1}, // -
-				{1952,1},// ==
-				{1921,1}, // <=
-				{1983,1}, // >=
-				{60,1}, // <
-				{62,1} // >
+				{1952,-1},// ==
+				{1921,-1}, // <=
+				{1983,-1}, // >=
+				{60,-1}, // <
+				{62,-1}, // >
+				{96727,-2}, // and
+				{3555,-2}, //or
+				{40,-3}, // (
+				{41,-3}, // )
+				{-1,-1} //end
 		};
-	for (int i = 0; i < num_vals; i++) {
+	int i = 0;
+
+	while (precedence[i][0] != -1) {
 		if (c==precedence[i][0]) {
 			return precedence[i][1];
 		}
+		i++;
 	}
-	return -1;
+
+	return -100;
 }
 
 struct Variable* eval_op_numeric(struct Variable* op1, struct Variable* op2, double op) {
@@ -96,6 +105,24 @@ struct Variable* eval_op_numeric(struct Variable* op1, struct Variable* op2, dou
 		case 1983: // >=
 			tmp_val = op1_val >= op2_val;
 			break;
+		case 3555: // or
+			if (op1_val+op2_val == 1 || op1_val+op2_val == 2) tmp_val = 1;
+			else if (op1_val + op2_val == 0) tmp_val = 0;
+			else {
+				char * info = malloc(sizeof(char)*1024);
+				sprintf(info,"Invalid values, %f and %f, passed to or statement.",op1_val,op2_val);
+				InvalidValueError(info,__LINE__,__FILE__);
+			}
+			break;
+		case 96727: //and
+			if (op1_val+op2_val == 2) tmp_val = 1;
+			else if (op1_val+op2_val == 1 || op1_val+op2_val == 0) tmp_val = 0;
+			else {
+				char * info = malloc(sizeof(char)*1024);
+				sprintf(info,"Invalid values, %f and %f, passed to and statement.",op1_val,op2_val);
+				InvalidValueError(info,__LINE__,__FILE__);
+			}
+			break;
 
 		default:
 			sprintf(info,"Unknown mathematical operator: %f",op);
@@ -148,8 +175,6 @@ struct Variable * eval_infix(struct Token ** tokens,
 	struct Stack* operator_stack = createStack(num_tokens);
 
 	while (token_index < num_tokens) {
-		int while_ops[] = {41,1952,1921,1983,60,62};
-		int while_ops_len = 6;
 
 		char tmp_token_type = get_token_type(tokens[token_index]);
 		if ((tmp_token_type=='n' || tmp_token_type=='v' || tmp_token_type=='s') &&
@@ -204,9 +229,10 @@ struct Variable * eval_infix(struct Token ** tokens,
 
 		} else if (tmp_token_type == 'o' && tmp_token_hash == '(') { //if token is '('
 			push(operator_stack, tmp_token_hash);
-		} else if (tmp_token_type == 'o' && element_in_list_int(while_ops,while_ops_len,tmp_token_hash)) { //if token is ')'
-			while (get_top(operator_stack) != 40) {
+		} else if (tmp_token_type == 'o' && tmp_token_precedence < 0) { //if token is ')'
+			while (tmp_token_precedence > get_precedence(get_top(operator_stack))) {
 				struct Variable* op1 = vs_pop(operand_stack);
+
 				if (tmp_token_hash == ')' && vs_is_empty(operand_stack))
 					EvalError("Operand stack is empty - there's something wrong with your expression!",__LINE__,__FILE__);
 				struct Variable* op2 = vs_pop(operand_stack);
