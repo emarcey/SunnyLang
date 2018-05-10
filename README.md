@@ -69,7 +69,7 @@ Charlie | string
 Notes:
  - strings may be declared, but the evaluation of strings is not yet implemented, so using them in an expression will throw an error
  - boolean variables are much the same as in C, where True = 1 and False = 0. 
-    - As such, boolean variables can be used in any mathematical expression
+   - As such, boolean variables can be used in any mathematical expression
 
 #### Expression Evaluation
 
@@ -78,6 +78,44 @@ The evaluator expects an infix expression and evaluates as such.
 Order of operations is much the same as in a math class, except that some additional handling is invoked so that equality signs can be used. Equality signs evaluate the entire left-hand side of an expression (up to a '('), store the result of the left-hand side, then continue evaluating the entirety of the right-hand side (up to a ')') before comparing the results.
 
 And/Or handling will follow much the same pattern, but with a higher precedence than equality signs.
+
+
+### Control-Flow Expressions
+
+SunnyLang doesn't give a fuck about whitespace. The only use for whitespace is to tokenize words. So there aren't any tabs, and we don't surround code with brackets. Instead, every expression will have a Begin and an End statement that create and terminate the control-flow logic, respectively.
+
+Why not have a universal open/close statement? Because then my if-else commands wouldn't be as fun. And SunnyLang is all about fun.
+
+#### If-Else Logic
+
+If-Else statements operate much the same as in any other language, if an expression is evaluated as True, then the code under it is executed. 
+Otherwise, we jump to the next statement that evaluates as true. There are two important syntactical pieces to note.
+	1. Since Boolean variables are 1/0, if an expression evaluates to anything other than a 1 or a 0, the If statement will error out at runtime. 
+	2. An If-Else statement must begin with an 'If' statement and end with an 'EndIf' statement, but the Else If and Else statements are optional.
+
+The commands for an if/else statement are as follows:
+
+SunnyLangName | Translation
+--- | ---
+Dayman | If
+MasterOfTheNightman | Else If
+ChampionOfTheSun | Else
+MasterOfKarateAndFriendshipForEveryone | EndIf
+
+And so, the syntax will be as follows:
+```
+Dayman {expression}
+{additional code to execute if statement evaluates to 1}
+MasterOfTheNightman {expression}
+{additional code to execute if statement evaluates to 1}
+ChampionOfTheSun
+{additional code to execute if no Dayman or MasterOfTheNightman statement evaluated to 1}
+MasterOfKarateAndFriendshipForEveryone
+```
+
+#### For Loops
+
+#### While Loops
   
 ### Source Code
 
