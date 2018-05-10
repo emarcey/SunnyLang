@@ -115,6 +115,26 @@ MasterOfKarateAndFriendshipForEveryone
 
 #### For Loops
 
+For Loops, again, are similar to most languages, with the exception that loops will be operated using a ForBegin and ForEnd. In addition, the for loop will receive as input the name of the variable to be used, the start value, the inequality to use, the end value and the interval over which to iterate. The interval value can be either positive or negative, and does not need to be an integer.
+
+If a variable is already declared, the for loop expects only the name of the variable. If it has not been declared, then it will search for a supplied data type. If this is not provided, the interpreter will assume that the new variable is an integer.
+
+SunnyLangName | Translation
+--- | ---
+Rickety | ForBegin
+Cricket | ForEnd
+
+And so the syntax will be as follows:
+```
+Rickety {variable} {begin value} {inequality} {end value} {interval}
+{code to execute}
+Cricket
+//or
+Rickety {variable} {variable_type} {begin value} {inequality} {end value} {interval}
+{code to execute}
+Cricket
+```
+
 #### While Loops
   
 ### Source Code

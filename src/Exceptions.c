@@ -145,6 +145,6 @@ void InvalidIfError(char * value, int line_number, char * file_name) {
 	char * type = "InvalidIfError";
 	char * message = malloc(sizeof(char)*1024);
 
-	sprintf(message,"%s is not a valid value for an If statement.");
+	sprintf(message,"%s is not a valid value for an If statement.",value);
 	RaiseError(type, message, line_number, file_name);
 }

@@ -1,1 +1,2 @@
--5 BrownOut 1 BrownOut BlastMe 2 BrownOut 3 InTheAss
+Rickety tmpVar 1 MagnumCondoms 10 1
+tmpVar

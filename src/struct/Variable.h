@@ -12,6 +12,9 @@
 //Variable structure
 struct Variable;
 
+//Function assigns line number to variable if correct type
+void assign_line_number(struct Variable * variable, int line_number);
+
 /*
  * create_variable:
  *  - Create a Variable with given input
@@ -26,7 +29,7 @@ struct Variable;
  * returns:
  *  - pointer directed at Variable that was created
  */
-struct Variable* create_variable(char * type,char * name,int ival,float fval,char * cval);
+struct Variable* create_variable(char * type,char * name,int ival,float fval,char * cval,int line_number);
 
 //Function returns variable type
 char * get_variable_type(struct Variable * variable);
@@ -45,6 +48,9 @@ float get_variable_fval(struct Variable * variable);
 
 //Function returns variable cval
 char * get_variable_cval(struct Variable * variable);
+
+//Function return variable line_number
+int get_variable_line_number(struct Variable * variable);
 
 //Function returns variable value as char *, converting based on type
 char * return_variable_value_as_char(struct Variable * variable);

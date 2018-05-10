@@ -5,9 +5,11 @@
 #include "utils/File_Utils.h"
 #include "utils/String_Utils.h"
 #include "utils/Math_Utils.h"
+#include "utils/Misc_Utils.h"
 #include "struct/Token.h"
 #include "struct/Stack.h"
 #include "struct/Variable.h"
+#include "struct/VariableStack.h"
 
 #include "Exceptions.h"
 
@@ -122,14 +124,16 @@ struct Token ** tokenize_line(char * line,
 			//if not, it's a variable
 			else {
 				//but two variables back to back doesn't make sense
+				/*
 				if (token_count > 0 && get_token_type(tokens[token_count-1])==118) {
 					char * info = malloc(sizeof(char)*2014);
 					sprintf(info,"Back-to-back variables found in expression at token %s.\n",words);
 					SyntaxError(info,__LINE__,__FILE__);
 				} else {
-					assign_token_type(tokens[token_count],118);
-					assign_token_value(tokens[token_count],words);
-				}
+				*/
+				assign_token_type(tokens[token_count],118);
+				assign_token_value(tokens[token_count],words);
+				//}
 			}
 
 			token_count++;
@@ -142,16 +146,131 @@ struct Token ** tokenize_line(char * line,
 	return tokens;
 }
 
+/*
+ * throws an error if invalid
+ * returns 1 if valid and variable already exists
+ * returns 2 if valid, variable does not exist and default type to integer
+ * returns 3 if valid, variable does not exist and type is explicitly stated in the statement
+ */
+int validate_for_statement(struct Token ** tokens,
+		int num_tokens,
+		struct Variable ** variables,
+		int tmp_num_variables) {
+	int return_val = 0;
+	int equalities[] = {1921,1983,60,62};
+	int equalities_len = 4;
+
+	if (num_tokens == 6 || num_tokens == 7) {
+
+		// validate variable
+		if (get_token_type(tokens[1])!='v') {
+			char * info = malloc(sizeof(char)*1024);
+			sprintf(info,"Unable to parse for statement. Expected variable as second token, but received token %s of type %d",
+					get_token_value(tokens[1]),
+					get_token_type(tokens[1]));
+			SyntaxError(info,__LINE__,__FILE__);
+		}
+		else if (variable_index(variables,tmp_num_variables,get_token_hash(tokens[1])) == -1) { //variable does not exist
+			if (num_tokens == 7) {
+				if (get_token_type(tokens[2])!='d') {
+					char * info = malloc(sizeof(char)*1024);
+					sprintf(info,
+							"Unable to parse for statement. Expected data type for new variable, but received token %s of type %d",
+							get_token_value(tokens[2]),
+							get_token_type(tokens[2]));
+					SyntaxError(info,__LINE__,__FILE__);
+				} else if (strcmp(get_token_value(tokens[2]),"int")==0 || strcmp(get_token_value(tokens[2]),"float") == 0) {
+					return_val = 3;
+				} else {
+					char * info = malloc(sizeof(char)*1024);
+					sprintf(info,
+							"%s %s of type %d",
+							"Unable to parse for statement. Expected int or float for new variable data type, but received token",
+							get_token_value(tokens[1]),
+							get_token_type(tokens[1]));
+					SyntaxError(info,__LINE__,__FILE__);
+				}
+			} else return_val = 2;
+		} else { //variable does exist
+			if (num_tokens == 7) SyntaxError("Unable to parse for statement. Incorrect statement length.",__LINE__,__FILE__);
+			return_val = 1;
+		}
+
+	} else SyntaxError("Unable to parse for statement. Incorrect statement length.",__LINE__,__FILE__);
+
+	//validate the rest of it
+	int cur_token = 2;
+	if (num_tokens == 7) cur_token = 3;
+	//validate begin value
+	if (get_token_type(tokens[cur_token])=='v') {
+		int tmp_ind = variable_index(variables,tmp_num_variables,get_token_hash(tokens[cur_token]));
+		if (tmp_ind == -1 && get_token_hash(tokens[cur_token]) != get_token_hash(tokens[1])) {
+			char * info = malloc(sizeof(char)*1024);
+			sprintf(info,"Unknown variable %s passed as begin value",get_token_value(tokens[cur_token]));
+			SyntaxError(info,__LINE__,__FILE__);
+		}
+	} else if (get_token_type(tokens[cur_token])!='n') {
+		char * info = malloc(sizeof(char)*1024);
+		sprintf(info,"Unexpected token %s of type %d passed as begin value",
+				get_token_value(tokens[cur_token]),
+				get_token_type(tokens[cur_token]));
+		SyntaxError(info,__LINE__,__FILE__);
+	}
+	//validate operator
+	if (element_in_list_int(equalities,equalities_len,get_token_hash(tokens[cur_token+1]))==0) {
+		char * info = malloc(sizeof(char)*1024);
+		sprintf(info,"Unexpected token %s of type %d passed as equality operator",
+				get_token_value(tokens[cur_token+1]),
+				get_token_type(tokens[cur_token+1]));
+		SyntaxError(info,__LINE__,__FILE__);
+	}
+
+	//validate end value
+	if (get_token_type(tokens[cur_token+2])=='v') {
+		int tmp_ind = variable_index(variables,tmp_num_variables,get_token_hash(tokens[cur_token+2]));
+		if (tmp_ind == -1) {
+			char * info = malloc(sizeof(char)*1024);
+			sprintf(info,"Unexpected variable %s passed as end value",get_token_value(tokens[cur_token+2]));
+			SyntaxError(info,__LINE__,__FILE__);
+		}
+	} else if (get_token_type(tokens[cur_token+2])!='n') {
+		char * info = malloc(sizeof(char)*1024);
+		sprintf(info,"Unexpected token %s of type %d passed as end value",
+				get_token_value(tokens[cur_token+2]),
+				get_token_type(tokens[cur_token+2]));
+		SyntaxError(info,__LINE__,__FILE__);
+	}
+
+	//validate interval
+	if (get_token_type(tokens[cur_token+3])=='v') {
+		int tmp_ind = variable_index(variables,tmp_num_variables,get_token_hash(tokens[cur_token+3]));
+		if (tmp_ind == -1) {
+			char * info = malloc(sizeof(char)*1024);
+			sprintf(info,"Unexpected variable %s passed as end value",get_token_value(tokens[cur_token+3]));
+			SyntaxError(info,__LINE__,__FILE__);
+		}
+	} else if (get_token_type(tokens[cur_token+3])!='n') {
+		char * info = malloc(sizeof(char)*1024);
+		sprintf(info,"Unexpected token %s of type %d passed as end value",
+				get_token_value(tokens[cur_token+3]),
+				get_token_type(tokens[cur_token+3]));
+		SyntaxError(info,__LINE__,__FILE__);
+	}
+
+	return return_val;
+}
+
 struct Variable ** eval_line(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,
 		int * num_variables,
-		struct Stack * if_stack) {
+		struct VariableStack * control_flow_stack,
+		int * line_number) {
 	int tmp_num_variables = *num_variables;
-
+	int tmp_line_number = *line_number;
 	if (num_tokens==0) return variables;
 
-	if (isEmpty(if_stack) || get_top(if_stack)==1) {
+	if (vs_is_empty(control_flow_stack) || get_variable_ival(vs_get_top(control_flow_stack))==1) {
 		if (get_token_hash(tokens[0])==1542341994) { //declare a new variable
 			/*
 			 * First, we're going to do a bunch of error handling
@@ -173,7 +292,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 				TypeNotRecognizedError(get_token_value(tokens[2]),get_token_value(tokens[1]),"variable",__LINE__,__FILE__);
 
 			else if (num_tokens==3) { //instantiate a blank variable
-				struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),0,0,"");
+				struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),0,0,"",-1);
 				variables[tmp_num_variables] = tmp_var;
 				tmp_num_variables++;
 
@@ -202,11 +321,75 @@ struct Variable ** eval_line(struct Token ** tokens,
 					} else {
 						tmp_f = get_variable_fval(tmp);
 					}
-					struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_f,"");
+					struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_f,"",-1);
 					variables[tmp_num_variables] = tmp_var;
 					tmp_num_variables++;
 				}
 			}
+		} else if (get_token_hash(tokens[0])==499119488) { //ForBegin
+			int validate_for = validate_for_statement(tokens,num_tokens,variables,tmp_num_variables);
+			struct Variable * tmp_var = malloc(sizeof(struct Variable*));
+			if (validate_for == 1) {
+				int variable_ind = variable_index(variables,tmp_num_variables,get_token_hash(tokens[1]));
+				tmp_var = variables[variable_ind];
+				char * tmp_val = malloc(sizeof(char)*20);
+				double tmp_double;
+				int tmp_int;
+				sprintf(tmp_val,"%s",get_token_value(tokens[2]));
+				tmp_double = atof(tmp_val);
+				tmp_int = tmp_double;
+				assign_variable_value(tmp_var,tmp_int,tmp_double,"");
+				free(tmp_val);
+			}
+			if (validate_for == 2 || validate_for == 3) {
+				char * tmp_val = malloc(sizeof(char)*20);
+				double tmp_double = 0;
+				int tmp_int = 0;
+				char * tmp_type = malloc(sizeof(char)*10);
+				if (get_token_hash(tokens[2])!=get_token_hash(tokens[1])) {
+					if (get_token_type(tokens[2])=='v') {
+						int variable_ind = variable_index(variables,tmp_num_variables,get_token_hash(tokens[2]));
+						sprintf(tmp_val,"%s",return_variable_value_as_char(variables[variable_ind]));
+						tmp_double = atof(tmp_val);
+						tmp_int = tmp_double;
+					} else if (get_token_type(tokens[2])=='n') {
+						tmp_double = atof(get_token_value(tokens[2]));
+						tmp_int = tmp_double;
+					}
+				}
+				if (validate_for == 2) sprintf(tmp_type,"int");
+				else sprintf(tmp_type,"%s",get_token_value(tokens[2]));
+
+				tmp_var = create_variable(tmp_type,get_token_value(tokens[1]),tmp_int,tmp_double,"",-1);
+				variables[tmp_num_variables] = tmp_var;
+				tmp_num_variables++;
+				free(tmp_val);
+				free(tmp_type);
+			}
+			double tmp_double;
+			struct Variable * tmp_var2 = malloc(sizeof(struct Variable *));
+			if (get_token_type(tokens[num_tokens-2])=='n') {
+				tmp_double = atof(get_token_value(tokens[num_tokens-2]));
+				tmp_var2 = create_variable("float","float",0,tmp_double,"",-1);
+			} else if (get_token_type(tokens[num_tokens-2])=='v') {
+				int variable_ind = variable_index(variables,tmp_num_variables,get_token_hash(tokens[num_tokens-2]));
+				tmp_var2 = variables[variable_ind];
+			}
+			struct Variable * tmp_result = eval_op_numeric(tmp_var,tmp_var2,get_token_hash(tokens[num_tokens-3]));
+
+			int tmp_int2;
+			if (strcmp(get_variable_type(tmp_result),"float")==0) {
+				tmp_int2 = get_variable_fval(tmp_result);
+			} else {
+				tmp_int2 = get_variable_ival(tmp_result);
+			}
+			struct Variable * push_to_stack = create_variable("control","for",tmp_int2,0,"",tmp_line_number);
+			printf("%d\n",tmp_int2);
+			vs_push(control_flow_stack,push_to_stack);
+			free(tmp_var2);
+			free(tmp_result);
+
+			//Rickety {variable} {interval} {begin value} {inequality} {end value}
 		} else if (get_token_hash(tokens[0])==2365) { // If
 			if (num_tokens==1) SyntaxError("No statement found after If call",__LINE__,__FILE__);
 
@@ -225,14 +408,22 @@ struct Variable ** eval_line(struct Token ** tokens,
 				InvalidValueError(info,__LINE__,__FILE__);
 			}
 
-			push(if_stack,tmp_val);
+			struct Variable * tmp_control = create_variable("control","if",tmp_val,0,"",-1);
+
+			vs_push(control_flow_stack,tmp_control);
 			free(tmp);
 		} else if (get_token_hash(tokens[0])==2162724 || //Elif
-						get_token_hash(tokens[0])==2163033)  { //Else
-			pop(if_stack);
-			push(if_stack,2);
-		} else if (get_token_hash(tokens[0])==67098424) {
-			pop(if_stack);
+						get_token_hash(tokens[0])==2163033 || //Else
+						get_token_hash(tokens[0])==67098424 )  { //EndIf
+			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"if")!=0)
+				SyntaxError("Mismatched control flow arguments in your expression",__LINE__,__FILE__);
+			if (get_token_hash(tokens[0])==67098424)
+				vs_pop(control_flow_stack);
+			else {
+				struct Variable * tmp_control = vs_pop(control_flow_stack);
+				assign_variable_value(tmp_control,2,0,"");
+				vs_push(control_flow_stack,tmp_control);
+			}
 		} else if (num_tokens >= 2 &&
 				get_token_type(tokens[0])=='v' &&
 				get_token_hash(tokens[1])==-1408204561){
@@ -271,21 +462,35 @@ struct Variable ** eval_line(struct Token ** tokens,
 				printf("Result: %d\n\n",get_variable_ival(tmp));
 			}
 		}
-	} else if (get_token_hash(tokens[0])==2162724 || //Elif
-			get_token_hash(tokens[0])==2163033 || //Else
-			get_token_hash(tokens[0])==67098424) { // Endif
-		if (isEmpty(if_stack)) {
-			char * info = malloc(sizeof(char)*1024);
-			sprintf("If statement not found before %s statement.",get_token_value(tokens[0]));
-			SyntaxError(info,__LINE__,__FILE__);
+
+	} else if (get_variable_ival(vs_get_top(control_flow_stack))==2) { // if the control flow stack says the task is already complete
+
+		// handle all if logic
+		if (get_token_hash(tokens[0])==2162724 || // Elif
+				get_token_hash(tokens[0])==2163033 || // Else
+				get_token_hash(tokens[0])==67098424 || // EndIf
+				(get_token_hash(tokens[0])==2365)) {
+			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"if")!=0)
+				SyntaxError("Mismatched control flow arguments in your expression",__LINE__,__FILE__);
+
+			if (get_token_hash(tokens[0])==67098424) vs_pop(control_flow_stack);
+			else if (get_token_hash(tokens[0])==2365)  {  // If
+				struct Variable * tmp_control = create_variable("control","if",2,0,"",-1);
+				vs_push(control_flow_stack,tmp_control);
+			}
 		}
 
-		if (get_top(if_stack)==2) {
-			if (get_token_hash(tokens[0])==67098424) pop(if_stack);
-		} else if (get_top(if_stack)==0) {
-			pop(if_stack);
+	} else if (get_variable_ival(vs_get_top(control_flow_stack))==0) { // if the control flow stack says the task is not complete
 
-			if(get_token_hash(tokens[0])==2162724) { //Else if
+		// handle all if logic
+		if ((get_token_hash(tokens[0])==2162724 || // Elif
+			get_token_hash(tokens[0])==2163033 || // Else
+			get_token_hash(tokens[0])==67098424) && // EndIf
+				strcmp(get_variable_name(vs_get_top(control_flow_stack)),"if")==0) {
+
+			vs_pop(control_flow_stack);
+
+			if(get_token_hash(tokens[0])==2162724) { // Else if
 				if (num_tokens==1) SyntaxError("No statement found after If call",__LINE__,__FILE__);
 
 				struct Variable * tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables);
@@ -302,16 +507,18 @@ struct Variable ** eval_line(struct Token ** tokens,
 					sprintf(info,"If statement cannot interpret value: %f",tmp_val);
 					InvalidValueError(info,__LINE__,__FILE__);
 				}
-
-				push(if_stack,tmp_val);
+				struct Variable * tmp_control = create_variable("control","if",tmp_val,0,"",-1);
+				vs_push(control_flow_stack,tmp_control);
 				free(tmp);
-			} else if (get_token_hash(tokens[0])==2163033) { //Else
-				push(if_stack,1);
+			} else if (get_token_hash(tokens[0])==2163033) { // Else
+				struct Variable * tmp_control = create_variable("control","if",1,0,"",-1);
+				vs_push(control_flow_stack,tmp_control);
 			}
-		} else {
-			SyntaxError("Something is wrong with your expression!",__LINE__,__FILE__);
 		}
-	}
+
+
+	} else SyntaxError("Something is wrong with your expression!",__LINE__,__FILE__);
+
 	*num_variables = tmp_num_variables;
 	return variables;
 }

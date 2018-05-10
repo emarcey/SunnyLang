@@ -6,6 +6,7 @@
  */
 
 #include "struct/Stack.h"
+#include "struct/VariableStack.h"
 
 #ifndef TOKENIZER_H_
 #define TOKENIZER_H_
@@ -54,6 +55,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,
 		int * num_variables,
-		struct Stack * if_stack);
+		struct VariableStack * control_flow_stack,
+		int * line_number);
 
 #endif /* TOKENIZER_H_ */

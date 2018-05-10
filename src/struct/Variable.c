@@ -20,6 +20,7 @@ struct Variable {
 	char * type;
 	char * name;
 	unsigned int name_hash;
+	int line_number;
 
 	union {
 		int ival;
@@ -29,11 +30,22 @@ struct Variable {
 
 };
 
+void assign_line_number(struct Variable * variable, int line_number) {
+	if (strcmp(variable->type,"control") == 0 || strcmp(variable->name,"if")!= 0) {
+		variable->line_number = line_number;
+	} else {
+			char * info = malloc(sizeof(char)*1024);
+			sprintf("Line number not applicable for %s type variable %s.",variable->type,variable->name);
+			InvalidValueError(info,__LINE__,__FILE__);
+		}
+}
+
 struct Variable* create_variable(char * type,
 		char * name,
 		int ival,
 		float fval,
-		char * cval) {
+		char * cval,
+		int line_number) {
 	struct Variable* variable = (struct Variable*) malloc(sizeof(struct Variable));
 
 	variable->type = type;
@@ -53,9 +65,13 @@ struct Variable* create_variable(char * type,
 		variable->uval.fval = fval;
 	} else if (strcmp(type,"string")==0) {
 		variable->uval.cval = cval;
+	} else if (strcmp(type,"control")==0) {
+		variable->uval.ival = ival;
 	} else {
 		TypeNotRecognizedError(type,name,"variable",__LINE__,__FILE__);
 	}
+
+	if (line_number > 0) assign_line_number(variable, line_number);
 
 	return variable;
 }
@@ -84,20 +100,24 @@ char * get_variable_cval(struct Variable * variable) {
 	return variable->uval.cval;
 }
 
+int get_variable_line_number(struct Variable * variable) {
+	return variable->line_number;
+}
+
 char * return_variable_value_as_char(struct Variable * variable) {
 	char * return_val = malloc(sizeof(char)*1024);
 	if (strcmp(variable->type,"string"))
 		return_val = variable->uval.cval;
 	else if (strcmp(variable->type,"string")==0)
 		sprintf(return_val,"%f",variable->uval.fval);
-	else if ((strcmp(variable->type,"int")==0 || strcmp(variable->type,"boolean")==0))
+	else if (strcmp(variable->type,"int")==0 || strcmp(variable->type,"boolean")==0 || strcmp(variable->type,"control")==0)
 		sprintf(return_val,"%d",variable->uval.ival);
 
 	return return_val;
 }
 
 void assign_variable_value(struct Variable * variable, int ival, float fval, char * cval) {
-	if ((strcmp(variable->type,"int")==0 || strcmp(variable->type,"boolean")==0)) {
+	if ((strcmp(variable->type,"int") ==0 || strcmp(variable->type,"boolean")==0) || strcmp(variable->type,"control")==0) {
 		variable->uval.ival = ival;
 	} else if (strcmp(variable->type,"float")==0) {
 		variable->uval.fval = fval;

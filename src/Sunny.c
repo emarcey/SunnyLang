@@ -16,9 +16,11 @@
 #include "utils/File_Utils.h"
 #include "utils/String_Utils.h"
 #include "utils/Math_Utils.h"
+#include "utils/Misc_Utils.h"
 
 #include "struct/Token.h"
 #include "struct/Variable.h"
+#include "struct/VariableStack.h"
 
 #include "Exceptions.h"
 #include "Tokenizer.h"
@@ -28,9 +30,6 @@ static char * df = "./cmds.csv";
 //static int user_variable_ct = 0;
 
 int main(int argc, char* argv[]) {
-
-	printf("and: %u\n",hash("and"));
-	printf("or: %u\n",hash("or"));
 
 	clock_t start = clock(), diff;
 
@@ -55,7 +54,7 @@ int main(int argc, char* argv[]) {
 	int sdata_num_rows;
 	char ** s_data = load_file(s_file_name,&sdata_num_rows);
 	struct Variable ** variables = malloc(sizeof(struct Variable *)*sdata_num_rows);
-	struct Stack * if_stack = createStack(sdata_num_rows);
+	struct VariableStack * control_flow_stack = vs_create_stack(sdata_num_rows);
 
 	int num_variables = 0;
 	for (int i = 0; i < sdata_num_rows; i++) {
@@ -72,9 +71,15 @@ int main(int argc, char* argv[]) {
 			printf("%s ",get_token_value(t));
 		}
 		printf("\n");
-		variables = eval_line(tokens,num_tokens,variables,&num_variables,if_stack);
+		int line_number = i;
+		variables = eval_line(tokens,num_tokens,variables,&num_variables,control_flow_stack,&line_number);
+		/*
+		if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")==0 &&
+				get_variable_ival(vs_get_top(control_flow_stack))==0)
+			i = get_variable_line_number(vs_get_top(control_flow_stack))-1;
+			*/
 	}
-	if (!isEmpty(if_stack)) SyntaxError("No EndIf statement found at the end of your program.",__LINE__,__FILE__);
+	//if (!isEmpty(control_flow_stack)) SyntaxError("No EndIf statement found at the end of your program.",__LINE__,__FILE__);
 
 	free(s_data);
 	free(variables);
