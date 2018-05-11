@@ -155,7 +155,8 @@ struct Token ** tokenize_line(char * line,
 int validate_for_statement(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,
-		int tmp_num_variables) {
+		int tmp_num_variables,
+		struct VariableStack * control_flow_stack) {
 	int return_val = 0;
 	int equalities[] = {1921,1983,60,62};
 	int equalities_len = 4;
@@ -192,7 +193,11 @@ int validate_for_statement(struct Token ** tokens,
 				}
 			} else return_val = 2;
 		} else { //variable does exist
-			if (num_tokens == 7) SyntaxError("Unable to parse for statement. Incorrect statement length.",__LINE__,__FILE__);
+			if (num_tokens == 7 &&
+					vs_is_empty(control_flow_stack)!= 1 &&
+					strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")==0 &&
+					get_variable_ival(vs_get_top(control_flow_stack))==2)
+				SyntaxError("Unable to parse for statement. Incorrect statement length.",__LINE__,__FILE__);
 			return_val = 1;
 		}
 
@@ -327,7 +332,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 				}
 			}
 		} else if (get_token_hash(tokens[0])==499119488) { //ForBegin
-			int validate_for = validate_for_statement(tokens,num_tokens,variables,tmp_num_variables);
+			int validate_for = validate_for_statement(tokens,num_tokens,variables,tmp_num_variables,control_flow_stack);
 			struct Variable * tmp_var = malloc(sizeof(struct Variable*));
 			if (validate_for == 1) {
 				int variable_ind = variable_index(variables,tmp_num_variables,get_token_hash(tokens[1]));

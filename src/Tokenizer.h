@@ -51,6 +51,12 @@ struct Token ** tokenize_line(char * line,
 		int cmd_rows,
 		int cmd_fields);
 
+int validate_for_statement(struct Token ** tokens,
+		int num_tokens,
+		struct Variable ** variables,
+		int tmp_num_variables,
+		struct VariableStack * control_flow_stack);
+
 struct Variable ** eval_line(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,

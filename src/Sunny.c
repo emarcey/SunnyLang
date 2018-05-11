@@ -58,7 +58,6 @@ int main(int argc, char* argv[]) {
 
 	int num_variables = 0;
 	int i = 0;
-	int ct = 0;
 
 	struct Token *** token_array = malloc(sizeof(struct Token **)*sdata_num_rows);
 	int token_array_lengths[sdata_num_rows];
