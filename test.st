@@ -1,3 +1,5 @@
-Rickety tmpVar Dennis 0 MagnumCondoms 1000000 1
-tmpVar BrownOut 1
+Rickety tmpVar Dennis 0 MagnumCondoms 10 1
+Rickety tmpVar2 Dennis 0 MagnumCondoms tmpVar 1
+tmpVar2
 Cricket
+Cricket 

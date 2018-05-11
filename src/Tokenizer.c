@@ -388,7 +388,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 				tmp_int2 = get_variable_ival(tmp_result);
 			}
 			struct Variable * push_to_stack = create_variable("control","for",tmp_int2,0,"",tmp_line_number);
-			vs_push(control_flow_stack,push_to_stack);
+			if (tmp_int2==1) vs_push(control_flow_stack,push_to_stack);
 			//free(tmp_var2);
 			//free(tmp_result);
 		} else if (get_token_hash(tokens[0])==2110017394) { // EndFor
@@ -399,7 +399,6 @@ struct Variable ** eval_line(struct Token ** tokens,
 
 			else if (num_tokens > 1) SyntaxError("Too many tokens found on EndFor line.",__LINE__,__FILE__);
 			else {
-
 				tmp_line_number = get_variable_line_number(vs_get_top(control_flow_stack));
 				*line_number = tmp_line_number;
 				assign_variable_value(vs_get_top(control_flow_stack),2,2,"");
@@ -554,15 +553,13 @@ struct Variable ** eval_line(struct Token ** tokens,
 				struct Variable * tmp_control = create_variable("control","if",1,0,"",-1);
 				vs_push(control_flow_stack,tmp_control);
 			}
-		}
-			/*
-		} else if (get_token_hash(tokens[0])==2110017394) { // EndFor
+		} /*else if (get_token_hash(tokens[0])==2110017394) { // EndFor
 			printf("test %d %d\n",tmp_line_number,vs_get_top_num(control_flow_stack));
 			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")!=0)
 				SyntaxError("EndFor found without matching For loop",__LINE__,__FILE__);
-
+			if
 			vs_pop(control_flow_stack);
-		} */
+		}*/
 
 	} else SyntaxError("Something is wrong with your expression!",__LINE__,__FILE__);
 
