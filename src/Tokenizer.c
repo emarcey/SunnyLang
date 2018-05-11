@@ -339,7 +339,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 				tmp_double = atof(tmp_val);
 				tmp_int = tmp_double;
 				assign_variable_value(tmp_var,tmp_int,tmp_double,"");
-				free(tmp_val);
+				//free(tmp_val);
 			}
 			if (validate_for == 2 || validate_for == 3) {
 				char * tmp_val = malloc(sizeof(char)*20);
@@ -363,8 +363,8 @@ struct Variable ** eval_line(struct Token ** tokens,
 				tmp_var = create_variable(tmp_type,get_token_value(tokens[1]),tmp_int,tmp_double,"",-1);
 				variables[tmp_num_variables] = tmp_var;
 				tmp_num_variables++;
-				free(tmp_val);
-				free(tmp_type);
+				//free(tmp_val);
+				//free(tmp_type);
 			}
 			double tmp_double;
 			struct Variable * tmp_var2 = malloc(sizeof(struct Variable *));
@@ -384,12 +384,21 @@ struct Variable ** eval_line(struct Token ** tokens,
 				tmp_int2 = get_variable_ival(tmp_result);
 			}
 			struct Variable * push_to_stack = create_variable("control","for",tmp_int2,0,"",tmp_line_number);
-			printf("%d\n",tmp_int2);
 			vs_push(control_flow_stack,push_to_stack);
-			free(tmp_var2);
-			free(tmp_result);
-
+			//free(tmp_var2);
+			//free(tmp_result);
 			//Rickety {variable} {interval} {begin value} {inequality} {end value}
+		} else if (get_token_hash(tokens[0])==2110017394) { // EndFor
+			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for") != 0) {
+				SyntaxError("End For loop found without corresponding Begin statement.",__LINE__,__FILE__);
+			}
+
+			if (num_tokens > 1) SyntaxError("Too many tokens found on EndFor line.",__LINE__,__FILE__);
+
+			tmp_line_number = get_variable_line_number(vs_get_top(control_flow_stack));
+			*line_number = tmp_line_number;
+			assign_variable_value(vs_get_top(control_flow_stack),2,2,"");
+
 		} else if (get_token_hash(tokens[0])==2365) { // If
 			if (num_tokens==1) SyntaxError("No statement found after If call",__LINE__,__FILE__);
 
@@ -411,7 +420,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 			struct Variable * tmp_control = create_variable("control","if",tmp_val,0,"",-1);
 
 			vs_push(control_flow_stack,tmp_control);
-			free(tmp);
+			//free(tmp);
 		} else if (get_token_hash(tokens[0])==2162724 || //Elif
 						get_token_hash(tokens[0])==2163033 || //Else
 						get_token_hash(tokens[0])==67098424 )  { //EndIf
@@ -455,11 +464,11 @@ struct Variable ** eval_line(struct Token ** tokens,
 			struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
 
 			if (strcmp(get_variable_type(tmp),"float")==0) {
-				printf("Result: %f\n\n",get_variable_fval(tmp));
+				fprintf(stdout,"Result: %f\n",get_variable_fval(tmp));
 			} else if (strcmp(get_variable_type(tmp),"string")==0) {
-				printf("Result: %s\n\n",get_variable_cval(tmp));
+				fprintf(stdout,"Result: %s\n",get_variable_cval(tmp));
 			} else {
-				printf("Result: %d\n\n",get_variable_ival(tmp));
+				fprintf(stdout,"Result: %d\n",get_variable_ival(tmp));
 			}
 		}
 
@@ -478,6 +487,35 @@ struct Variable ** eval_line(struct Token ** tokens,
 				struct Variable * tmp_control = create_variable("control","if",2,0,"",-1);
 				vs_push(control_flow_stack,tmp_control);
 			}
+		} else if (get_token_hash(tokens[0])==499119488) { //BeginFor
+
+			int tmp_var_index = variable_index(variables,tmp_num_variables,get_token_hash(tokens[1]));
+			double interval = atof(get_token_value(tokens[num_tokens-1]));
+			double tmp_double;
+			struct Variable * tmp_var = malloc(sizeof(struct Variable *));
+			if (strcmp(get_variable_type(variables[tmp_var_index]),"float")==0) {
+				assign_variable_value(variables[tmp_var_index],0,get_variable_fval(variables[tmp_var_index])+interval,"");
+			} else {
+				int tmp_val = get_variable_ival(variables[tmp_var_index])+interval;
+				assign_variable_value(variables[tmp_var_index],tmp_val,0,"");
+			}
+
+			if (get_token_type(tokens[num_tokens-2])=='n') {
+				tmp_double = atof(get_token_value(tokens[num_tokens-2]));
+				tmp_var = create_variable("float","float",0,tmp_double,"",-1);
+			} else if (get_token_type(tokens[num_tokens-2])=='v') {
+				int variable_ind = variable_index(variables,tmp_num_variables,get_token_hash(tokens[num_tokens-2]));
+				tmp_var = variables[variable_ind];
+			}
+			struct Variable * tmp_result = eval_op_numeric(variables[tmp_var_index],tmp_var,get_token_hash(tokens[num_tokens-3]));
+
+			int tmp_int2;
+			if (strcmp(get_variable_type(tmp_result),"float")==0) {
+				tmp_int2 = get_variable_fval(tmp_result);
+			} else {
+				tmp_int2 = get_variable_ival(tmp_result);
+			}
+			assign_variable_value(vs_get_top(control_flow_stack),tmp_int2,0,"");
 		}
 
 	} else if (get_variable_ival(vs_get_top(control_flow_stack))==0) { // if the control flow stack says the task is not complete
@@ -509,7 +547,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 				}
 				struct Variable * tmp_control = create_variable("control","if",tmp_val,0,"",-1);
 				vs_push(control_flow_stack,tmp_control);
-				free(tmp);
+				//free(tmp);
 			} else if (get_token_hash(tokens[0])==2163033) { // Else
 				struct Variable * tmp_control = create_variable("control","if",1,0,"",-1);
 				vs_push(control_flow_stack,tmp_control);

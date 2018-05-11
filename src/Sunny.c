@@ -57,22 +57,38 @@ int main(int argc, char* argv[]) {
 	struct VariableStack * control_flow_stack = vs_create_stack(sdata_num_rows);
 
 	int num_variables = 0;
-	for (int i = 0; i < sdata_num_rows; i++) {
-		int num_tokens;
-		printf("Initial phrase: %s\n",s_data[i]);
-		struct Token ** tokens = tokenize_line(s_data[i],
+	int i = 0;
+	int ct = 0;
+
+	struct Token *** token_array = malloc(sizeof(struct Token **)*sdata_num_rows);
+	int token_array_lengths[sdata_num_rows];
+	while (i < sdata_num_rows) {
+		int num_tokens = 0;
+		fprintf(stdout,"Initial phrase: %s\n",s_data[i]);
+		token_array[i] = tokenize_line(s_data[i],
 				&num_tokens,
 				cmds,
 				cmd_num_rows,
 				cmd_num_fields);
-		printf("Translated: ");
+
+		token_array_lengths[i] = num_tokens;
+		fprintf(stdout,"Translated: ");
 		for (int j = 0; j < num_tokens; j++) {
-			struct Token * t = tokens[j];
-			printf("%s ",get_token_value(t));
+			struct Token * t = token_array[i][j];
+			fprintf(stdout,"%s ",get_token_value(t));
 		}
-		printf("\n");
+		fprintf(stdout,"\n");
+		i++;
+	}
+	fprintf(stdout,"\n");
+	i = 0;
+	while (i < sdata_num_rows) {
 		int line_number = i;
-		variables = eval_line(tokens,num_tokens,variables,&num_variables,control_flow_stack,&line_number);
+
+		variables = eval_line(token_array[i],token_array_lengths[i],variables,&num_variables,control_flow_stack,&line_number);
+		if (line_number != i)
+			i = line_number;
+		else i++;
 		/*
 		if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")==0 &&
 				get_variable_ival(vs_get_top(control_flow_stack))==0)
@@ -87,7 +103,7 @@ int main(int argc, char* argv[]) {
 	diff = clock() - start;
 
 	int msec = diff * 1000/CLOCKS_PER_SEC;
-	printf("\nTime taken %d seconds %d milliseconds", msec/1000, msec%1000);
+	fprintf(stdout,"\nTime taken %d seconds %d milliseconds", msec/1000, msec%1000);
 
 	return 0;
 }
