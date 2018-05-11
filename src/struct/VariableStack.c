@@ -36,6 +36,10 @@ struct VariableStack* vs_create_stack(unsigned capacity)
     return stack;
 }
 
+int vs_get_top_num(struct VariableStack* stack) {
+	return stack->top;
+}
+
 // Stack is full when top is equal to the last index
 int vs_is_full(struct VariableStack* stack)
 {   return stack->top == stack->capacity - 1; }

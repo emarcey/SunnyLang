@@ -15,6 +15,8 @@ struct Variable;
 //Function assigns line number to variable if correct type
 void assign_line_number(struct Variable * variable, int line_number);
 
+void assign_end_line_number(struct Variable * variable, int line_number);
+
 /*
  * create_variable:
  *  - Create a Variable with given input

@@ -21,6 +21,7 @@ struct Variable {
 	char * name;
 	unsigned int name_hash;
 	int line_number;
+	int end_line_number;
 
 	union {
 		int ival;
@@ -33,6 +34,16 @@ struct Variable {
 void assign_line_number(struct Variable * variable, int line_number) {
 	if (strcmp(variable->type,"control") == 0 || strcmp(variable->name,"if")!= 0) {
 		variable->line_number = line_number;
+	} else {
+			char * info = malloc(sizeof(char)*1024);
+			sprintf("Line number not applicable for %s type variable %s.",variable->type,variable->name);
+			InvalidValueError(info,__LINE__,__FILE__);
+		}
+}
+
+void assign_end_line_number(struct Variable * variable, int line_number) {
+	if (strcmp(variable->type,"control") == 0 || strcmp(variable->name,"if")!= 0) {
+		variable->end_line_number = line_number;
 	} else {
 			char * info = malloc(sizeof(char)*1024);
 			sprintf("Line number not applicable for %s type variable %s.",variable->type,variable->name);

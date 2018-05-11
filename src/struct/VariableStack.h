@@ -12,6 +12,7 @@
 
 struct VariableStack;
 
+int vs_get_top_num(struct VariableStack* stack);
 // function to create a stack of given capacity. It initializes size of stack as 0
 struct VariableStack* vs_create_stack(unsigned capacity);
 
