@@ -148,3 +148,35 @@ Sunny.c is the main source file, which kicks off the entire process, and Tokeniz
 The user-defined structs are in [struct](https://github.com/evanmarcey/SunnyLang/tree/master/src/struct), and similarly all utilities are contained in [util](https://github.com/evanmarcey/SunnyLang/tree/master/src/utils).
 
 ## Examples
+
+### 1. Simple For Statement
+
+The following code runs a for loop that prints the number 1-10
+```
+Rickety tmpVar 1 MagnumCondoms 10 1
+tmpVar+1
+Cricket 
+```
+
+The response, with full debugging is:
+```
+Initial phrase: Rickety tmpVar 0 MagnumCondoms 10 1
+Translated: ForBegin tmpVar 0 < 10 1 
+Initial phrase: tmpVar BrownOut 1
+Translated: tmpVar + 1 
+Initial phrase: Cricket
+Translated: ForEnd 
+
+Result: 1.000000
+Result: 2.000000
+Result: 3.000000
+Result: 4.000000
+Result: 5.000000
+Result: 6.000000
+Result: 7.000000
+Result: 8.000000
+Result: 9.000000
+Result: 10.000000
+
+Time taken 0 seconds 0 milliseconds
+```
