@@ -10,6 +10,8 @@
 #include "struct/Stack.h"
 #include "struct/Variable.h"
 #include "struct/VariableStack.h"
+#include "struct/ControlVariable.h"
+#include "struct/ControlVariableStack.h"
 
 #include "Exceptions.h"
 
@@ -388,16 +390,15 @@ struct Variable ** eval_line(struct Token ** tokens,
 				tmp_int2 = get_variable_ival(tmp_result);
 			}
 			struct Variable * push_to_stack = create_variable("control","for",tmp_int2,0,"",tmp_line_number);
-			if (tmp_int2==1) vs_push(control_flow_stack,push_to_stack);
+			vs_push(control_flow_stack,push_to_stack);
 			//free(tmp_var2);
 			//free(tmp_result);
 		} else if (get_token_hash(tokens[0])==2110017394) { // EndFor
 			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for") != 0) {
-				///Something about this isn't working but I can't figure it out rn
-				//SyntaxError("End For loop found without corresponding Begin statement.",__LINE__,__FILE__);
+				SyntaxError("End For loop found without corresponding Begin statement.",__LINE__,__FILE__);
 			}
 
-			else if (num_tokens > 1) SyntaxError("Too many tokens found on EndFor line.",__LINE__,__FILE__);
+			if (num_tokens > 1) SyntaxError("Too many tokens found on EndFor line.",__LINE__,__FILE__);
 			else {
 				tmp_line_number = get_variable_line_number(vs_get_top(control_flow_stack));
 				*line_number = tmp_line_number;
@@ -515,8 +516,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 			} else {
 				tmp_int2 = get_variable_ival(tmp_result);
 			}
-			if (tmp_int2==1) assign_variable_value(vs_get_top(control_flow_stack),tmp_int2,0,"");
-			else vs_pop(control_flow_stack);
+			assign_variable_value(vs_get_top(control_flow_stack),tmp_int2,0,"");
 		}
 
 	} else if (get_variable_ival(vs_get_top(control_flow_stack))==0) { // if the control flow stack says the task is not complete
@@ -553,13 +553,21 @@ struct Variable ** eval_line(struct Token ** tokens,
 				struct Variable * tmp_control = create_variable("control","if",1,0,"",-1);
 				vs_push(control_flow_stack,tmp_control);
 			}
-		} /*else if (get_token_hash(tokens[0])==2110017394) { // EndFor
-			printf("test %d %d\n",tmp_line_number,vs_get_top_num(control_flow_stack));
+		}
+
+		else if (get_token_hash(tokens[0])==499119488) { //ForBegin
+			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")==0) {
+				struct Variable * tmp_control = create_variable("control","for",0,0,"",tmp_line_number);
+				vs_push(control_flow_stack,tmp_control);
+			}
+		}
+
+		else if (get_token_hash(tokens[0])==2110017394) { //ForEnd
+			//get_control_variable_status(cvs_get_top(control_flow_stack)));
 			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")!=0)
 				SyntaxError("EndFor found without matching For loop",__LINE__,__FILE__);
-			if
 			vs_pop(control_flow_stack);
-		}*/
+		}
 
 	} else SyntaxError("Something is wrong with your expression!",__LINE__,__FILE__);
 

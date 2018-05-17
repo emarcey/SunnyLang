@@ -21,15 +21,19 @@
 #include "struct/Token.h"
 #include "struct/Variable.h"
 #include "struct/VariableStack.h"
+#include "struct/ControlVariable.h"
+#include "struct/ControlVariableStack.h"
 
 #include "Exceptions.h"
 #include "Tokenizer.h"
 
 static char * df = "./cmds.csv";
-//struct Variable ** user_variables = malloc(sizeof(struct Variable *)*25);
-//static int user_variable_ct = 0;
 
 int main(int argc, char* argv[]) {
+
+	printf("TEST\n");
+	printf("ForBegin: %u\n",hash("ForBegin"));
+	printf("ForEnd: %u\n",hash("ForEnd"));
 
 	clock_t start = clock(), diff;
 
@@ -83,19 +87,12 @@ int main(int argc, char* argv[]) {
 	i = 0;
 	while (i < sdata_num_rows) {
 		int line_number = i;
-
 		variables = eval_line(token_array[i],token_array_lengths[i],variables,&num_variables,control_flow_stack,&line_number);
 		if (line_number != i) {
 			i = line_number;
 		}
 		else i++;
-		/*
-		if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")==0 &&
-				get_variable_ival(vs_get_top(control_flow_stack))==0)
-			i = get_variable_line_number(vs_get_top(control_flow_stack))-1;
-			*/
 	}
-	//if (!isEmpty(control_flow_stack)) SyntaxError("No EndIf statement found at the end of your program.",__LINE__,__FILE__);
 
 	free(s_data);
 	free(variables);
