@@ -45,6 +45,6 @@ void MismatchedVariableTypesError(char * variable_name1,
 		int line_number,
 		char * file_name);
 
-void InvalidIfError(char * value, int line_number, char * file_name);
+void InvalidConditionValueError(char * value, int line_number, char * file_name);
 
 #endif /* EXCEPTIONS_H_ */

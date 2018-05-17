@@ -21,8 +21,6 @@
 #include "struct/Token.h"
 #include "struct/Variable.h"
 #include "struct/VariableStack.h"
-#include "struct/ControlVariable.h"
-#include "struct/ControlVariableStack.h"
 
 #include "Exceptions.h"
 #include "Tokenizer.h"
@@ -31,10 +29,9 @@ static char * df = "./cmds.csv";
 
 int main(int argc, char* argv[]) {
 
-	printf("TEST\n");
-	printf("ForBegin: %u\n",hash("ForBegin"));
-	printf("ForEnd: %u\n",hash("ForEnd"));
 
+	printf("WhileBegin: %u\n",hash("WhileBegin"));
+	printf("WhileEnd: %u\n",hash("WhileEnd"));
 	clock_t start = clock(), diff;
 
 	int cmd_num_rows, cmd_num_fields;

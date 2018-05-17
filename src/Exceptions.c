@@ -141,10 +141,10 @@ void MismatchedVariableTypesError(char * variable_name1,
 	RaiseError(type, message, line_number, file_name);
 }
 
-void InvalidIfError(char * value, int line_number, char * file_name) {
+void InvalidConditionValueError(char * value, int line_number, char * file_name) {
 	char * type = "InvalidIfError";
 	char * message = malloc(sizeof(char)*1024);
 
-	sprintf(message,"%s is not a valid value for an If statement.",value);
+	sprintf(message,"%s is not a valid value for Condition statement.",value);
 	RaiseError(type, message, line_number, file_name);
 }

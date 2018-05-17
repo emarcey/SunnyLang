@@ -10,8 +10,6 @@
 #include "struct/Stack.h"
 #include "struct/Variable.h"
 #include "struct/VariableStack.h"
-#include "struct/ControlVariable.h"
-#include "struct/ControlVariableStack.h"
 
 #include "Exceptions.h"
 
@@ -148,12 +146,6 @@ struct Token ** tokenize_line(char * line,
 	return tokens;
 }
 
-/*
- * throws an error if invalid
- * returns 1 if valid and variable already exists
- * returns 2 if valid, variable does not exist and default type to integer
- * returns 3 if valid, variable does not exist and type is explicitly stated in the statement
- */
 int validate_for_statement(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,
@@ -383,27 +375,45 @@ struct Variable ** eval_line(struct Token ** tokens,
 			}
 			struct Variable * tmp_result = eval_op_numeric(tmp_var,tmp_var2,get_token_hash(tokens[num_tokens-3]));
 
-			int tmp_int2;
-			if (strcmp(get_variable_type(tmp_result),"float")==0) {
-				tmp_int2 = get_variable_fval(tmp_result);
-			} else {
-				tmp_int2 = get_variable_ival(tmp_result);
-			}
-			struct Variable * push_to_stack = create_variable("control","for",tmp_int2,0,"",tmp_line_number);
+			int tmp_result_int = get_variable_val_as_int_condition(tmp_result);
+			struct Variable * push_to_stack = create_variable("control","for",tmp_result_int,0,"",tmp_line_number);
 			vs_push(control_flow_stack,push_to_stack);
 			//free(tmp_var2);
 			//free(tmp_result);
-		} else if (get_token_hash(tokens[0])==2110017394) { // EndFor
-			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for") != 0) {
-				SyntaxError("End For loop found without corresponding Begin statement.",__LINE__,__FILE__);
-			}
+		} else if (get_token_hash(tokens[0])==2110017394) { // ForEnd
+			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for") != 0)
+				SyntaxError("ForEnd loop found without corresponding Begin statement.",__LINE__,__FILE__);
 
-			if (num_tokens > 1) SyntaxError("Too many tokens found on EndFor line.",__LINE__,__FILE__);
-			else {
-				tmp_line_number = get_variable_line_number(vs_get_top(control_flow_stack));
-				*line_number = tmp_line_number;
-				assign_variable_value(vs_get_top(control_flow_stack),2,2,"");
-			}
+			if (num_tokens > 1)
+				SyntaxError("Too many tokens found on ForEnd line.",__LINE__,__FILE__);
+
+			tmp_line_number = get_variable_line_number(vs_get_top(control_flow_stack));
+			*line_number = tmp_line_number;
+			assign_variable_value(vs_get_top(control_flow_stack),2,2,"");
+
+		} else if (get_token_hash(tokens[0])==3714707480) { // WhileBegin
+			if (num_tokens < 2)
+				SyntaxError("WhileBegin statement requires an expression to evaluate.",__LINE__,__FILE__);
+
+			struct Variable * while_tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables);
+			int tmp_result_int = get_variable_val_as_int_condition(while_tmp);
+
+			free(while_tmp);
+
+			struct Variable * push_to_stack = create_variable("control","while",tmp_result_int,0,"",tmp_line_number);
+			vs_push(control_flow_stack,push_to_stack);
+
+		} else if (get_token_hash(tokens[0])==2220625930) { // WhileEnd
+			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"while") != 0)
+				SyntaxError("WhileEnd loop found without corresponding Begin statement.",__LINE__,__FILE__);
+
+			if (num_tokens > 1)
+				SyntaxError("Too many tokens found on WhileEnd line.",__LINE__,__FILE__);
+
+			tmp_line_number = get_variable_line_number(vs_get_top(control_flow_stack));
+			*line_number = tmp_line_number;
+			assign_variable_value(vs_get_top(control_flow_stack),2,2,"");
+
 		} else if (get_token_hash(tokens[0])==2365) { // If
 			if (num_tokens==1) SyntaxError("No statement found after If call",__LINE__,__FILE__);
 
@@ -488,7 +498,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 				struct Variable * tmp_control = create_variable("control","if",2,0,"",-1);
 				vs_push(control_flow_stack,tmp_control);
 			}
-		} else if (get_token_hash(tokens[0])==499119488) { //BeginFor
+		} else if (get_token_hash(tokens[0])==499119488) { // ForBegin
 
 			int tmp_var_index = variable_index(variables,tmp_num_variables,get_token_hash(tokens[1]));
 			double interval = atof(get_token_value(tokens[num_tokens-1]));
@@ -510,13 +520,14 @@ struct Variable ** eval_line(struct Token ** tokens,
 			}
 			struct Variable * tmp_result = eval_op_numeric(variables[tmp_var_index],tmp_var,get_token_hash(tokens[num_tokens-3]));
 
-			int tmp_int2;
-			if (strcmp(get_variable_type(tmp_result),"float")==0) {
-				tmp_int2 = get_variable_fval(tmp_result);
-			} else {
-				tmp_int2 = get_variable_ival(tmp_result);
-			}
-			assign_variable_value(vs_get_top(control_flow_stack),tmp_int2,0,"");
+			int tmp_result_int = get_variable_val_as_int_condition(tmp_result);
+			assign_variable_value(vs_get_top(control_flow_stack),tmp_result_int,0,"");
+
+		} else if (get_token_hash(tokens[0])==3714707480) { // WhileBegin
+			struct Variable * tmp_while = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables);
+			int tmp_result_int = get_variable_val_as_int_condition(tmp_while);
+			assign_variable_value(vs_get_top(control_flow_stack),tmp_result_int,0,"");
+			free(tmp_while);
 		}
 
 	} else if (get_variable_ival(vs_get_top(control_flow_stack))==0) { // if the control flow stack says the task is not complete
@@ -565,9 +576,19 @@ struct Variable ** eval_line(struct Token ** tokens,
 		else if (get_token_hash(tokens[0])==2110017394) { //ForEnd
 			//get_control_variable_status(cvs_get_top(control_flow_stack)));
 			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")!=0)
-				SyntaxError("EndFor found without matching For loop",__LINE__,__FILE__);
+				SyntaxError("ForEnd found without matching For loop",__LINE__,__FILE__);
 			vs_pop(control_flow_stack);
 		}
+
+		} else if (get_token_hash(tokens[0])==3714707480) { // WhileBegin
+			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"while")==0) {
+				struct Variable * tmp_control = create_variable("control","while",0,0,"",tmp_line_number);
+				vs_push(control_flow_stack,tmp_control);
+			}
+		} else if (get_token_hash(tokens[0])==2220625930) { // WhileEnd
+			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"while")!=0)
+				SyntaxError("WhileEnd found without matching While loop",__LINE__,__FILE__);
+			vs_pop(control_flow_stack);
 
 	} else SyntaxError("Something is wrong with your expression!",__LINE__,__FILE__);
 

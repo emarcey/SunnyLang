@@ -49,6 +49,8 @@ float get_variable_fval(struct Variable * variable);
 //Function returns variable cval
 char * get_variable_cval(struct Variable * variable);
 
+int get_variable_val_as_int_condition(struct Variable * variable);
+
 //Function return variable line_number
 int get_variable_line_number(struct Variable * variable);
 

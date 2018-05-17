@@ -119,6 +119,8 @@ For Loops, again, are similar to most languages, with the exception that loops w
 
 If a variable is already declared, the for loop expects only the name of the variable. If it has not been declared, then it will search for a supplied data type. If this is not provided, the interpreter will assume that the new variable is an integer.
 
+The for loop uses the following commands:
+
 SunnyLangName | Translation
 --- | ---
 Rickety | ForBegin
@@ -136,6 +138,27 @@ Cricket
 ```
 
 #### While Loops
+
+While loop syntax is similar to for loop syntax, except that:
+1. Any variable used in the evaluation expression must exist prior to the WhileBegin call.
+2. Like all while loops, any iteration must be performed within the body of the While statement (i.e. there is no interval)
+
+As long as the expression in the while loop evaluates to 1, the code within the loop will be executed. 
+If the expression evaluates to 0, the code will be skipped, and if the loop evalutes to any other value, an error will be thrown.
+
+The while loop uses the following commands:
+
+SunnyLangName | Translation
+--- | ---
+Pepe | WhileBegin
+Sylvia | WhileEnd
+
+And the syntax will be as follows:
+```
+Pepe {expression}
+{code}
+Sylvia
+```
   
 ### Source Code
 
