@@ -27,6 +27,7 @@ The language currently supports:
  - Variable declaration and assignment for integer, float and boolean variables
   - String variables are planned, but not yet supported
  - If/Else logic
+ - For/While loop control flow
  - A whole mess of operators
  - Well that's really it.
  
@@ -35,7 +36,6 @@ Planned features:
   - User-Defined Class implementation
   - Additional built-in variables (i.e. arrays)
   - Additional built-in functions
-  - For/While loop control flow
   - Memory management
   
 ### Syntax
