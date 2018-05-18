@@ -132,7 +132,7 @@ int get_variable_val_as_int_condition(struct Variable * variable) {
 }
 char * return_variable_value_as_char(struct Variable * variable) {
 	char * return_val = malloc(sizeof(char)*1024);
-	if (strcmp(variable->type,"string"))
+	if (strcmp(variable->type,"string")==0)
 		return_val = variable->uval.cval;
 	else if (strcmp(variable->type,"string")==0)
 		sprintf(return_val,"%f",variable->uval.fval);
@@ -162,6 +162,7 @@ int variable_index(struct Variable** variables, int variable_count, unsigned int
 }
 
 int variable_types_compatible(char * type1, char * type2) {
+
 	if (strcmp(type1,"string")==0 && strcmp(type2,"string")==0) {
 		return 1;
 	} else if (strcmp(type1,"string")!=0 && (strcmp(type2,"string")!=0)) {

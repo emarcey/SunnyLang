@@ -146,6 +146,37 @@ struct Token ** tokenize_line(char * line,
 	return tokens;
 }
 
+int validate_declare_variable_statement(struct Token ** tokens,
+		int num_tokens,
+		struct Variable ** variables,
+		int tmp_num_variables) {
+	int result_type = 0;
+
+	if (num_tokens < 3) //if syntax is just not long enough to contain all necessary types
+		SyntaxError("Not enough tokens for variable declaration",__LINE__,__FILE__);
+
+	else if (tmp_num_variables > 0 &&
+			variable_index(variables,tmp_num_variables,get_token_hash(tokens[1]))!=-1) //check if variable exists
+		VariableAlreadyExistsError(get_token_value(tokens[1]),__LINE__,__FILE__);
+
+	else if (is_alphanum(get_token_value(tokens[1]))==0) //invalid variable name
+		InvalidVariableName(get_token_value(tokens[1]),__LINE__,__FILE__);
+
+	else if (get_token_hash(tokens[2])!=104431 &&
+			get_token_hash(tokens[2])!=97526364 &&
+			get_token_hash(tokens[2])!=-891985903 &&
+			get_token_hash(tokens[2])!=64711720) //if next command
+		TypeNotRecognizedError(get_token_value(tokens[2]),get_token_value(tokens[1]),"variable",__LINE__,__FILE__);
+
+	else if (num_tokens==3) { //if variable has no operator
+		result_type = 1;
+
+	} else if (num_tokens == 4) //
+		SyntaxError("Not enough tokens for variable declaration",__LINE__,__FILE__);
+
+	return result_type;
+}
+
 int validate_for_statement(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,
@@ -265,41 +296,21 @@ struct Variable ** eval_line(struct Token ** tokens,
 		int * num_variables,
 		struct VariableStack * control_flow_stack,
 		int * line_number) {
+
 	int tmp_num_variables = *num_variables;
 	int tmp_line_number = *line_number;
+
 	if (num_tokens==0) return variables;
+
 	if (vs_is_empty(control_flow_stack) || get_variable_ival(vs_get_top(control_flow_stack))==1) {
 		if (get_token_hash(tokens[0])==1542341994) { //declare a new variable
-			/*
-			 * First, we're going to do a bunch of error handling
-			 */
-			if (num_tokens < 3) //if syntax is just not long enough to contain all necessary types
-				SyntaxError("Not enough tokens for variable declaration",__LINE__,__FILE__);
+			int result_type = validate_declare_variable_statement(tokens,num_tokens,variables,tmp_num_variables);
 
-			else if (tmp_num_variables > 0 &&
-					variable_index(variables,tmp_num_variables,get_token_hash(tokens[1]))!=-1) //check if variable exists
-				VariableAlreadyExistsError(get_token_value(tokens[1]),__LINE__,__FILE__);
-
-			else if (is_alphanum(get_token_value(tokens[1]))==0) //invalid variable name
-				InvalidVariableName(get_token_value(tokens[1]),__LINE__,__FILE__);
-
-			else if (get_token_hash(tokens[2])!=104431 &&
-					get_token_hash(tokens[2])!=97526364 &&
-					get_token_hash(tokens[2])!=-891985903 &&
-					get_token_hash(tokens[2])!=64711720) //if next command
-				TypeNotRecognizedError(get_token_value(tokens[2]),get_token_value(tokens[1]),"variable",__LINE__,__FILE__);
-
-			else if (num_tokens==3) { //instantiate a blank variable
+			if (result_type==1) { //instantiate a blank variable
 				struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),0,0,"",-1);
 				variables[tmp_num_variables] = tmp_var;
 				tmp_num_variables++;
-
-			} else if (num_tokens == 4) //
-				SyntaxError("Not enough tokens for variable declaration",__LINE__,__FILE__);
-
-			else if (get_token_hash(tokens[3])!=-1408204561) //if we're missing an 'assign' command
-				SyntaxError("Assign block missing.",__LINE__,__FILE__);
-
+			}
 			else {
 				struct Variable* tmp = eval_infix(tokens,num_tokens,4,variables,tmp_num_variables);
 				if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[2]))==0)
@@ -337,7 +348,6 @@ struct Variable ** eval_line(struct Token ** tokens,
 				tmp_double = atof(tmp_val);
 				tmp_int = tmp_double;
 				assign_variable_value(tmp_var,tmp_int,tmp_double,"");
-				//free(tmp_val);
 			}
 			if (validate_for == 2 || validate_for == 3) {
 				char * tmp_val = malloc(sizeof(char)*20);
@@ -361,8 +371,6 @@ struct Variable ** eval_line(struct Token ** tokens,
 				tmp_var = create_variable(tmp_type,get_token_value(tokens[1]),tmp_int,tmp_double,"",-1);
 				variables[tmp_num_variables] = tmp_var;
 				tmp_num_variables++;
-				//free(tmp_val);
-				//free(tmp_type);
 			}
 			double tmp_double;
 			struct Variable * tmp_var2 = malloc(sizeof(struct Variable *));
@@ -378,8 +386,6 @@ struct Variable ** eval_line(struct Token ** tokens,
 			int tmp_result_int = get_variable_val_as_int_condition(tmp_result);
 			struct Variable * push_to_stack = create_variable("control","for",tmp_result_int,0,"",tmp_line_number);
 			vs_push(control_flow_stack,push_to_stack);
-			//free(tmp_var2);
-			//free(tmp_result);
 		} else if (get_token_hash(tokens[0])==2110017394) { // ForEnd
 			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for") != 0)
 				SyntaxError("ForEnd loop found without corresponding Begin statement.",__LINE__,__FILE__);
@@ -397,9 +403,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 
 			struct Variable * while_tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables);
 			int tmp_result_int = get_variable_val_as_int_condition(while_tmp);
-
 			free(while_tmp);
-
 			struct Variable * push_to_stack = create_variable("control","while",tmp_result_int,0,"",tmp_line_number);
 			vs_push(control_flow_stack,push_to_stack);
 
@@ -435,7 +439,6 @@ struct Variable ** eval_line(struct Token ** tokens,
 			struct Variable * tmp_control = create_variable("control","if",tmp_val,0,"",-1);
 
 			vs_push(control_flow_stack,tmp_control);
-			//free(tmp);
 		} else if (get_token_hash(tokens[0])==2162724 || //Elif
 						get_token_hash(tokens[0])==2163033 || //Else
 						get_token_hash(tokens[0])==67098424 )  { //EndIf
@@ -448,39 +451,54 @@ struct Variable ** eval_line(struct Token ** tokens,
 				assign_variable_value(tmp_control,2,0,"");
 				vs_push(control_flow_stack,tmp_control);
 			}
-		} else if (num_tokens >= 2 &&
-				get_token_type(tokens[0])=='v' &&
-				get_token_hash(tokens[1])==-1408204561){
+		} else if (get_token_type(tokens[0])=='v') {
+			if (num_tokens < 2) {
+				struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
+							fprintf(stdout,"Result: %s\n",return_variable_value_as_char(tmp));
+			}
+			else {
+				if (get_token_type(tokens[1])=='a') { // assign tasks
 
-			int tmp_variable_index = variable_index(variables,tmp_num_variables,get_token_hash(tokens[0]));
-			if (tmp_num_variables == 0 || tmp_variable_index==-1) //check if variable exists
-				VariableNotFoundError(get_token_value(tokens[0]),__LINE__,__FILE__);
+					int tmp_variable_index = variable_index(variables,tmp_num_variables,get_token_hash(tokens[0]));
+					if (tmp_num_variables == 0 || tmp_variable_index==-1) //check if variable exists
+						VariableNotFoundError(get_token_value(tokens[0]),__LINE__,__FILE__);
 
-			struct Variable* tmp = eval_infix(tokens,num_tokens,2,variables,tmp_num_variables);
-			if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[0]))==0)
-				MismatchedTypesError(get_token_value(tokens[0]),
-						get_variable_type(variables[tmp_variable_index]),
-						get_variable_type(tmp),
-						__LINE__,
-						__FILE__);
+					if (num_tokens == 2) { //check that statement is long enough
+						char * info = malloc(sizeof(char)*1024);
+						sprintf("Variable %s assignment statement does not have a value.",get_token_value(tokens[0]));
+						SyntaxError(info,__LINE__,__FILE__);
+					}
 
-			int tmp_int = get_variable_fval(tmp);
-			float tmp_float = get_variable_fval(tmp);
+					struct Variable* tmp = eval_infix(tokens,num_tokens,2,variables,tmp_num_variables);
+					if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[0]))==0)
+						MismatchedTypesError(get_token_value(tokens[0]),
+								get_variable_type(variables[tmp_variable_index]),
+								get_variable_type(tmp),
+								__LINE__,
+								__FILE__);
 
-			assign_variable_value(variables[tmp_variable_index],
-					tmp_int,
-					tmp_float,
-					get_variable_cval(tmp));
+					struct Variable * tmp_assign = malloc(sizeof(struct Variable *));
+					if (strcmp(get_token_value(tokens[1]),"assign")!=0) {
+						char * tmp_val_c = malloc(sizeof(char)*2);
+						sprintf(tmp_val_c,"%c",get_token_value(tokens[1])[0]);
+						double tmp_val_d = hash(tmp_val_c);
+						tmp_assign = eval_op(variables[tmp_variable_index],tmp,tmp_val_d);
+					} else {
+						tmp_assign = tmp;
+					}
+
+					float tmp_float = get_variable_fval(tmp_assign);
+					int tmp_int = tmp_float;
+
+					assign_variable_value(variables[tmp_variable_index],
+							tmp_int,
+							tmp_float,
+							get_variable_cval(tmp_assign));
+				}
+			}
 		} else {
 			struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
-
-			if (strcmp(get_variable_type(tmp),"float")==0) {
-				fprintf(stdout,"Result: %f\n",get_variable_fval(tmp));
-			} else if (strcmp(get_variable_type(tmp),"string")==0) {
-				fprintf(stdout,"Result: %s\n",get_variable_cval(tmp));
-			} else {
-				fprintf(stdout,"Result: %d\n",get_variable_ival(tmp));
-			}
+			fprintf(stdout,"Result: %s\n",return_variable_value_as_char(tmp));
 		}
 
 	} else if (get_variable_ival(vs_get_top(control_flow_stack))==2) { // if the control flow stack says the task is already complete
@@ -559,7 +577,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 				}
 				struct Variable * tmp_control = create_variable("control","if",tmp_val,0,"",-1);
 				vs_push(control_flow_stack,tmp_control);
-				//free(tmp);
+
 			} else if (get_token_hash(tokens[0])==2163033) { // Else
 				struct Variable * tmp_control = create_variable("control","if",1,0,"",-1);
 				vs_push(control_flow_stack,tmp_control);
@@ -574,7 +592,6 @@ struct Variable ** eval_line(struct Token ** tokens,
 		}
 
 		else if (get_token_hash(tokens[0])==2110017394) { //ForEnd
-			//get_control_variable_status(cvs_get_top(control_flow_stack)));
 			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")!=0)
 				SyntaxError("ForEnd found without matching For loop",__LINE__,__FILE__);
 			vs_pop(control_flow_stack);

@@ -41,7 +41,7 @@ struct Variable* eval_op_string(struct Variable* op1, struct Variable* op2, doub
  * returns:
  *  - variable with value of operation
  */
-struct Variable* eval_op(struct Variable* op1, struct Variable* op2, char op);
+struct Variable* eval_op(struct Variable* op1, struct Variable* op2, double op);
 
 /*
  * eval_infix:

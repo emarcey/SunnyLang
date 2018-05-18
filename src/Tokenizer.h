@@ -52,8 +52,31 @@ struct Token ** tokenize_line(char * line,
 		int cmd_fields);
 
 /*
+ * validate_declare_variable_statement:
+ * 	- checks a line of code (in token form) and determines if the code is a valid variable declaration, with the following results:
+ * 		- throws an error if invalid
+ * 		- returns 1 if valid and variable should be declared as default
+ * 		- returns 2 if valid and expression follows declaration
+ *
+ * params:
+ * 	- tokens: array of Token objects representing the for statement
+ * 	- num_tokens: number of Token objects in tokens
+ * 	- variables: array of Variable objects for current variables in the environment
+ * 	- tmp_num_variables: number of Variable objects in variables
+ *
+ *  - returns:
+ *  	- one of two validation codes
+ *
+ */
+
+int validate_declare_variable_statement(struct Token ** tokens,
+		int num_tokens,
+		struct Variable ** variables,
+		int tmp_num_variables);
+
+/*
  * validate_for_statement:
- * 	- checks a line of code (in token form) and determines if the code is valid or not, with the following results:
+ * 	- checks a line of code (in token form) and determines if the code is a valid for statement, with the following results:
  * 		- throws an error if invalid
  * 		- returns 1 if valid and variable already exists
  * 		- returns 2 if valid, variable does not exist and default type to integer
