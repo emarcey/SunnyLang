@@ -29,31 +29,27 @@ static char * df = "./cmds.csv";
 
 int main(int argc, char* argv[]) {
 
-
-	printf("++: %u\n",hash("++"));
-	printf("--: %u\n",hash("--"));
 	clock_t start = clock(), diff;
 
 	int cmd_num_rows, cmd_num_fields;
 	char *** cmds = load_csv(df,',',&cmd_num_fields,&cmd_num_rows);
-
-	char * s_file_name;
 
 	//handle incorrect command line issues;
 	if (argc==1)
 		CommandArgumentError("No file received from command line.",__LINE__,__FILE__);
 	else if (argc > 2)
 		CommandArgumentError("Too many commands received.",__LINE__,__FILE__);
-	else {
-		size_t file_name_length = strlen(argv[1]);
-		if (strcmp(argv[1]+(file_name_length-3),".s\0")==0)
-			CommandArgumentError("File type not recognized. Use .st files.",__LINE__,__FILE__);
-		s_file_name = malloc(sizeof(char)*file_name_length+1);
-		s_file_name = argv[1];
-	}
+
+	size_t file_name_length = strlen(argv[1]);
+	if (strcmp(argv[1]+(file_name_length-3),".s\0")==0)
+		CommandArgumentError("File type not recognized. Use .st files.",__LINE__,__FILE__);
+
+	char * s_file_name = malloc(sizeof(char)*file_name_length+1);
+	s_file_name = argv[1];
 
 	int sdata_num_rows;
 	char ** s_data = load_file(s_file_name,&sdata_num_rows);
+
 	struct Variable ** variables = malloc(sizeof(struct Variable *)*sdata_num_rows);
 	struct VariableStack * control_flow_stack = vs_create_stack(sdata_num_rows);
 
