@@ -457,7 +457,44 @@ struct Variable ** eval_line(struct Token ** tokens,
 							fprintf(stdout,"Result: %s\n",return_variable_value_as_char(tmp));
 			}
 			else {
-				if (get_token_type(tokens[1])=='a') { // assign tasks
+				if (get_token_hash(tokens[1])==1376 || // ++
+						get_token_hash(tokens[1])==1440) { // --
+					int tmp_variable_index = variable_index(variables,tmp_num_variables,get_token_hash(tokens[0]));
+					if (tmp_num_variables == 0 || tmp_variable_index==-1) //check if variable exists
+						VariableNotFoundError(get_token_value(tokens[0]),__LINE__,__FILE__);
+
+					if (num_tokens > 2) {
+						char * info = malloc(sizeof(char)*1024);
+						sprintf(info,"%s operator has too many tokens.",get_token_value(tokens[1]));
+						SyntaxError(info,__LINE__,__FILE__);
+					}
+
+					if (strcmp(get_variable_type(variables[tmp_variable_index]),"int")!=0 &&
+							strcmp(get_variable_type(variables[tmp_variable_index]),"float")!=0) {
+						char * info = malloc(sizeof(char)*1024);
+						sprintf(info,"Operator %s not valid for variable %s of type %s",
+								get_token_value(tokens[1]),
+								get_variable_name(variables[tmp_variable_index]),
+								get_variable_type(variables[tmp_variable_index]));
+						InvalidValueError(info,__LINE__,__FILE__);
+					}
+
+					double tmp_val_f = get_variable_fval(variables[tmp_variable_index]);
+					int tmp_val_i = get_variable_ival(variables[tmp_variable_index]);
+					int change = 0;
+
+					if (get_token_hash(tokens[1])==1376) {
+						change = 1;
+					} else if (get_token_hash(tokens[1])==1440) {
+						change = -1;
+					}
+
+					assign_variable_value(variables[tmp_variable_index],tmp_val_i+change,tmp_val_f+change,"");
+
+
+
+				}
+				else if (get_token_type(tokens[1])=='a') { // assign tasks
 
 					int tmp_variable_index = variable_index(variables,tmp_num_variables,get_token_hash(tokens[0]));
 					if (tmp_num_variables == 0 || tmp_variable_index==-1) //check if variable exists

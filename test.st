@@ -3,5 +3,5 @@ tmpVar YourFinestJellyBeans 1
 tmpVar
 Pepe tmpVar MagnumCondoms 5
 tmpVar
-tmpVar Milksteak tmpVar BrownOut 1
+tmpVar AnEggInThisTryingTime
 Sylvia
