@@ -67,6 +67,8 @@ struct Variable* create_variable(char * type,
 		variable->uval.cval = cval;
 	} else if (strcmp(type,"control")==0) {
 		variable->uval.ival = ival;
+	} else if (strcmp(type,"function")==0) {
+		variable->uval.ival = ival;
 	} else {
 		TypeNotRecognizedError(type,name,"variable",__LINE__,__FILE__);
 	}
@@ -115,7 +117,10 @@ int get_variable_val_as_int_condition(struct Variable * variable) {
 			sprintf(info,"%f,",tmp_result_double);
 			InvalidConditionValueError(info,__LINE__,__FILE__);
 		}
-	} else if (strcmp(get_variable_type(variable),"int")==0 || strcmp(get_variable_type(variable),"boolean")==0) {
+	} else if (strcmp(get_variable_type(variable),"int")==0 ||
+			strcmp(get_variable_type(variable),"boolean")==0 ||
+			strcmp(get_variable_type(variable),"control")==0 ||
+			strcmp(get_variable_type(variable),"function")==0) {
 				tmp_result_int = get_variable_ival(variable);
 	} else {
 		char * info = malloc(sizeof(char)*1024);
@@ -136,14 +141,20 @@ char * return_variable_value_as_char(struct Variable * variable) {
 		return_val = variable->uval.cval;
 	else if (strcmp(variable->type,"string")==0)
 		sprintf(return_val,"%f",variable->uval.fval);
-	else if (strcmp(variable->type,"int")==0 || strcmp(variable->type,"boolean")==0 || strcmp(variable->type,"control")==0)
+	else if (strcmp(variable->type,"int")==0 ||
+			strcmp(variable->type,"boolean")==0 ||
+			strcmp(variable->type,"control")==0 ||
+			strcmp(get_variable_type(variable),"function")==0)
 		sprintf(return_val,"%d",variable->uval.ival);
 
 	return return_val;
 }
 
 void assign_variable_value(struct Variable * variable, int ival, float fval, char * cval) {
-	if ((strcmp(variable->type,"int") ==0 || strcmp(variable->type,"boolean")==0) || strcmp(variable->type,"control")==0) {
+	if ((strcmp(variable->type,"int") ==0 ||
+			strcmp(variable->type,"boolean")==0) ||
+			strcmp(variable->type,"control")==0 ||
+			strcmp(get_variable_type(variable),"function")==0) {
 		variable->uval.ival = ival;
 	} else if (strcmp(variable->type,"float")==0) {
 		variable->uval.fval = fval;
@@ -165,6 +176,11 @@ int variable_types_compatible(char * type1, char * type2) {
 
 	if (strcmp(type1,"string")==0 && strcmp(type2,"string")==0) {
 		return 1;
+	} else if (strcmp(type1,"control")==0 ||
+			strcmp(type1,"function")==0 ||
+			strcmp(type2,"control")==0 ||
+			strcmp(type2,"function")==0) {
+		return 0;
 	} else if (strcmp(type1,"string")!=0 && (strcmp(type2,"string")!=0)) {
 		return 1;
 	}

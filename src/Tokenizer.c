@@ -290,6 +290,45 @@ int validate_for_statement(struct Token ** tokens,
 	return return_val;
 }
 
+int validate_declare_function_syntax(struct Token ** tokens,
+		int num_tokens,
+		struct Variable ** variables,
+		int * num_variables) {
+	int result = 0;
+
+	if (num_tokens < 3) { //check that it is long enough
+		char * info = malloc(sizeof(char)*1024);
+		sprintf(info,"FunctionBegin requires a function definition");
+		SyntaxError(info,__LINE__,__FILE__);
+	}
+	if (get_token_type(tokens[1])!='d') { //check that it has a variable name
+		char * info = malloc(sizeof(char)*1024);
+		sprintf(info,"FunctionBegin requires data type to return, not token %s of type %c.\n",
+				get_token_value(tokens[1]),
+				get_token_type(tokens[1]));
+		SyntaxError(info,__LINE__,__FILE__);
+	}
+	if (get_token_type(tokens[2])!='v') { //check that it has a variable name
+		char * info = malloc(sizeof(char)*1024);
+		sprintf(info,"FunctionBegin must be passed a variable name, not value %s of type %c",
+				get_token_value(tokens[2]),
+				get_token_type(tokens[2]));
+		SyntaxError(info,__LINE__,__FILE__);
+	}
+	if (element_in_list_variable(variables,num_variables,get_token_value(tokens[2]))) {
+		char * info = malloc(sizeof(char)*1024);
+		sprintf(info,"Cannot declare function, %s. Variable name already in use.\n",get_token_value(tokens[2]));
+		SyntaxError(info,__LINE__,__FILE__);
+	}
+	if (num_tokens==3) return result; //if no arguments, we are done
+
+	if (num_tokens%2==0) { //if arguments & data types don't line up
+
+	}
+
+	return 1;
+}
+
 struct Variable ** eval_line(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,
@@ -533,6 +572,8 @@ struct Variable ** eval_line(struct Token ** tokens,
 							get_variable_cval(tmp_assign));
 				}
 			}
+		} else if (get_token_hash(tokens[0])==2825382801) { //Declare function
+			int validate = validate_declare_variable_statement(tokens,num_tokens,variables,num_variables);
 		} else {
 			struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
 			fprintf(stdout,"Result: %s\n",return_variable_value_as_char(tmp));

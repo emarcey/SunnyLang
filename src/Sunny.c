@@ -29,6 +29,8 @@ static char * df = "./cmds.csv";
 
 int main(int argc, char* argv[]) {
 
+	printf("FunctionBegin: %u\n",hash("FunctionBegin"));
+
 	clock_t start = clock(), diff;
 
 	int cmd_num_rows, cmd_num_fields;
