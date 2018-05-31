@@ -3,6 +3,7 @@ int,Dennis,d
 float,Mac,d
 string,Charlie,d
 boolean,Dee,d
+void,Frank,d
 declare,JoinTheGang,f
 assign,Milksteak,a
 +=,LittleGreenGhouls,a

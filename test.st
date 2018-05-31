@@ -1,7 +1,7 @@
-JoinTheGang tmpVar Dennis Milksteak 1
-tmpVar YourFinestJellyBeans 1
-tmpVar
-Pepe tmpVar MagnumCondoms 5
-tmpVar
-tmpVar AnEggInThisTryingTime
+JoinTheGang temp1 Dennis
+
+Pepe temp1 MagnumCondoms 5
+temp1 AnEggInThisTryingTime
+temp1
+TheTrashman temp1
 Sylvia

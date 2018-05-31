@@ -29,9 +29,10 @@ static char * df = "./cmds.csv";
 
 int main(int argc, char* argv[]) {
 
-	printf("FunctionBegin: %u\n",hash("FunctionBegin"));
-
 	clock_t start = clock(), diff;
+
+	printf("FunctionEnd: %u\n",hash("FunctionEnd"));
+	printf("WhileEnd: %u\n",hash("WhileEnd"));
 
 	int cmd_num_rows, cmd_num_fields;
 	char *** cmds = load_csv(df,',',&cmd_num_fields,&cmd_num_rows);
@@ -78,6 +79,7 @@ int main(int argc, char* argv[]) {
 		fprintf(stdout,"\n");
 		i++;
 	}
+
 	fprintf(stdout,"\n");
 	i = 0;
 	while (i < sdata_num_rows) {
@@ -88,6 +90,12 @@ int main(int argc, char* argv[]) {
 		}
 		else i++;
 	}
+
+	/*
+	for(int i = 0; i < num_variables; i++) {
+		printf("%d.\n\tname:%s\n\ttype:%s\n",i,get_variable_name(variables[i]),get_variable_type(variables[i]));
+	}
+	*/
 
 	free(s_data);
 	free(variables);

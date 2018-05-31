@@ -293,7 +293,7 @@ int validate_for_statement(struct Token ** tokens,
 int validate_declare_function_syntax(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,
-		int * num_variables) {
+		int tmp_num_variables) {
 	int result = 0;
 
 	if (num_tokens < 3) { //check that it is long enough
@@ -315,7 +315,7 @@ int validate_declare_function_syntax(struct Token ** tokens,
 				get_token_type(tokens[2]));
 		SyntaxError(info,__LINE__,__FILE__);
 	}
-	if (element_in_list_variable(variables,num_variables,get_token_value(tokens[2]))) {
+	if (variable_index(variables,tmp_num_variables,get_token_hash(tokens[2]))!=-1) { //check that variable does not exist
 		char * info = malloc(sizeof(char)*1024);
 		sprintf(info,"Cannot declare function, %s. Variable name already in use.\n",get_token_value(tokens[2]));
 		SyntaxError(info,__LINE__,__FILE__);
@@ -323,7 +323,20 @@ int validate_declare_function_syntax(struct Token ** tokens,
 	if (num_tokens==3) return result; //if no arguments, we are done
 
 	if (num_tokens%2==0) { //if arguments & data types don't line up
+		char * info = malloc(sizeof(char)*1024);
+		sprintf(info,"Argument mismatch in function declaration statement.\n");
+		SyntaxError(info,__LINE__,__FILE__);
+	}
 
+	for (int i = 3; i < num_tokens; i++) {
+		//expects every argument in the form {variable} {datatype}
+		//if this is not true, throw an error
+		if ((i%2==1 && get_token_type(tokens[i])!='v') ||
+				(i%2==0 && get_token_type(tokens[i])!='d')) {
+			char * info = malloc(sizeof(char)*1024);
+			sprintf(info,"Argument mismatch in function declaration statement.\n");
+			SyntaxError(info,__LINE__,__FILE__);
+		}
 	}
 
 	return 1;
@@ -573,16 +586,34 @@ struct Variable ** eval_line(struct Token ** tokens,
 				}
 			}
 		} else if (get_token_hash(tokens[0])==2825382801) { //Declare function
-			int validate = validate_declare_variable_statement(tokens,num_tokens,variables,num_variables);
+			if (vs_is_empty(control_flow_stack)==0) {
+				char * info = malloc(sizeof(char)*1024);
+				sprintf(info,"You cannot declare function %s while within another control structure.",get_token_value(tokens[2]));
+				SyntaxError(info,__LINE__,__FILE__);
+			}
+			int validate = validate_declare_function_syntax(tokens,num_tokens,variables,tmp_num_variables);
+
+			struct Variable * tmp_fn = create_variable("function",get_token_value(tokens[2]),tmp_line_number,0,"",tmp_line_number);
+			variables[tmp_num_variables] = tmp_fn;
+			tmp_num_variables++;
+
+			struct Variable * tmp_control = create_variable("control","function",0,0,"",tmp_line_number);
+			vs_push(control_flow_stack,tmp_control);
+		} else if (get_token_hash(tokens[0])==4016346563) { //End function
+
+			if (num_tokens > 1)
+				SyntaxError("FunctionEnd statement cannot have additional information on the line.",__LINE__,__FILE__);
+
+			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"function")!=0)
+				SyntaxError("FunctionEnd found without matching FunctionBegin loop",__LINE__,__FILE__);
+
+			vs_pop(control_flow_stack);
 		} else {
 			struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
 			fprintf(stdout,"Result: %s\n",return_variable_value_as_char(tmp));
 		}
-
 	} else if (get_variable_ival(vs_get_top(control_flow_stack))==2) { // if the control flow stack says the task is already complete
-
-		// handle all if logic
-		if (get_token_hash(tokens[0])==2162724 || // Elif
+		if (get_token_hash(tokens[0])==2162724 || // handle all if logic // Elif
 				get_token_hash(tokens[0])==2163033 || // Else
 				get_token_hash(tokens[0])==67098424 || // EndIf
 				(get_token_hash(tokens[0])==2365)) {
@@ -627,7 +658,6 @@ struct Variable ** eval_line(struct Token ** tokens,
 		}
 
 	} else if (get_variable_ival(vs_get_top(control_flow_stack))==0) { // if the control flow stack says the task is not complete
-
 		// handle all if logic
 		if ((get_token_hash(tokens[0])==2162724 || // Elif
 			get_token_hash(tokens[0])==2163033 || // Else
@@ -673,7 +703,6 @@ struct Variable ** eval_line(struct Token ** tokens,
 			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")!=0)
 				SyntaxError("ForEnd found without matching For loop",__LINE__,__FILE__);
 			vs_pop(control_flow_stack);
-		}
 
 		} else if (get_token_hash(tokens[0])==3714707480) { // WhileBegin
 			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"while")==0) {
@@ -684,6 +713,17 @@ struct Variable ** eval_line(struct Token ** tokens,
 			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"while")!=0)
 				SyntaxError("WhileEnd found without matching While loop",__LINE__,__FILE__);
 			vs_pop(control_flow_stack);
+		} else if (get_token_hash(tokens[0])==4016346563) {
+
+			if (num_tokens > 1) {
+				SyntaxError("FunctionEnd statement cannot have additional information on the line.",__LINE__,__FILE__);
+			}
+
+			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"function")!=0)
+				SyntaxError("FunctionEnd found without matching FunctionBegin loop",__LINE__,__FILE__);
+
+			vs_pop(control_flow_stack);
+		}
 
 	} else SyntaxError("Something is wrong with your expression!",__LINE__,__FILE__);
 

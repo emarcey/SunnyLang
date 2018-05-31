@@ -16,12 +16,3 @@ int element_in_list_int(int * list, int list_len, double e) {
 	}
 	return 0;
 }
-
-int element_in_list_variable(struct Variable ** list, int list_len, char * e) {
-	for (int i = 0; i < list_len; i++) {
-		if (strcmp(get_variable_name(list[i]),e)==0) {
-			return i;
-		}
-	}
-	return 0;
-}

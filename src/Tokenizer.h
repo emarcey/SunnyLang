@@ -103,7 +103,7 @@ int validate_for_statement(struct Token ** tokens,
 int validate_declare_function_syntax(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,
-		int * num_variables);
+		int tmp_num_variables);
 
 /*
  * eval_line:
