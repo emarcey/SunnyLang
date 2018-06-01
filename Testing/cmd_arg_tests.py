@@ -1,13 +1,12 @@
 import os
 
-exe_path = r'C:\Users\evan.marcey\eclipse-workspace\Sunny\Debug'
+exe_path = r'C:\Users\evan.marcey\eclipse-workspace\Sunny'
 
 os.chdir(exe_path)
 
 def execute_test(test):
-    cmd = 'Sunny.exe {a}'.format(a=' '.join(test['args']))
+    cmd = 'Debug\Sunny.exe {a}'.format(a=' '.join(test['args']))
     res = os.system(cmd)
-    print(res)
     return res==test['result']
 
 tests = [

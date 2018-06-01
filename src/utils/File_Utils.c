@@ -21,7 +21,7 @@ char ** load_file(char * filename, int * num_rows) {
 	*num_rows = lines;
 	char ** file_data = malloc(sizeof(char*)*(lines+1));
 
-	//if (lines == 0) FileNotFoundError(filename,__LINE__,__FILE__);
+	if (lines == 0) FileNotFoundError(filename,__LINE__,__FILE__);
 
 	FILE * stream = fopen(filename,"r");
 	char line[1024];

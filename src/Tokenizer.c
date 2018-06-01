@@ -342,7 +342,7 @@ int validate_declare_function_syntax(struct Token ** tokens,
 	return 1;
 }
 
-struct Variable ** eval_line(struct Token ** tokens,
+void eval_line(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,
 		int * num_variables,
@@ -354,7 +354,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 	int tmp_line_number = *line_number;
 	int tmp_depth = *depth;
 
-	if (num_tokens==0) return variables;
+	if (num_tokens==0) return;
 
 	if (vs_is_empty(control_flow_stack) || get_variable_ival(vs_get_top(control_flow_stack))==1) {
 		if (get_token_hash(tokens[0])==1542341994) { //declare a new variable
@@ -731,5 +731,5 @@ struct Variable ** eval_line(struct Token ** tokens,
 
 	*num_variables = tmp_num_variables;
 	*depth = tmp_depth;
-	return variables;
+	//return variables;
 }

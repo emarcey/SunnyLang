@@ -85,18 +85,17 @@ int main(int argc, char* argv[]) {
 	int depth = 0;
 	while (i < sdata_num_rows) {
 		int line_number = i;
-		variables = eval_line(token_array[i],token_array_lengths[i],variables,&num_variables,control_flow_stack,&line_number,&depth);
+		eval_line(token_array[i],token_array_lengths[i],variables,&num_variables,control_flow_stack,&line_number,&depth);
 		if (line_number != i) {
 			i = line_number;
 		}
 		else i++;
-	}
+		/*fprintf(stdout,"VARIABLES:\n");
+		for (int k = 0; k < num_variables;k++) {
+			fprintf(stdout,"\t%s\n",get_variable_name(variables[k]));
+		}*/
 
-	/*
-	for(int i = 0; i < num_variables; i++) {
-		printf("%d.\n\tname:%s\n\ttype:%s\n",i,get_variable_name(variables[i]),get_variable_type(variables[i]));
 	}
-	*/
 
 	free(s_data);
 	free(variables);
