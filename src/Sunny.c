@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
 		CommandArgumentError("Too many commands received.",__LINE__,__FILE__);
 
 	size_t file_name_length = strlen(argv[1]);
-	if (strcmp(argv[1]+(file_name_length-3),".s\0")==0)
+	if (strcmp(argv[1]+(file_name_length-3),".st\0")!=0)
 		CommandArgumentError("File type not recognized. Use .st files.",__LINE__,__FILE__);
 
 	char * s_file_name = malloc(sizeof(char)*file_name_length+1);

@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "String_Utils.h"
+#include "../Exceptions.h"
 
 int count_lines(char * filename) {
 	FILE * stream = fopen(filename,"r");
@@ -19,6 +20,8 @@ char ** load_file(char * filename, int * num_rows) {
 	int lines = count_lines(filename);
 	*num_rows = lines;
 	char ** file_data = malloc(sizeof(char*)*(lines+1));
+
+	//if (lines == 0) FileNotFoundError(filename,__LINE__,__FILE__);
 
 	FILE * stream = fopen(filename,"r");
 	char line[1024];

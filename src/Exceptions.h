@@ -16,6 +16,8 @@ void ModularArithmeticError(double op1, double op2, int line_number, char * file
 
 void CommandArgumentError(char * info, int line_number, char * file_name);
 
+void FileNotFoundError(char * in_file_name, int line_number, char * file_name);
+
 void EvalError(char * info, int line_number, char * file_name);
 
 void InvalidValueError(char * info, int line_number, char * file_name);

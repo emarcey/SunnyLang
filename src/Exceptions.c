@@ -40,6 +40,15 @@ void CommandArgumentError(char * info, int line_number, char * file_name) {
 	RaiseError(type, message, line_number, file_name);
 }
 
+void FileNotFoundError(char * in_file_name, int line_number, char * file_name) {
+	char * type = "FileNotFoundError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"File %s not found or could not be opened.\n",in_file_name);
+	RaiseError(type, message, line_number, file_name);
+}
+
+
 void EvalError(char * info, int line_number, char * file_name) {
 	char * type = "EvalError";
 	char * message = malloc(sizeof(char)*1024);
