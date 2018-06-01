@@ -82,9 +82,10 @@ int main(int argc, char* argv[]) {
 
 	fprintf(stdout,"\n");
 	i = 0;
+	int depth = 0;
 	while (i < sdata_num_rows) {
 		int line_number = i;
-		variables = eval_line(token_array[i],token_array_lengths[i],variables,&num_variables,control_flow_stack,&line_number);
+		variables = eval_line(token_array[i],token_array_lengths[i],variables,&num_variables,control_flow_stack,&line_number,&depth);
 		if (line_number != i) {
 			i = line_number;
 		}

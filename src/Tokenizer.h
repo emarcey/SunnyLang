@@ -125,6 +125,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 		struct Variable ** variables,
 		int * num_variables,
 		struct VariableStack * control_flow_stack,
-		int * line_number);
+		int * line_number,
+		int * depth);
 
 #endif /* TOKENIZER_H_ */

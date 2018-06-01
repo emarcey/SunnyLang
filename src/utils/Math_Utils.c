@@ -51,7 +51,9 @@ int get_precedence(unsigned int c) {
 	return -100;
 }
 
-struct Variable* eval_op_numeric(struct Variable* op1, struct Variable* op2, double op) {
+struct Variable* eval_op_numeric(struct Variable* op1,
+		struct Variable* op2,
+		double op) {
 	struct Variable* tmp_var = malloc(sizeof(struct Variable*));
 	double tmp_val=0;
 	double op1_val, op2_val;
@@ -131,9 +133,9 @@ struct Variable* eval_op_numeric(struct Variable* op1, struct Variable* op2, dou
 
 	if (strcmp(get_variable_type(op1),"int")==0 && strcmp(get_variable_type(op2),"int")==0) {
 		int tmp_int = tmp_val;
-		tmp_var = create_variable("int","int",tmp_int,0,"",-1);
+		tmp_var = create_variable("int","int",tmp_int,0,"",-1,-1);
 	} else
-		tmp_var = create_variable("float","float",0,tmp_val,"",-1);
+		tmp_var = create_variable("float","float",0,tmp_val,"",-1,-1);
 	return tmp_var;
 }
 
@@ -190,10 +192,10 @@ struct Variable * eval_infix(struct Token ** tokens,
 
 		if (tmp_token_type == 'n') { //if token is numeric operand
 			float tmp_operand = atof(tmp_token_val);
-			struct Variable* tmp_var = create_variable("float","float",0,tmp_operand,"",-1);
+			struct Variable* tmp_var = create_variable("float","float",0,tmp_operand,"",-1,-1);
 			vs_push(operand_stack,tmp_var);
 		} else if (tmp_token_type == 's') { //if token is string operand
-			struct Variable* tmp_var = create_variable("string","string",0,0,tmp_token_val,-1);
+			struct Variable* tmp_var = create_variable("string","string",0,0,tmp_token_val,-1,-1);
 			vs_push(operand_stack,tmp_var);
 		} else if (tmp_token_type == 'v') { //if token is variable
 			int var_index = variable_index(variables,variable_count,tmp_token_hash);

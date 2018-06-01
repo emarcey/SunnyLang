@@ -29,7 +29,7 @@ void assign_line_number(struct Variable * variable, int line_number);
  * returns:
  *  - pointer directed at Variable that was created
  */
-struct Variable* create_variable(char * type,char * name,int ival,float fval,char * cval,int line_number);
+struct Variable* create_variable(char * type,char * name,int ival,float fval,char * cval,int line_number, int depth);
 
 //Function returns variable type
 char * get_variable_type(struct Variable * variable);
@@ -54,11 +54,17 @@ int get_variable_val_as_int_condition(struct Variable * variable);
 //Function return variable line_number
 int get_variable_line_number(struct Variable * variable);
 
+//Function returns variable depth
+int get_variable_depth(struct Variable * variable);
+
 //Function returns variable value as char *, converting based on type
 char * return_variable_value_as_char(struct Variable * variable);
 
 //Function assigns a value to a variable based on type
 void assign_variable_value(struct Variable * variable, int ival, float fval, char * cval);
+
+//Function assigns a depth value to a variable
+void assign_variable_depth(struct Variable * variable, int depth);
 
 /*
  * variable_index:

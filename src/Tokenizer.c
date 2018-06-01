@@ -347,10 +347,12 @@ struct Variable ** eval_line(struct Token ** tokens,
 		struct Variable ** variables,
 		int * num_variables,
 		struct VariableStack * control_flow_stack,
-		int * line_number) {
+		int * line_number,
+		int * depth) {
 
 	int tmp_num_variables = *num_variables;
 	int tmp_line_number = *line_number;
+	int tmp_depth = *depth;
 
 	if (num_tokens==0) return variables;
 
@@ -359,7 +361,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 			int result_type = validate_declare_variable_statement(tokens,num_tokens,variables,tmp_num_variables);
 
 			if (result_type==1) { //instantiate a blank variable
-				struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),0,0,"",-1);
+				struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),0,0,"",-1,tmp_depth);
 				variables[tmp_num_variables] = tmp_var;
 				tmp_num_variables++;
 			}
@@ -382,7 +384,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 					} else {
 						tmp_f = get_variable_fval(tmp);
 					}
-					struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_f,"",-1);
+					struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_f,"",-1,tmp_depth);
 					variables[tmp_num_variables] = tmp_var;
 					tmp_num_variables++;
 				}
@@ -420,7 +422,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 				if (validate_for == 2) sprintf(tmp_type,"int");
 				else sprintf(tmp_type,"%s",get_token_value(tokens[2]));
 
-				tmp_var = create_variable(tmp_type,get_token_value(tokens[1]),tmp_int,tmp_double,"",-1);
+				tmp_var = create_variable(tmp_type,get_token_value(tokens[1]),tmp_int,tmp_double,"",-1,tmp_depth);
 				variables[tmp_num_variables] = tmp_var;
 				tmp_num_variables++;
 			}
@@ -428,7 +430,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 			struct Variable * tmp_var2 = malloc(sizeof(struct Variable *));
 			if (get_token_type(tokens[num_tokens-2])=='n') {
 				tmp_double = atof(get_token_value(tokens[num_tokens-2]));
-				tmp_var2 = create_variable("float","float",0,tmp_double,"",-1);
+				tmp_var2 = create_variable("float","float",0,tmp_double,"",-1,tmp_depth);
 			} else if (get_token_type(tokens[num_tokens-2])=='v') {
 				int variable_ind = variable_index(variables,tmp_num_variables,get_token_hash(tokens[num_tokens-2]));
 				tmp_var2 = variables[variable_ind];
@@ -436,7 +438,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 			struct Variable * tmp_result = eval_op_numeric(tmp_var,tmp_var2,get_token_hash(tokens[num_tokens-3]));
 
 			int tmp_result_int = get_variable_val_as_int_condition(tmp_result);
-			struct Variable * push_to_stack = create_variable("control","for",tmp_result_int,0,"",tmp_line_number);
+			struct Variable * push_to_stack = create_variable("control","for",tmp_result_int,0,"",tmp_line_number,tmp_depth);
 			vs_push(control_flow_stack,push_to_stack);
 		} else if (get_token_hash(tokens[0])==2110017394) { // ForEnd
 			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for") != 0)
@@ -456,7 +458,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 			struct Variable * while_tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables);
 			int tmp_result_int = get_variable_val_as_int_condition(while_tmp);
 			free(while_tmp);
-			struct Variable * push_to_stack = create_variable("control","while",tmp_result_int,0,"",tmp_line_number);
+			struct Variable * push_to_stack = create_variable("control","while",tmp_result_int,0,"",tmp_line_number,tmp_depth);
 			vs_push(control_flow_stack,push_to_stack);
 
 		} else if (get_token_hash(tokens[0])==2220625930) { // WhileEnd
@@ -488,7 +490,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 				InvalidValueError(info,__LINE__,__FILE__);
 			}
 
-			struct Variable * tmp_control = create_variable("control","if",tmp_val,0,"",-1);
+			struct Variable * tmp_control = create_variable("control","if",tmp_val,0,"",-1,tmp_depth);
 
 			vs_push(control_flow_stack,tmp_control);
 		} else if (get_token_hash(tokens[0])==2162724 || //Elif
@@ -593,11 +595,11 @@ struct Variable ** eval_line(struct Token ** tokens,
 			}
 			int validate = validate_declare_function_syntax(tokens,num_tokens,variables,tmp_num_variables);
 
-			struct Variable * tmp_fn = create_variable("function",get_token_value(tokens[2]),tmp_line_number,0,"",tmp_line_number);
+			struct Variable * tmp_fn = create_variable("function",get_token_value(tokens[2]),tmp_line_number,0,"",tmp_line_number,tmp_depth);
 			variables[tmp_num_variables] = tmp_fn;
 			tmp_num_variables++;
 
-			struct Variable * tmp_control = create_variable("control","function",0,0,"",tmp_line_number);
+			struct Variable * tmp_control = create_variable("control","function",0,0,"",tmp_line_number,tmp_depth);
 			vs_push(control_flow_stack,tmp_control);
 		} else if (get_token_hash(tokens[0])==4016346563) { //End function
 
@@ -622,7 +624,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 
 			if (get_token_hash(tokens[0])==67098424) vs_pop(control_flow_stack);
 			else if (get_token_hash(tokens[0])==2365)  {  // If
-				struct Variable * tmp_control = create_variable("control","if",2,0,"",-1);
+				struct Variable * tmp_control = create_variable("control","if",2,0,"",-1,tmp_depth);
 				vs_push(control_flow_stack,tmp_control);
 			}
 		} else if (get_token_hash(tokens[0])==499119488) { // ForBegin
@@ -640,7 +642,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 
 			if (get_token_type(tokens[num_tokens-2])=='n') {
 				tmp_double = atof(get_token_value(tokens[num_tokens-2]));
-				tmp_var = create_variable("float","float",0,tmp_double,"",-1);
+				tmp_var = create_variable("float","float",0,tmp_double,"",-1,tmp_depth);
 			} else if (get_token_type(tokens[num_tokens-2])=='v') {
 				int variable_ind = variable_index(variables,tmp_num_variables,get_token_hash(tokens[num_tokens-2]));
 				tmp_var = variables[variable_ind];
@@ -683,18 +685,18 @@ struct Variable ** eval_line(struct Token ** tokens,
 					sprintf(info,"If statement cannot interpret value: %f",tmp_val);
 					InvalidValueError(info,__LINE__,__FILE__);
 				}
-				struct Variable * tmp_control = create_variable("control","if",tmp_val,0,"",-1);
+				struct Variable * tmp_control = create_variable("control","if",tmp_val,0,"",-1,tmp_depth);
 				vs_push(control_flow_stack,tmp_control);
 
 			} else if (get_token_hash(tokens[0])==2163033) { // Else
-				struct Variable * tmp_control = create_variable("control","if",1,0,"",-1);
+				struct Variable * tmp_control = create_variable("control","if",1,0,"",-1,tmp_depth);
 				vs_push(control_flow_stack,tmp_control);
 			}
 		}
 
 		else if (get_token_hash(tokens[0])==499119488) { //ForBegin
 			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")==0) {
-				struct Variable * tmp_control = create_variable("control","for",0,0,"",tmp_line_number);
+				struct Variable * tmp_control = create_variable("control","for",0,0,"",tmp_line_number,tmp_depth);
 				vs_push(control_flow_stack,tmp_control);
 			}
 		}
@@ -706,7 +708,7 @@ struct Variable ** eval_line(struct Token ** tokens,
 
 		} else if (get_token_hash(tokens[0])==3714707480) { // WhileBegin
 			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"while")==0) {
-				struct Variable * tmp_control = create_variable("control","while",0,0,"",tmp_line_number);
+				struct Variable * tmp_control = create_variable("control","while",0,0,"",tmp_line_number,tmp_depth);
 				vs_push(control_flow_stack,tmp_control);
 			}
 		} else if (get_token_hash(tokens[0])==2220625930) { // WhileEnd
@@ -728,5 +730,6 @@ struct Variable ** eval_line(struct Token ** tokens,
 	} else SyntaxError("Something is wrong with your expression!",__LINE__,__FILE__);
 
 	*num_variables = tmp_num_variables;
+	*depth = tmp_depth;
 	return variables;
 }

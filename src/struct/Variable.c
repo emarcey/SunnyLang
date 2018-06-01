@@ -21,6 +21,7 @@ struct Variable {
 	char * name;
 	unsigned int name_hash;
 	int line_number;
+	int depth;
 
 	union {
 		int ival;
@@ -45,12 +46,14 @@ struct Variable* create_variable(char * type,
 		int ival,
 		float fval,
 		char * cval,
-		int line_number) {
+		int line_number,
+		int depth) {
 	struct Variable* variable = (struct Variable*) malloc(sizeof(struct Variable));
 
 	variable->type = type;
 	variable->name = name;
 	variable->name_hash = hash(name);
+	variable->depth = depth;
 
 	if (strcmp(type,"int")==0) { //if int
 		variable->uval.ival = ival;
@@ -60,6 +63,7 @@ struct Variable* create_variable(char * type,
 		} else {
 			char * info = malloc(sizeof(char)*2014);
 			sprintf(info,"Value of %d not applicable for data type boolean",ival);
+			InvalidValueError(info,__LINE__,__FILE__);
 		}
 	} else if (strcmp(type,"float")==0) {
 		variable->uval.fval = fval;
@@ -106,6 +110,10 @@ int get_variable_line_number(struct Variable * variable) {
 	return variable->line_number;
 }
 
+int get_variable_depth(struct Variable * variable) {
+	return variable->depth;
+}
+
 int get_variable_val_as_int_condition(struct Variable * variable) {
 	double tmp_result_double = 0;
 	int tmp_result_int = 0;
@@ -135,6 +143,7 @@ int get_variable_val_as_int_condition(struct Variable * variable) {
 	}
 	return tmp_result_int;
 }
+
 char * return_variable_value_as_char(struct Variable * variable) {
 	char * return_val = malloc(sizeof(char)*1024);
 	if (strcmp(variable->type,"string")==0)
@@ -160,6 +169,15 @@ void assign_variable_value(struct Variable * variable, int ival, float fval, cha
 		variable->uval.fval = fval;
 	} else if (strcmp(variable->type,"string")==0) {
 		variable->uval.cval = cval;
+	}
+}
+
+void assign_variable_depth(struct Variable * variable, int depth) {
+	if (depth < 0) variable->depth;
+	else {
+		char * info = malloc(sizeof(char)*2014);
+		sprintf(info,"Value of %d not applicable for depth",depth);
+		InvalidValueError(info,__LINE__,__FILE__);
 	}
 }
 
