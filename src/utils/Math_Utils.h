@@ -6,6 +6,7 @@
  */
 #include "../struct/Token.h"
 #include "../struct/Variable.h"
+#include "../struct/VariableStack.h"
 
 #ifndef MATH_UTILS_H_
 #define MATH_UTILS_H_
@@ -28,6 +29,18 @@ struct Variable* eval_op_numeric(struct Variable* op1, struct Variable* op2, dou
 
 //Function that handles eval_op when one or both operands are string types
 struct Variable* eval_op_string(struct Variable* op1, struct Variable* op2, double op);
+
+struct Variable * eval_function(struct Variable * eval_func,
+		struct Token ** tokens,
+		int num_tokens,
+		int token_index,
+		struct Variable ** variables,
+		int variable_count,
+		struct Token *** token_array,
+		int num_token_rows,
+		int token_array_lengths[],
+		int depth,
+		struct VariableStack * control_flow_stack);
 
 /*
  * eval_op:
@@ -58,7 +71,12 @@ struct Variable* eval_infix(struct Token ** tokens,
 		int num_tokens,
 		int token_index,
 		struct Variable ** variables,
-		int variable_count);
+		int variable_count,
+		struct Token *** token_array,
+		int num_token_rows,
+		int * token_array_lengths,
+		int * depth,
+		struct VariableStack * control_flow_stack);
 
 
 #endif /* MATH_UTILS_H_ */

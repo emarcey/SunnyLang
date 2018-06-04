@@ -35,6 +35,4 @@ void func_assign_start_line(struct Function_Data * func,
 void func_assign_end_line(struct Function_Data * func,
 		int end_line);
 
-
-
 #endif /* STRUCT_FUNCTION_DATA_H_ */

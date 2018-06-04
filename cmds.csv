@@ -40,4 +40,5 @@ EndIf,MasterOfKarateAndFriendshipForEveryone,c
 ForBegin,Rickety,c
 ForEnd,Cricket,c
 WhileBegin,Pepe,c
-WhileEnd,Sylvia,c
+WhileEnd,Sylvia,c,
+Comment,WildcardBitches,z

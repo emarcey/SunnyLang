@@ -76,7 +76,7 @@ struct Variable* create_variable(char * type,
 		variable->uval.ival = ival;
 	} else if (strcmp(type,"function")==0) {
 		variable->uval.ival = ival;
-	} else {
+	} else if (strcmp(type,"void")!=0){
 		TypeNotRecognizedError(type,name,"variable",__LINE__,__FILE__);
 	}
 
@@ -176,13 +176,16 @@ char * return_variable_value_as_char(struct Variable * variable) {
 	char * return_val = malloc(sizeof(char)*1024);
 	if (strcmp(variable->type,"string")==0)
 		return_val = variable->uval.cval;
-	else if (strcmp(variable->type,"string")==0)
+	else if (strcmp(variable->type,"float")==0)
 		sprintf(return_val,"%f",variable->uval.fval);
 	else if (strcmp(variable->type,"int")==0 ||
 			strcmp(variable->type,"boolean")==0 ||
 			strcmp(variable->type,"control")==0 ||
 			strcmp(get_variable_type(variable),"function")==0)
 		sprintf(return_val,"%d",variable->uval.ival);
+	else if (strcmp(variable->type,"void")==0) {
+		return NULL;
+	}
 
 	return return_val;
 }

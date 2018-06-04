@@ -30,12 +30,10 @@ int check_dictionary(char *** cmds,
 
 	//for each value in the dictionary, determine if it matches the input string
 	for (int i = 0; i < cmd_rows; i++) {
-
 		if (strcmp(tmp_chk_string,cmds[i][1])==0) {
 			match_count++;
 			cmd_match = i;
 		}
-
 	}
 	if (match_count == 1) *dict_val = cmd_match;
 	return match_count;
@@ -342,19 +340,22 @@ int validate_declare_function_syntax(struct Token ** tokens,
 	return 1;
 }
 
-void eval_line(struct Token ** tokens,
+struct Variable * eval_line(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,
 		int * num_variables,
 		struct VariableStack * control_flow_stack,
 		int * line_number,
-		int * depth) {
+		int * depth,
+		struct Token *** token_array,
+		int num_token_rows,
+		int token_array_lengths[]) {
 
 	int tmp_num_variables = *num_variables;
 	int tmp_line_number = *line_number;
 	int tmp_depth = *depth;
 
-	if (num_tokens==0) return;
+	if (num_tokens==0 || get_token_hash(tokens[0])==2615051839) return NULL;
 
 	if (vs_is_empty(control_flow_stack) || get_variable_ival(vs_get_top(control_flow_stack))==1) {
 		if (get_token_hash(tokens[0])==1542341994) { //declare a new variable
@@ -366,7 +367,9 @@ void eval_line(struct Token ** tokens,
 				tmp_num_variables++;
 			}
 			else {
-				struct Variable* tmp = eval_infix(tokens,num_tokens,4,variables,tmp_num_variables);
+				struct Variable* tmp = eval_infix(tokens,num_tokens,4,variables,tmp_num_variables,
+						token_array,num_token_rows,token_array_lengths,
+						&tmp_depth,control_flow_stack);
 				if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[2]))==0)
 					MismatchedTypesError(get_token_value(tokens[1]),get_token_value(tokens[2]),get_variable_type(tmp),__LINE__,__FILE__);
 				if (strcmp(get_variable_type(tmp),"string")!=0) {
@@ -455,7 +458,9 @@ void eval_line(struct Token ** tokens,
 			if (num_tokens < 2)
 				SyntaxError("WhileBegin statement requires an expression to evaluate.",__LINE__,__FILE__);
 
-			struct Variable * while_tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables);
+			struct Variable * while_tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables,
+					token_array,num_token_rows,token_array_lengths,
+					&tmp_depth,control_flow_stack);
 			int tmp_result_int = get_variable_val_as_int_condition(while_tmp);
 			free(while_tmp);
 			struct Variable * push_to_stack = create_variable("control","while",tmp_result_int,0,"",tmp_line_number,tmp_depth);
@@ -475,7 +480,9 @@ void eval_line(struct Token ** tokens,
 		} else if (get_token_hash(tokens[0])==2365) { // If
 			if (num_tokens==1) SyntaxError("No statement found after If call",__LINE__,__FILE__);
 
-			struct Variable * tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables);
+			struct Variable * tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables,
+					token_array,num_token_rows,token_array_lengths,
+					&tmp_depth,control_flow_stack);
 			double tmp_val = 0;
 			if (strcmp(get_variable_type(tmp),"string")==0)
 				InvalidValueError("If statement cannot interpret string value.",__LINE__,__FILE__);
@@ -507,8 +514,11 @@ void eval_line(struct Token ** tokens,
 			}
 		} else if (get_token_type(tokens[0])=='v') {
 			if (num_tokens < 2) {
-				struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
-							fprintf(stdout,"Result: %s\n",return_variable_value_as_char(tmp));
+				struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables,
+						token_array,num_token_rows,token_array_lengths,
+						&tmp_depth,control_flow_stack);
+				if (return_variable_value_as_char(tmp) != NULL)
+					fprintf(stdout,"%s\n",return_variable_value_as_char(tmp));
 			}
 			else {
 				if (get_token_hash(tokens[1])==1376 || // ++
@@ -536,17 +546,10 @@ void eval_line(struct Token ** tokens,
 					double tmp_val_f = get_variable_fval(variables[tmp_variable_index]);
 					int tmp_val_i = get_variable_ival(variables[tmp_variable_index]);
 					int change = 0;
-
-					if (get_token_hash(tokens[1])==1376) {
-						change = 1;
-					} else if (get_token_hash(tokens[1])==1440) {
-						change = -1;
-					}
+					if (get_token_hash(tokens[1])==1376) change = 1;
+					else if (get_token_hash(tokens[1])==1440) change = -1;
 
 					assign_variable_value(variables[tmp_variable_index],tmp_val_i+change,tmp_val_f+change,"");
-
-
-
 				}
 				else if (get_token_type(tokens[1])=='a') { // assign tasks
 
@@ -560,7 +563,9 @@ void eval_line(struct Token ** tokens,
 						SyntaxError(info,__LINE__,__FILE__);
 					}
 
-					struct Variable* tmp = eval_infix(tokens,num_tokens,2,variables,tmp_num_variables);
+					struct Variable* tmp = eval_infix(tokens,num_tokens,2,variables,tmp_num_variables,
+							token_array,num_token_rows,token_array_lengths,
+							&tmp_depth,control_flow_stack);
 					if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[0]))==0)
 						MismatchedTypesError(get_token_value(tokens[0]),
 								get_variable_type(variables[tmp_variable_index]),
@@ -585,9 +590,15 @@ void eval_line(struct Token ** tokens,
 							tmp_int,
 							tmp_float,
 							get_variable_cval(tmp_assign));
+				} else {
+					struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables,
+							token_array,num_token_rows,token_array_lengths,
+							&tmp_depth,control_flow_stack);
+					if (return_variable_value_as_char(tmp) != NULL)
+						fprintf(stdout,"%s\n",return_variable_value_as_char(tmp));
 				}
 			}
-		} else if (get_token_hash(tokens[0])==2825382801) { //Declare function
+		} else if (get_token_hash(tokens[0])==2825382801) { // Begin function
 			if (vs_is_empty(control_flow_stack)==0) {
 				char * info = malloc(sizeof(char)*1024);
 				sprintf(info,"You cannot declare function %s while within another control structure.",get_token_value(tokens[2]));
@@ -595,25 +606,50 @@ void eval_line(struct Token ** tokens,
 			}
 			int validate = validate_declare_function_syntax(tokens,num_tokens,variables,tmp_num_variables);
 
-			struct Variable * tmp_fn = create_variable("function",get_token_value(tokens[2]),tmp_line_number,0,"",tmp_line_number,tmp_depth);
+			struct Variable * tmp_fn = create_variable_func("function",
+					get_token_value(tokens[2]),
+					tmp_line_number,
+					tmp_depth,
+					(num_tokens-3)/2,
+					validate,
+					tmp_line_number,
+					tmp_line_number);
+
 			variables[tmp_num_variables] = tmp_fn;
 			tmp_num_variables++;
 
-			struct Variable * tmp_control = create_variable("control","function",0,0,"",tmp_line_number,tmp_depth);
+			struct Variable * tmp_control = create_variable("function",get_token_value(tokens[2]),0,0,"",tmp_line_number,tmp_depth);
 			vs_push(control_flow_stack,tmp_control);
 		} else if (get_token_hash(tokens[0])==4016346563) { //End function
 
 			if (num_tokens > 1)
 				SyntaxError("FunctionEnd statement cannot have additional information on the line.",__LINE__,__FILE__);
 
-			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"function")!=0)
+			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_type(vs_get_top(control_flow_stack)),"function")!=0)
 				SyntaxError("FunctionEnd found without matching FunctionBegin loop",__LINE__,__FILE__);
 
-			vs_pop(control_flow_stack);
+			struct Variable * tmp_end_fn = vs_pop(control_flow_stack);
+			int end_variable_index = variable_index(variables,tmp_num_variables,get_variable_hash(tmp_end_fn));
+			free(tmp_end_fn);
+			assign_variable_func_end_line(variables[end_variable_index],tmp_line_number);
+
+		} else if (get_token_hash(tokens[0])==2444437840) { // Return
+			//printf("TEST: %s\n",get_variable_type(vs_get_top(control_flow_stack)));
+			//if (vs_is_empty(control_flow_stack) || strcmp(get_variable_type(vs_get_top(control_flow_stack)),"function")!=0)
+			//	SyntaxError("Return found while not within Function statement",__LINE__,__FILE__);
+
+			struct Variable * tmp_return_var = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables,
+					token_array,num_token_rows,token_array_lengths,
+					&tmp_depth,control_flow_stack);
+			return tmp_return_var;
 		} else {
-			struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables);
-			fprintf(stdout,"Result: %s\n",return_variable_value_as_char(tmp));
+			struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables,
+					token_array,num_token_rows,token_array_lengths,
+					&tmp_depth,control_flow_stack);
+			if (return_variable_value_as_char(tmp) != NULL)
+				fprintf(stdout,"%s\n",return_variable_value_as_char(tmp));
 		}
+
 	} else if (get_variable_ival(vs_get_top(control_flow_stack))==2) { // if the control flow stack says the task is already complete
 		if (get_token_hash(tokens[0])==2162724 || // handle all if logic // Elif
 				get_token_hash(tokens[0])==2163033 || // Else
@@ -653,7 +689,9 @@ void eval_line(struct Token ** tokens,
 			assign_variable_value(vs_get_top(control_flow_stack),tmp_result_int,0,"");
 
 		} else if (get_token_hash(tokens[0])==3714707480) { // WhileBegin
-			struct Variable * tmp_while = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables);
+			struct Variable * tmp_while = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables,
+					token_array,num_token_rows,token_array_lengths,
+					&tmp_depth,control_flow_stack);
 			int tmp_result_int = get_variable_val_as_int_condition(tmp_while);
 			assign_variable_value(vs_get_top(control_flow_stack),tmp_result_int,0,"");
 			free(tmp_while);
@@ -671,7 +709,9 @@ void eval_line(struct Token ** tokens,
 			if(get_token_hash(tokens[0])==2162724) { // Else if
 				if (num_tokens==1) SyntaxError("No statement found after If call",__LINE__,__FILE__);
 
-				struct Variable * tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables);
+				struct Variable * tmp = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables,
+						token_array,num_token_rows,token_array_lengths,
+						&tmp_depth,control_flow_stack);
 				double tmp_val = 0;
 				if (strcmp(get_variable_type(tmp),"string")==0)
 					InvalidValueError("If statement cannot interpret string value.",__LINE__,__FILE__);
@@ -695,10 +735,8 @@ void eval_line(struct Token ** tokens,
 		}
 
 		else if (get_token_hash(tokens[0])==499119488) { //ForBegin
-			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")==0) {
-				struct Variable * tmp_control = create_variable("control","for",0,0,"",tmp_line_number,tmp_depth);
-				vs_push(control_flow_stack,tmp_control);
-			}
+			struct Variable * tmp_control = create_variable("control","for",0,0,"",tmp_line_number,tmp_depth);
+			vs_push(control_flow_stack,tmp_control);
 		}
 
 		else if (get_token_hash(tokens[0])==2110017394) { //ForEnd
@@ -707,29 +745,31 @@ void eval_line(struct Token ** tokens,
 			vs_pop(control_flow_stack);
 
 		} else if (get_token_hash(tokens[0])==3714707480) { // WhileBegin
-			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"while")==0) {
-				struct Variable * tmp_control = create_variable("control","while",0,0,"",tmp_line_number,tmp_depth);
-				vs_push(control_flow_stack,tmp_control);
-			}
+			struct Variable * tmp_control = create_variable("control","while",0,0,"",tmp_line_number,tmp_depth);
+			vs_push(control_flow_stack,tmp_control);
+
 		} else if (get_token_hash(tokens[0])==2220625930) { // WhileEnd
 			if (vs_is_empty(control_flow_stack) || strcmp(get_variable_name(vs_get_top(control_flow_stack)),"while")!=0)
 				SyntaxError("WhileEnd found without matching While loop",__LINE__,__FILE__);
 			vs_pop(control_flow_stack);
-		} else if (get_token_hash(tokens[0])==4016346563) {
+		} else if (get_token_hash(tokens[0])==4016346563) { //End function
 
-			if (num_tokens > 1) {
+			if (num_tokens > 1)
 				SyntaxError("FunctionEnd statement cannot have additional information on the line.",__LINE__,__FILE__);
-			}
 
-			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"function")!=0)
+			if (strcmp(get_variable_type(vs_get_top(control_flow_stack)),"function")!=0)
 				SyntaxError("FunctionEnd found without matching FunctionBegin loop",__LINE__,__FILE__);
 
-			vs_pop(control_flow_stack);
+			struct Variable * tmp_end_fn = vs_pop(control_flow_stack);
+			int end_variable_index = variable_index(variables,tmp_num_variables,get_variable_hash(tmp_end_fn));
+			free(tmp_end_fn);
+
+			assign_variable_func_end_line(variables[end_variable_index],tmp_line_number);
 		}
 
 	} else SyntaxError("Something is wrong with your expression!",__LINE__,__FILE__);
 
 	*num_variables = tmp_num_variables;
 	*depth = tmp_depth;
-	//return variables;
+	return NULL;
 }

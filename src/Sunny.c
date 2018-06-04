@@ -31,8 +31,6 @@ int main(int argc, char* argv[]) {
 
 	clock_t start = clock(), diff;
 
-	printf("FunctionEnd: %u\n",hash("FunctionEnd"));
-	printf("WhileEnd: %u\n",hash("WhileEnd"));
 
 	int cmd_num_rows, cmd_num_fields;
 	char *** cmds = load_csv(df,',',&cmd_num_fields,&cmd_num_rows);
@@ -63,7 +61,7 @@ int main(int argc, char* argv[]) {
 	int token_array_lengths[sdata_num_rows];
 	while (i < sdata_num_rows) {
 		int num_tokens = 0;
-		fprintf(stdout,"Initial phrase: %s\n",s_data[i]);
+		//fprintf(stdout,"Initial phrase: %s\n",s_data[i]);
 		token_array[i] = tokenize_line(s_data[i],
 				&num_tokens,
 				cmds,
@@ -71,12 +69,14 @@ int main(int argc, char* argv[]) {
 				cmd_num_fields);
 
 		token_array_lengths[i] = num_tokens;
+		/*
 		fprintf(stdout,"Translated: ");
 		for (int j = 0; j < num_tokens; j++) {
 			struct Token * t = token_array[i][j];
 			fprintf(stdout,"%s ",get_token_value(t));
 		}
 		fprintf(stdout,"\n");
+		*/
 		i++;
 	}
 
@@ -85,18 +85,35 @@ int main(int argc, char* argv[]) {
 	int depth = 0;
 	while (i < sdata_num_rows) {
 		int line_number = i;
-		eval_line(token_array[i],token_array_lengths[i],variables,&num_variables,control_flow_stack,&line_number,&depth);
+		eval_line(token_array[i],
+				token_array_lengths[i],
+				variables,
+				&num_variables,
+				control_flow_stack,
+				&line_number,
+				&depth,
+				token_array,
+				sdata_num_rows,
+				token_array_lengths);
 		if (line_number != i) {
 			i = line_number;
 		}
 		else i++;
-		/*fprintf(stdout,"VARIABLES:\n");
-		for (int k = 0; k < num_variables;k++) {
-			fprintf(stdout,"\t%s\n",get_variable_name(variables[k]));
-		}*/
 
 	}
 
+	/*
+	fprintf(stdout,"VARIABLES:\n");
+	for (int k = 0; k < num_variables;k++) {
+		fprintf(stdout,"\t%s\t%s\n",get_variable_name(variables[k]),get_variable_type(variables[k]));
+		if (strcmp(get_variable_type(variables[k]),"function")==0) {
+			fprintf(stdout,"\t\t%d %d %d %d\n",get_variable_func_num_arguments(variables[k]),
+					get_variable_func_num_returns(variables[k]),
+					get_variable_func_start_line(variables[k]),
+					get_variable_func_end_line(variables[k]));
+		}
+	}
+	*/
 	free(s_data);
 	free(variables);
 

@@ -15,6 +15,7 @@
 #include "../struct/Token.h"
 #include "../struct/Variable.h"
 #include "../Exceptions.h"
+#include "../Tokenizer.h"
 #include "String_Utils.h"
 #include "Misc_Utils.h"
 
@@ -164,14 +165,97 @@ struct Variable* eval_op(struct Variable* op1, struct Variable* op2, double op) 
 	return tmp_var;
 }
 
+
+struct Variable * eval_function(struct Variable * eval_func,
+		struct Token ** tokens,
+		int num_tokens,
+		int token_index,
+		struct Variable ** variables,
+		int variable_count,
+		struct Token *** token_array,
+		int num_token_rows,
+		int token_array_lengths[],
+		int depth,
+		struct VariableStack * control_flow_stack) {
+	int v_start_line = get_variable_func_start_line(eval_func);
+	int v_end_line = get_variable_func_end_line(eval_func);
+	int v_num_tokens = token_array_lengths[v_start_line];
+	struct Token ** v_tokens = token_array[v_start_line];
+
+
+	// create return variable
+	struct Variable * result_func = malloc(sizeof(struct Variable *));
+	result_func = create_variable(get_token_value(v_tokens[1]),"func_result",-1,-1,"",-1,depth);
+
+	//make sure we have the right number of tokens
+	if (num_tokens-token_index-1 != (v_num_tokens-3)/2) {
+		char * info = malloc(sizeof(char)*1024);
+		sprintf(info,"Mismatched arguments in for statement call.");
+		SyntaxError(info,__LINE__,__FILE__);
+	}
+
+	//start by creating an array of the parameters passed to the function
+	for (int i = 3; i < v_num_tokens-1; i+=2) {
+		int tmp_assign_variable_ind = variable_index(variables,variable_count,get_token_hash(tokens[token_index+(i-1)/2]));
+		struct Variable * tmp_assign_variable = create_variable(get_token_value(v_tokens[i+1]),
+				get_token_value(v_tokens[i]),
+				0,0,"",-1,depth);
+
+		// make sure all the data types are compatible
+		if (variable_types_compatible(get_variable_type(tmp_assign_variable),get_variable_type(variables[tmp_assign_variable_ind]))==0)
+			MismatchedVariableTypesError(get_variable_name(tmp_assign_variable),
+					get_variable_type(tmp_assign_variable),
+					get_variable_name(variables[tmp_assign_variable_ind]),
+					get_variable_type(variables[tmp_assign_variable_ind]),
+					__LINE__,
+					__FILE__);
+
+		assign_variable_value(tmp_assign_variable,
+				get_variable_ival(variables[tmp_assign_variable_ind]),
+				get_variable_fval(variables[tmp_assign_variable_ind]),
+				get_variable_cval(variables[tmp_assign_variable_ind]));
+
+		variables[variable_count] = tmp_assign_variable;
+		variable_count++;
+	}
+
+	int i = v_start_line+1;
+	while (i < v_end_line) {
+		int line_number = i;
+		result_func = eval_line(token_array[i],
+				token_array_lengths[i],
+				variables,
+				&variable_count,
+				control_flow_stack,
+				&line_number,
+				&depth,
+				token_array,
+				num_token_rows,
+				token_array_lengths);
+		if (line_number != i) {
+			i = line_number;
+		}
+		else i++;
+
+	}
+
+	return result_func;
+}
+
 struct Variable * eval_infix(struct Token ** tokens,
 		int num_tokens,
 		int token_index,
 		struct Variable ** variables,
-		int variable_count) {
+		int variable_count,
+		struct Token *** token_array,
+		int num_token_rows,
+		int * token_array_lengths,
+		int * depth,
+		struct VariableStack * control_flow_stack) {
+	int tmp_depth = *depth;
 	struct Variable* result = malloc(sizeof(struct Variable*));
 
-	char prev_token_type = 1;
+	//char prev_token_type = 1;
 
 	struct VariableStack* operand_stack = vs_create_stack(num_tokens);
 	struct Stack* operator_stack = createStack(num_tokens);
@@ -179,12 +263,14 @@ struct Variable * eval_infix(struct Token ** tokens,
 	while (token_index < num_tokens) {
 
 		char tmp_token_type = get_token_type(tokens[token_index]);
+		/*
 		if ((tmp_token_type=='n' || tmp_token_type=='v' || tmp_token_type=='s') &&
 				(prev_token_type=='n' || prev_token_type=='v' || prev_token_type=='s')) {
 			char * info = malloc(sizeof(char)*1024);
 			sprintf(info,"There is an error in your expression at token %s", get_token_value(tokens[token_index]));
 			SyntaxError(info,__LINE__,__FILE__);
 		}
+		*/
 
 		char * tmp_token_val = get_token_value(tokens[token_index]);
 		unsigned tmp_token_hash = get_token_hash(tokens[token_index]);
@@ -199,10 +285,29 @@ struct Variable * eval_infix(struct Token ** tokens,
 			vs_push(operand_stack,tmp_var);
 		} else if (tmp_token_type == 'v') { //if token is variable
 			int var_index = variable_index(variables,variable_count,tmp_token_hash);
+			// if variable is not found
 			if (var_index==-1) {
 				VariableNotFoundError(tmp_token_val,__LINE__,__FILE__);
 			}
-			vs_push(operand_stack,variables[var_index]);
+			// if variable points to a function
+			if (strcmp(get_variable_type(variables[var_index]),"function")==0) {
+				struct Variable * tmp_eval_func_result = eval_function(variables[var_index],
+						tokens,
+						num_tokens,
+						token_index,
+						variables,
+						variable_count,
+						token_array,
+						num_token_rows,
+						token_array_lengths,
+						tmp_depth+1,
+						control_flow_stack);
+				vs_push(operand_stack,tmp_eval_func_result);
+
+				token_index += get_variable_func_num_arguments(variables[var_index]);
+			} else {
+				vs_push(operand_stack,variables[var_index]);
+			}
 		} else if (tmp_token_type == 'o'
 				&& isEmpty(operator_stack)==1
 				&& tmp_token_hash != ')') { //if token is operator and stack is empty
@@ -257,7 +362,7 @@ struct Variable * eval_infix(struct Token ** tokens,
 			vs_push(operand_stack,tmp_var);
 		}
 
-		prev_token_type = tmp_token_type;
+		//prev_token_type = tmp_token_type;
 
 		token_index++;
 	}
@@ -274,6 +379,9 @@ struct Variable * eval_infix(struct Token ** tokens,
 		vs_push(operand_stack,tmp_var);
 	}
 	result = vs_get_top(operand_stack);
+	*depth = tmp_depth;
+
+	if (strcmp(get_variable_name(result),"void")==0) return NULL;
 
 	return result;
 }

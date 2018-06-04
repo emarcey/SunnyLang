@@ -120,12 +120,15 @@ int validate_declare_function_syntax(struct Token ** tokens,
  * returns:
  *  - array of Variable objects representing the environment's current variables
  */
-void eval_line(struct Token ** tokens,
+struct Variable * eval_line(struct Token ** tokens,
 		int num_tokens,
 		struct Variable ** variables,
 		int * num_variables,
 		struct VariableStack * control_flow_stack,
 		int * line_number,
-		int * depth);
+		int * depth,
+		struct Token *** token_array,
+		int num_token_rows,
+		int token_array_lengths[]);
 
 #endif /* TOKENIZER_H_ */
