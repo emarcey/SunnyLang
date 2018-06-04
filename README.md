@@ -159,7 +159,36 @@ Pepe {expression}
 {code}
 Sylvia
 ```
-  
+
+### Functions
+Currently functions in SunnyLang can accept any number of arguments, and return a single value
+	- multiple values to be implemented later
+	
+However, SunnyLang remembers variables declared in the global environment, so these variables can be used without passing, and therefore the values can be maintained.
+If you do override the value of an existing global variable, SunnyLang will create a temporary version of the variable within the function, which will be discarded after the function completes.
+
+Function calls use the following commands:
+SunnyLangName | Translation
+--- | ---
+FunctionBegin | TheBirdsOfWar
+FunctionEnd | TheTrashman
+Return | TheTalibum
+void | Frank
+
+and the syntax is as follows:
+```
+TheBirdsOfWar Frank {nameOfFunction} {variable1} {datatype1} {variable2} {datatype2} ...
+{code to execute}
+TheTrashman 
+
+or
+
+TheBirdsOfWar {return datatype} {nameOfFunction} {variable1} {datatype1} {variable2} {datatype2} ...
+{code to execute}
+TheTalibum {return datatype}
+TheTrashman 
+```
+
 ### Source Code
 
 The SunnyLang interpreter is written and compiled in C.
@@ -181,25 +210,85 @@ tmpVar+1
 Cricket 
 ```
 
-The response, with full debugging is:
+This translates to: 
 ```
-Initial phrase: Rickety tmpVar 0 MagnumCondoms 10 1
-Translated: ForBegin tmpVar 0 < 10 1 
-Initial phrase: tmpVar BrownOut 1
-Translated: tmpVar + 1 
-Initial phrase: Cricket
-Translated: ForEnd 
+ForBegin tmpVar 0 < 10 1 
+tmpVar + 1 
+ForEnd 
+```
 
-Result: 1.000000
-Result: 2.000000
-Result: 3.000000
-Result: 4.000000
-Result: 5.000000
-Result: 6.000000
-Result: 7.000000
-Result: 8.000000
-Result: 9.000000
-Result: 10.000000
+The response is:
+```
+1.000000
+2.000000
+3.000000
+4.000000
+5.000000
+6.000000
+7.000000
+8.000000
+9.000000
+10.000000
+```
 
-Time taken 0 seconds 0 milliseconds
+### 1. Basic Function
+
+```
+JoinTheGang temp1 Mac
+JoinTheGang temp2 Mac
+temp1 AnEggInThisTryingTime
+temp1
+
+TheBirdsOfWar Mac testFunc temp3 Mac
+Pepe temp2 MagnumCondoms 5
+temp3 LittleGreenGhouls 2
+temp2 AnEggInThisTryingTime
+Sylvia
+TheTalibum temp3
+TheTrashman
+
+temp1 Milksteak testFunc temp1
+temp1
+temp2
+```
+
+In this script, we declare two Float variables to 0.
+```
+JoinTheGang temp1 Mac
+JoinTheGang temp2 Mac
+```
+
+Then we increase temp1 by 1 and print it out
+```
+temp1 AnEggInThisTryingTime
+temp1
+```
+
+After this, we declare a function testFunc, that accepts one Float variable temp3.
+The function performs a while loop from the globally-declared temp2 to 5.
+During each iteration, temp2 is incremented by 1, and temp3 is incremented by 2.
+After the while loop completes, we return temp2.
+```
+TheBirdsOfWar Mac testFunc temp3 Mac
+Pepe temp2 MagnumCondoms 5
+temp3 LittleGreenGhouls 2
+temp2 AnEggInThisTryingTime
+Sylvia
+TheTalibum temp3
+TheTrashman
+```
+
+We then call the function testFunc, passing temp1 (with value 1) to temp3, and assigning temp1 to its result. 
+Then we print temp1 and temp2.
+```
+temp1 Milksteak testFunc temp1
+temp1
+temp2
+```
+
+The resulting call returns this to stdout:
+```
+1.000000
+11.000000
+5.000000
 ```

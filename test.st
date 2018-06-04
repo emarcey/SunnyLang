@@ -4,13 +4,14 @@ temp1 AnEggInThisTryingTime
 temp1
 
 TheBirdsOfWar Mac testFunc temp3 Mac
-Pepe temp3 MagnumCondoms 5
+Pepe temp2 MagnumCondoms 5
+temp3 LittleGreenGhouls 2
 temp2 AnEggInThisTryingTime
-temp3 AnEggInThisTryingTime
 Sylvia
-TheTalibum temp2
+TheTalibum temp3
 TheTrashman
 
-temp1 Milksteak testFunc temp2
+temp1 Milksteak testFunc temp1
 
 temp1
+temp2
