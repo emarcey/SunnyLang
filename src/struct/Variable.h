@@ -31,6 +31,15 @@ void assign_line_number(struct Variable * variable, int line_number);
  */
 struct Variable* create_variable(char * type,char * name,int ival,float fval,char * cval,int line_number, int depth);
 
+struct Variable * create_variable_func(char * type,
+		char * name,
+		int line_number,
+		int depth,
+		int num_arguments,
+		int num_returns,
+		int start_line,
+		int end_line);
+
 //Function returns variable type
 char * get_variable_type(struct Variable * variable);
 
@@ -60,11 +69,27 @@ int get_variable_depth(struct Variable * variable);
 //Function returns variable value as char *, converting based on type
 char * return_variable_value_as_char(struct Variable * variable);
 
+int get_variable_func_num_arguments(struct Variable * variable);
+
+int get_variable_func_num_returns(struct Variable * variable);
+
+int get_variable_func_start_line(struct Variable * variable);
+
+int get_variable_func_end_line(struct Variable * variable);
+
 //Function assigns a value to a variable based on type
 void assign_variable_value(struct Variable * variable, int ival, float fval, char * cval);
 
 //Function assigns a depth value to a variable
 void assign_variable_depth(struct Variable * variable, int depth);
+
+void assign_variable_func_num_arguments(struct Variable * variable, int num_arguments);
+
+void assign_variable_func_num_returns(struct Variable * variable, int num_returns);
+
+void assign_variable_func_start_line(struct Variable * variable, int start_line);
+
+void assign_variable_func_end_line(struct Variable * variable, int end_line);
 
 /*
  * variable_index:

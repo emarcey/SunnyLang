@@ -12,6 +12,8 @@
 #include <limits.h>
 #include <string.h>
 
+#include "Function_Data.h"
+
 #include "../Exceptions.h"
 
 #include "../utils/String_Utils.h"
@@ -27,6 +29,7 @@ struct Variable {
 		int ival;
 		float fval;
 		char* cval;
+		struct Function_Data * func;
 	} uval;
 
 };
@@ -78,6 +81,31 @@ struct Variable* create_variable(char * type,
 	}
 
 	if (line_number > 0) assign_line_number(variable, line_number);
+
+	return variable;
+}
+
+struct Variable * create_variable_func(char * type,
+		char * name,
+		int line_number,
+		int depth,
+		int num_arguments,
+		int num_returns,
+		int start_line,
+		int end_line) {
+	if (strcmp(type,"function")!=0) {
+		TypeNotRecognizedError(type,name,"function variable",__LINE__,__FILE__);
+	}
+
+	struct Variable* variable = (struct Variable*) malloc(sizeof(struct Variable));
+
+	variable->type = type;
+	variable->name = name;
+	variable->name_hash = hash(name);
+	variable->depth = depth;
+
+	struct Function_Data * func = create_function_data(num_arguments,num_returns,start_line,end_line);
+	variable->uval.func = func;
 
 	return variable;
 }
@@ -159,6 +187,34 @@ char * return_variable_value_as_char(struct Variable * variable) {
 	return return_val;
 }
 
+int get_variable_func_num_arguments(struct Variable * variable) {
+	if (strcmp(variable->type,"function")!=0) {
+		TypeNotRecognizedError(variable->type,variable->name,"function variable",__LINE__,__FILE__);
+	}
+	return func_get_num_arguments(variable->uval.func);
+}
+
+int get_variable_func_num_returns(struct Variable * variable) {
+	if (strcmp(variable->type,"function")!=0) {
+		TypeNotRecognizedError(variable->type,variable->name,"function variable",__LINE__,__FILE__);
+	}
+	return func_get_num_returns(variable->uval.func);
+}
+
+int get_variable_func_start_line(struct Variable * variable) {
+	if (strcmp(variable->type,"function")!=0) {
+		TypeNotRecognizedError(variable->type,variable->name,"function variable",__LINE__,__FILE__);
+	}
+	return func_get_start_line(variable->uval.func);
+}
+
+int get_variable_func_end_line(struct Variable * variable) {
+	if (strcmp(variable->type,"function")!=0) {
+		TypeNotRecognizedError(variable->type,variable->name,"function variable",__LINE__,__FILE__);
+	}
+	return func_get_end_line(variable->uval.func);
+}
+
 void assign_variable_value(struct Variable * variable, int ival, float fval, char * cval) {
 	if ((strcmp(variable->type,"int") ==0 ||
 			strcmp(variable->type,"boolean")==0) ||
@@ -173,12 +229,35 @@ void assign_variable_value(struct Variable * variable, int ival, float fval, cha
 }
 
 void assign_variable_depth(struct Variable * variable, int depth) {
-	if (depth < 0) variable->depth;
-	else {
-		char * info = malloc(sizeof(char)*2014);
-		sprintf(info,"Value of %d not applicable for depth",depth);
-		InvalidValueError(info,__LINE__,__FILE__);
+	variable->depth=depth;
+}
+
+void assign_variable_func_num_arguments(struct Variable * variable, int num_arguments) {
+	if (strcmp(variable->type,"function")!=0) {
+		TypeNotRecognizedError(variable->type,variable->name,"function variable",__LINE__,__FILE__);
 	}
+	func_assign_num_arguments(variable->uval.func,num_arguments);
+}
+
+void assign_variable_func_num_returns(struct Variable * variable, int num_returns) {
+	if (strcmp(variable->type,"function")!=0) {
+		TypeNotRecognizedError(variable->type,variable->name,"function variable",__LINE__,__FILE__);
+	}
+	func_assign_num_returns(variable->uval.func,num_returns);
+}
+
+void assign_variable_func_start_line(struct Variable * variable, int start_line) {
+	if (strcmp(variable->type,"function")!=0) {
+		TypeNotRecognizedError(variable->type,variable->name,"function variable",__LINE__,__FILE__);
+	}
+	func_assign_start_line(variable->uval.func,start_line);
+}
+
+void assign_variable_func_end_line(struct Variable * variable, int end_line) {
+	if (strcmp(variable->type,"function")!=0) {
+		TypeNotRecognizedError(variable->type,variable->name,"function variable",__LINE__,__FILE__);
+	}
+	func_assign_end_line(variable->uval.func,end_line);
 }
 
 int variable_index(struct Variable** variables, int variable_count, unsigned int s_variable_hash) {
@@ -186,7 +265,6 @@ int variable_index(struct Variable** variables, int variable_count, unsigned int
 		if (get_variable_hash(variables[i])==s_variable_hash)
 			return i;
 	}
-
 	return -1;
 }
 
