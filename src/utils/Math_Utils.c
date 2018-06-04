@@ -182,7 +182,6 @@ struct Variable * eval_function(struct Variable * eval_func,
 	int v_num_tokens = token_array_lengths[v_start_line];
 	struct Token ** v_tokens = token_array[v_start_line];
 
-
 	// create return variable
 	struct Variable * result_func = malloc(sizeof(struct Variable *));
 	result_func = create_variable(get_token_value(v_tokens[1]),"func_result",-1,-1,"",-1,depth);
@@ -197,6 +196,10 @@ struct Variable * eval_function(struct Variable * eval_func,
 	//start by creating an array of the parameters passed to the function
 	for (int i = 3; i < v_num_tokens-1; i+=2) {
 		int tmp_assign_variable_ind = variable_index(variables,variable_count,get_token_hash(tokens[token_index+(i-1)/2]));
+
+		if (tmp_assign_variable_ind==-1) {
+			VariableNotFoundError(get_token_value(tokens[token_index+(i-1)/2]),__LINE__,__FILE__);
+		}
 		struct Variable * tmp_assign_variable = create_variable(get_token_value(v_tokens[i+1]),
 				get_token_value(v_tokens[i]),
 				0,0,"",-1,depth);
