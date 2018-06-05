@@ -23,21 +23,21 @@ int get_precedence(unsigned int c) {
 	// regular operators have positive precedence
 	// looping operators have negative precedence
 	int precedence[][2] = {
-				{94,3}, // ^
-				{42,2}, // *
-				{47,2}, // /
-				{37,2}, // %
-				{43,1}, // +
-				{45,1}, // -
-				{1952,-1},// ==
-				{1921,-1}, // <=
-				{1983,-1}, // >=
-				{60,-1}, // <
-				{62,-1}, // >
-				{96727,-2}, // and
-				{3555,-2}, //or
-				{40,-3}, // (
-				{41,-3}, // )
+				{94,4}, // ^
+				{42,3}, // *
+				{47,3}, // /
+				{37,3}, // %
+				{43,2}, // +
+				{45,2}, // -
+				{1952,1},// ==
+				{1921,1}, // <=
+				{1983,1}, // >=
+				{60,1}, // <
+				{62,1}, // >
+				{96727,0}, // and
+				{3555,0}, //or
+				{40,10}, // (
+				{41,10}, // )
 				{-1,-1} //end
 		};
 	int i = 0;
@@ -241,7 +241,8 @@ struct Variable * eval_function(struct Variable * eval_func,
 		else i++;
 
 	}
-
+	if (result_func==NULL)
+		return create_variable("void","void",-1,-1,"",-1,depth);
 	return result_func;
 }
 
@@ -280,6 +281,7 @@ struct Variable * eval_infix(struct Token ** tokens,
 		int tmp_token_precedence = get_token_precedence(tokens[token_index]);
 
 		if (tmp_token_type == 'n') { //if token is numeric operand
+			printf("N: %s\n",tmp_token_val);
 			float tmp_operand = atof(tmp_token_val);
 			struct Variable* tmp_var = create_variable("float","float",0,tmp_operand,"",-1,-1);
 			vs_push(operand_stack,tmp_var);
@@ -311,36 +313,30 @@ struct Variable * eval_infix(struct Token ** tokens,
 			} else {
 				vs_push(operand_stack,variables[var_index]);
 			}
-		} else if (tmp_token_type == 'o'
-				&& isEmpty(operator_stack)==1
-				&& tmp_token_hash != ')') { //if token is operator and stack is empty
-			push(operator_stack,tmp_token_hash);
-
-		} else if (tmp_token_type == 'o'
-				&& isEmpty(operator_stack) == 0
-				&& tmp_token_hash != '('
-				&& tmp_token_hash != ')') { //if token is operator, operator stack is not empty
-
-			double top_val = get_top(operator_stack);
-			int tmp_val = top_val;
-			int op_precedence = get_precedence(tmp_val);
-
-			if (tmp_token_precedence > op_precedence) { //if token's precedence > top stack value's precedence
-				push(operator_stack, tmp_token_hash);
-			} else { //process
-				struct Variable* op1 = vs_pop(operand_stack);
-				if (vs_is_empty(operand_stack))
-					EvalError("Operand stack is empty - there's something wrong with your expression!",__LINE__,__FILE__);
-				struct Variable* op2 = vs_pop(operand_stack);
-				double op = tmp_token_hash;
-				struct Variable* tmp_var = eval_op(op2,op1,op);
-				vs_push(operand_stack,tmp_var);
-			}
-
 		} else if (tmp_token_type == 'o' && tmp_token_hash == '(') { //if token is '('
 			push(operator_stack, tmp_token_hash);
-		} else if (tmp_token_type == 'o' && tmp_token_precedence < 0) { //if token is ')'
-			while (tmp_token_precedence > get_precedence(get_top(operator_stack))) {
+		} else if (tmp_token_type == 'o' && tmp_token_hash != ')') {
+			if (isEmpty(operator_stack)==1)
+				push(operator_stack,tmp_token_hash);
+			else {
+				while (isEmpty(operator_stack) == 0 &&
+						tmp_token_precedence > get_precedence(get_top(operator_stack))) {
+					struct Variable* op1 = vs_pop(operand_stack);
+
+					if (tmp_token_hash == ')' && vs_is_empty(operand_stack))
+						EvalError("Operand stack is empty - there's something wrong with your expression!",__LINE__,__FILE__);
+					struct Variable* op2 = vs_pop(operand_stack);
+					double op = pop(operator_stack);
+					struct Variable* tmp_var = eval_op(op2,op1,op);
+					vs_push(operand_stack,tmp_var);
+					if (tmp_token_hash == ')' && isEmpty(operator_stack))
+						EvalError("There are mismatched parentheses in your expression!",__LINE__,__FILE__);
+				}
+				push(operator_stack,tmp_token_hash);
+			}
+		} else {
+			while (isEmpty(operator_stack) == 0 &&
+					get_top(operator_stack)!='(') {
 				struct Variable* op1 = vs_pop(operand_stack);
 
 				if (tmp_token_hash == ')' && vs_is_empty(operand_stack))
@@ -353,18 +349,7 @@ struct Variable * eval_infix(struct Token ** tokens,
 					EvalError("There are mismatched parentheses in your expression!",__LINE__,__FILE__);
 			}
 			pop(operator_stack);
-			if (tmp_token_hash != ')')
-				push(operator_stack,tmp_token_hash);
-		} else {
-			struct Variable* op1 = vs_pop(operand_stack);
-			if (vs_is_empty(operand_stack))
-				EvalError("Operand stack is empty - there's something wrong with your expression!",__LINE__,__FILE__);
-			struct Variable* op2 = vs_pop(operand_stack);
-			double op = pop(operator_stack);
-			struct Variable* tmp_var = eval_op(op2,op1,op);
-			vs_push(operand_stack,tmp_var);
 		}
-
 		//prev_token_type = tmp_token_type;
 
 		token_index++;
@@ -378,13 +363,14 @@ struct Variable * eval_infix(struct Token ** tokens,
 		double op = pop(operator_stack);
 		if (op == '(' || op == ')')
 			EvalError("There are mismatched parentheses in your expression!",__LINE__,__FILE__);
+		if (strcmp(get_variable_name(op1),"void")==0 || strcmp(get_variable_name(op2),"void")==0 ) {
+			EvalError("Cannot evaluate null objects.",__LINE__,__FILE__);
+		}
 		struct Variable* tmp_var = eval_op(op2,op1,op);
 		vs_push(operand_stack,tmp_var);
 	}
 	result = vs_get_top(operand_stack);
 	*depth = tmp_depth;
-
-	if (strcmp(get_variable_name(result),"void")==0) return NULL;
 
 	return result;
 }

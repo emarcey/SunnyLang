@@ -69,14 +69,14 @@ int main(int argc, char* argv[]) {
 				cmd_num_fields);
 
 		token_array_lengths[i] = num_tokens;
-		/*
+
 		fprintf(stdout,"Translated: ");
 		for (int j = 0; j < num_tokens; j++) {
 			struct Token * t = token_array[i][j];
 			fprintf(stdout,"%s ",get_token_value(t));
 		}
 		fprintf(stdout,"\n");
-		*/
+
 		i++;
 	}
 
@@ -85,6 +85,7 @@ int main(int argc, char* argv[]) {
 	int depth = 0;
 	while (i < sdata_num_rows) {
 		int line_number = i;
+		printf("Line Number: %d\n",line_number);
 		eval_line(token_array[i],
 				token_array_lengths[i],
 				variables,

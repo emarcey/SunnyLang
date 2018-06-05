@@ -1,17 +1,5 @@
-JoinTheGang temp1 Mac
-JoinTheGang temp2 Mac
-temp1 AnEggInThisTryingTime
-temp1
+JoinTheGang i Mac Milksteak 1
 
-TheBirdsOfWar Mac testFunc temp3 Mac
-Pepe temp2 MagnumCondoms 5
-temp3 LittleGreenGhouls 2
-temp2 AnEggInThisTryingTime
-Sylvia
-TheTalibum temp3
-TheTrashman
+i PayTheTrollToll 3
 
-temp1 Milksteak testFunc temp1
-
-temp1
-temp2
+BlastMe i PayTheTrollToll 3 InTheAss ReadyToPlow 5
