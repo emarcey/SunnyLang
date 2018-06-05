@@ -69,6 +69,7 @@ struct Token ** tokenize_line(char * line,
 
 				//check for the end of the string
 				if (words[strlen(words)-1]==34) {
+					assign_token_value(tokens[token_count],trim_chars(get_token_value(tokens[token_count]),34));
 					token_count++;
 				}
 

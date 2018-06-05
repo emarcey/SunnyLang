@@ -281,7 +281,6 @@ struct Variable * eval_infix(struct Token ** tokens,
 		int tmp_token_precedence = get_token_precedence(tokens[token_index]);
 
 		if (tmp_token_type == 'n') { //if token is numeric operand
-			printf("N: %s\n",tmp_token_val);
 			float tmp_operand = atof(tmp_token_val);
 			struct Variable* tmp_var = create_variable("float","float",0,tmp_operand,"",-1,-1);
 			vs_push(operand_stack,tmp_var);

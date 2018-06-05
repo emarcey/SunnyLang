@@ -21,6 +21,9 @@
  */
 int count_chars(char * phrase, char c_find);
 
+// trim c_trim on left and right of phrase
+char * trim_chars(char * phrase, char c_trim);
+
 /*
  * next_char_ind:
  *  - locates first occurrence of a character within a phrase

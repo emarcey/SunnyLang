@@ -20,6 +20,23 @@ int count_chars(char * phrase, char c_find) {
 	return char_count;
 }
 
+char * trim_chars(char * phrase, char c_trim) {
+	int new_len = strlen(phrase);
+	while (*phrase != '\0') {
+		if (*phrase!=c_trim) break;
+		new_len--;
+		phrase++;
+	}
+	new_len--;
+	while (new_len > 0) {
+		if (phrase[new_len-1] != c_trim) break;
+		new_len--;
+	}
+	char * tmp = malloc(sizeof(char)*(new_len+1));
+	strncpy(tmp,phrase,new_len);
+	return tmp;
+}
+
 //finds the next index of a given character in a phrase
 //returns -1 if not found
 int next_char_ind(char * phrase, char c_find) {
