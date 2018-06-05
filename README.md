@@ -30,11 +30,12 @@ The language currently supports:
   - String variables are planned, but not yet supported
  - If/Else logic
  - For/While loop control flow
- - A whole mess of operators
- - Well that's really it.
+ - ++/-- operations
+ - +=, -=, \*=, etc. operations
+ - User-Defined Function implementation
  
 Planned features:
-  - User-Defined Function implementation
+  - String evaluation in infix expressions
   - User-Defined Class implementation
   - Additional built-in variables (i.e. arrays)
   - Additional built-in functions
