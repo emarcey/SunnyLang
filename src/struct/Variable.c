@@ -285,3 +285,10 @@ int variable_types_compatible(char * type1, char * type2) {
 	}
 	return 0;
 }
+
+int variable_is_numeric(struct Variable * variable) {
+	if (strcmp(variable->type,"float")==0 ||
+			strcmp(variable->type,"int")==0 ||
+			strcmp(variable->type,"boolean")==0) return 1;
+	return 0;
+}

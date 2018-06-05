@@ -128,7 +128,12 @@ struct Variable* eval_op_numeric(struct Variable* op1,
 			break;
 
 		default:
-			sprintf(info,"Unknown mathematical operator: %f",op);
+			sprintf(info,"Operator %f not valid for variables %s (%s) and %s (%s).",
+					op,
+					get_variable_name(op1),
+					get_variable_type(op1),
+					get_variable_name(op2),
+					get_variable_type(op2));
 			InvalidValueError(info,__LINE__,__FILE__);
 	}
 
@@ -137,34 +142,77 @@ struct Variable* eval_op_numeric(struct Variable* op1,
 		tmp_var = create_variable("int","int",tmp_int,0,"",-1,-1);
 	} else
 		tmp_var = create_variable("float","float",0,tmp_val,"",-1,-1);
+	free(info);
 	return tmp_var;
 }
 
 struct Variable* eval_op_string(struct Variable* op1, struct Variable* op2, double op) {
 	struct Variable* tmp_var = malloc(sizeof(struct Variable*));
+	tmp_var = create_variable("string","string",0,0,"",-1,-1);
+	char * tmp_val = malloc(sizeof(char)+sizeof(get_variable_cval(op1))+sizeof(get_variable_cval(op2)));
+	unsigned tmp_op = op;
+	char * info = malloc(sizeof(char)*1024);
+	switch(tmp_op) {
 
+		case 43: // +
+			sprintf(tmp_val,"%s%s",get_variable_cval(op1),get_variable_cval(op2));
+			assign_variable_value(tmp_var,0,0,tmp_val);
+			break;
+
+		default:
+			sprintf(info,"Operator %f not valid for variables %s (%s) and %s (%s).",
+					op,
+					get_variable_name(op1),
+					get_variable_type(op1),
+					get_variable_name(op2),
+					get_variable_type(op2));
+			InvalidValueError(info,__LINE__,__FILE__);
+	}
+	free(info);
+	return tmp_var;
+}
+
+struct Variable* eval_op_num_string(struct Variable* op1, struct Variable* op2, double op) {
+	struct Variable* tmp_var = malloc(sizeof(struct Variable*));
+	unsigned tmp_op = op;
+	char * info = malloc(sizeof(char)*1024);
+	switch(tmp_op) {
+
+		default:
+			sprintf(info,"Operator %f not valid for variables %s (%s) and %s (%s).",
+					op,
+					get_variable_name(op1),
+					get_variable_type(op1),
+					get_variable_name(op2),
+					get_variable_type(op2));
+			InvalidValueError(info,__LINE__,__FILE__);
+	}
+	free(info);
 	return tmp_var;
 }
 
 struct Variable* eval_op(struct Variable* op1, struct Variable* op2, double op) {
 	struct Variable* tmp_var = malloc(sizeof(struct Variable*));
 
-	if (variable_types_compatible(get_variable_type(op1),get_variable_type(op2))==0)
+	if (variable_is_numeric(op1)==1 && variable_is_numeric(op2)==1) {
+		tmp_var = eval_op_numeric(op1,op2,op);
+	} else if (strcmp(get_variable_type(op1),"string")==0 && variable_is_numeric(op2)) { //op1 is string and op2 is numeric
+		tmp_var = eval_op_num_string(op1,op2,op);
+	} else if (variable_is_numeric(op1) && strcmp(get_variable_type(op2),"string")==0) { //op1 is numeric and op2 is string
+		tmp_var = eval_op_num_string(op2,op1,op);
+	} else if (strcmp(get_variable_type(op1),"string")==0 && strcmp(get_variable_type(op2),"string")==0) { //both strings
+		tmp_var = eval_op_string(op1,op2,op);
+	} else if (variable_types_compatible(get_variable_type(op1),get_variable_type(op2))==0)
 		MismatchedVariableTypesError(get_variable_name(op1),
 				get_variable_type(op1),
 				get_variable_name(op2),
 				get_variable_type(op2),
 				__LINE__,
 				__FILE__);
-
-	if (strcmp(get_variable_type(op1),"string")==0 && strcmp(get_variable_type(op2),"float")==0) {
-		//need to add code for handling strings
-	} else
-		tmp_var = eval_op_numeric(op1,op2,op);
+	else SyntaxError("I don't know what's going on.",__LINE__,__FILE__);
 
 	return tmp_var;
 }
-
 
 struct Variable * eval_function(struct Variable * eval_func,
 		struct Token ** tokens,

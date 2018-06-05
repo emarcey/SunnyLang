@@ -119,4 +119,9 @@ int variable_index(struct Variable** variables, int variable_count, unsigned int
  */
 int variable_types_compatible(char * type1, char * type2);
 
+/*
+ * returns 1 if a variable is of a numeric type (int, float, boolean)
+ */
+int variable_is_numeric(struct Variable * variable);
+
 #endif /* STRUCT_VARIABLE_H_ */

@@ -27,8 +27,15 @@ int get_precedence(char c);
 //Function that handles eval_op when both operands are numeric types
 struct Variable* eval_op_numeric(struct Variable* op1, struct Variable* op2, double op);
 
-//Function that handles eval_op when one or both operands are string types
+//Function that handles eval_op when both operands are string types
 struct Variable* eval_op_string(struct Variable* op1, struct Variable* op2, double op);
+
+/*
+ * Function that handles eval_op when one operand is a string type and one is numeric
+ * op1 is string
+ * op2 is numeric
+ */
+struct Variable* eval_op_num_string(struct Variable* op1, struct Variable* op2, double op) ;
 
 struct Variable * eval_function(struct Variable * eval_func,
 		struct Token ** tokens,
