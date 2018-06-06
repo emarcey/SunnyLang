@@ -31,6 +31,8 @@ int main(int argc, char* argv[]) {
 
 	clock_t start = clock(), diff;
 
+	printf("BangTheWaitress: %u\n",hash("BangTheWaitress"));
+
 	int cmd_num_rows, cmd_num_fields;
 	char *** cmds = load_csv(df,',',&cmd_num_fields,&cmd_num_rows);
 

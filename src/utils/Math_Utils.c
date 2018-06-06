@@ -20,8 +20,6 @@
 #include "Misc_Utils.h"
 
 int get_precedence(unsigned int c) {
-	// regular operators have positive precedence
-	// looping operators have negative precedence
 	int precedence[][2] = {
 				{94,4}, // ^
 				{42,3}, // *

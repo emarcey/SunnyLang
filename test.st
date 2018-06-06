@@ -1,13 +1,7 @@
 JoinTheGang tempVar Charlie Milksteak "test"
 
-tempVar Let'sHuffSomeGlue 2
+BangTheWaitress tempVar ReadyToPlow "test"
 
-tempVar BrownOut "thisisatest"
+BangTheWaitress tempVar WadOfHundredsReadyToPlow "test"
 
-tempVar ReadyToPlow "thisisatest"
-
-tempVar ReadyToPlow "test"
-
-tempVar WadOfHundredsReadyToPlow "test"
-
-tempVar WadOfHundredsReadyToPlow "thisisatest"
+BangTheWaitress tempVar WadOfHundredsReadyToPlow "thisisatest"
