@@ -1,5 +1,13 @@
 JoinTheGang tempVar Charlie Milksteak "test"
 
-tempVar LittleGreenGhouls "test22"
+tempVar Let'sHuffSomeGlue 2
 
-tempVar
+tempVar BrownOut "thisisatest"
+
+tempVar ReadyToPlow "thisisatest"
+
+tempVar ReadyToPlow "test"
+
+tempVar WadOfHundredsReadyToPlow "test"
+
+tempVar WadOfHundredsReadyToPlow "thisisatest"

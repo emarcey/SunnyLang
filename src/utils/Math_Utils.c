@@ -148,7 +148,7 @@ struct Variable* eval_op_numeric(struct Variable* op1,
 
 struct Variable* eval_op_string(struct Variable* op1, struct Variable* op2, double op) {
 	struct Variable* tmp_var = malloc(sizeof(struct Variable*));
-	tmp_var = create_variable("string","string",0,0,"",-1,-1);
+	tmp_var = create_variable("boolean","boolean",0,0,"",-1,-1);
 	char * tmp_val = malloc(sizeof(char)+sizeof(get_variable_cval(op1))+sizeof(get_variable_cval(op2)));
 	unsigned tmp_op = op;
 	char * info = malloc(sizeof(char)*1024);
@@ -156,7 +156,37 @@ struct Variable* eval_op_string(struct Variable* op1, struct Variable* op2, doub
 
 		case 43: // +
 			sprintf(tmp_val,"%s%s",get_variable_cval(op1),get_variable_cval(op2));
-			assign_variable_value(tmp_var,0,0,tmp_val);
+			free(tmp_var);
+			tmp_var = malloc(sizeof(struct Variable*));
+			tmp_var = create_variable("string","string",0,0,tmp_val,-1,-1);
+			break;
+
+		case 60: // <
+			assign_variable_value(tmp_var,
+					strcmp(get_variable_cval(op1),get_variable_cval(op2))==-1,
+					0,"");
+			break;
+		case 62: // >
+			assign_variable_value(tmp_var,
+					strcmp(get_variable_cval(op1),get_variable_cval(op2))==1,
+					0,"");
+			break;
+		case 1921: // <=
+			assign_variable_value(tmp_var,
+				strcmp(get_variable_cval(op1),get_variable_cval(op2))==-1 ||
+				strcmp(get_variable_cval(op1),get_variable_cval(op2))==0,
+				0,"");
+			break;
+		case 1952: // ==
+			assign_variable_value(tmp_var,
+				strcmp(get_variable_cval(op1),get_variable_cval(op2))==0,
+				0,"");
+			break;
+		case 1983: // >=
+			assign_variable_value(tmp_var,
+				strcmp(get_variable_cval(op1),get_variable_cval(op2))==1 ||
+				strcmp(get_variable_cval(op1),get_variable_cval(op2))==0,
+				0,"");
 			break;
 
 		default:
@@ -174,9 +204,21 @@ struct Variable* eval_op_string(struct Variable* op1, struct Variable* op2, doub
 
 struct Variable* eval_op_num_string(struct Variable* op1, struct Variable* op2, double op) {
 	struct Variable* tmp_var = malloc(sizeof(struct Variable*));
+	tmp_var = create_variable("string","string",0,0,"",-1,-1);
+	char * tmp_val;
 	unsigned tmp_op = op;
 	char * info = malloc(sizeof(char)*1024);
 	switch(tmp_op) {
+
+		case 42: // *
+			tmp_val = malloc(sizeof(get_variable_cval(op1))*(get_variable_val_as_int_condition(op2))+sizeof(char));
+			for (int i = 0; i < get_variable_val_as_int_condition(op2); i++) {
+				char * tmp_string = malloc(sizeof(tmp_val));
+				sprintf(tmp_string,"%s",tmp_val);
+				sprintf(tmp_val,"%s%s",tmp_string,get_variable_cval(op1));
+			}
+			assign_variable_value(tmp_var,0,0,tmp_val);
+			break;
 
 		default:
 			sprintf(info,"Operator %f not valid for variables %s (%s) and %s (%s).",

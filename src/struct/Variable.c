@@ -148,11 +148,6 @@ int get_variable_val_as_int_condition(struct Variable * variable) {
 	if (strcmp(get_variable_type(variable),"float")==0) {
 		tmp_result_double = get_variable_fval(variable);
 		tmp_result_int = tmp_result_double;
-		if (tmp_result_double != 0 && tmp_result_double != 1) {
-			char * info = malloc(sizeof(char)*1024);
-			sprintf(info,"%f,",tmp_result_double);
-			InvalidConditionValueError(info,__LINE__,__FILE__);
-		}
 	} else if (strcmp(get_variable_type(variable),"int")==0 ||
 			strcmp(get_variable_type(variable),"boolean")==0 ||
 			strcmp(get_variable_type(variable),"control")==0 ||
@@ -162,12 +157,6 @@ int get_variable_val_as_int_condition(struct Variable * variable) {
 		char * info = malloc(sizeof(char)*1024);
 		sprintf(info,"Variable type of %s not valid for a condition evaluation.",get_variable_type(variable));
 		InvalidValueError(info,__LINE__,__FILE__);
-	}
-
-	if (tmp_result_int != 0 && tmp_result_int != 1) {
-		char * info = malloc(sizeof(char)*1024);
-		sprintf(info,"%d",tmp_result_int);
-		InvalidConditionValueError(info,__LINE__,__FILE__);
 	}
 	return tmp_result_int;
 }
