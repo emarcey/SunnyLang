@@ -26,8 +26,7 @@ To learn more about how to write in SunnyLang, check out the [wiki](https://gith
 
 ### Features
 The language currently supports:
- - Variable declaration and assignment for integer, float and boolean variables
-  - String variables are planned, but not yet supported
+ - Variable declaration and assignment for integer, float, boolean and string variables
  - If/Else logic
  - For/While loop control flow
  - ++/-- operations
@@ -35,7 +34,6 @@ The language currently supports:
  - User-Defined Function implementation
  
 Planned features:
-  - String evaluation in infix expressions
   - User-Defined Class implementation
   - Additional built-in variables (i.e. arrays)
   - Additional built-in functions
