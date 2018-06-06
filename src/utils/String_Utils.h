@@ -21,7 +21,18 @@
  */
 int count_chars(char * phrase, char c_find);
 
-// trim c_trim on left and right of phrase
+/*
+ * 	trim_chars:
+ * 		- trim character c_trim on left and right of phrase
+ *
+ * 	params:
+ * 		- phrase: char* to be trimmed
+ * 		- c_trim: character to remove from ends of phrase
+ *
+ * 	returns:
+ * 		- trimmed phrase
+ *
+ */
 char * trim_chars(char * phrase, char c_trim);
 
 /*
