@@ -13,24 +13,79 @@
 #ifndef STRUCT_STACK_H_
 #define STRUCT_STACK_H_
 
+// A structure to represent a stack
 struct Stack;
 
-// function to create a stack of given capacity. It initializes size of stack as 0
+/*
+ * 	createStack:
+ * 		- creates a new Stack struct
+ *
+ * 	params:
+ * 		- capacity: max size of Stack
+ *
+ * 	returns:
+ * 		- Stack struct
+ */
 struct Stack* createStack(unsigned capacity);
 
-// Stack is full when top is equal to the last index
+/*
+ * 	isFull:
+ * 		- checks if a Stack is full.
+ *
+ * 	params:
+ * 		- stack: Stack struct to check
+ *
+ * 	returns:
+ * 		- Returns 1 if true, 0 if false
+ */
 int isFull(struct Stack* stack);
 
-// Stack is empty when top is equal to -1
+/*
+ * 	isFull:
+ * 		- checks if a Stack is empty.
+ *
+ * 	params:
+ * 		- stack: Stack struct to check
+ *
+ * 	returns:
+ * 		- Returns 1 if true, 0 if false
+ */
 int isEmpty(struct Stack* stack);
 
-// Function to add an item to stack.  It increases top by 1
+/*
+ * 	push:
+ * 		- adds a new item to a stack.
+ * 		- increases top by 1
+ *
+ * 	params:
+ * 		- stack: Stack struct to add item to
+ * 		- item: value of new item
+ */
 void push(struct Stack* stack, double item);
 
-// Function to remove an item from stack.  It decreases top by 1
+/*
+ * 	pop:
+ * 		- removes an item from a stack.
+ * 		- decreases top by 1
+ *
+ * 	params:
+ * 		- stack: Stack struct to pop
+ *
+ * 	returns:
+ * 		- value of popped item
+ */
 double pop(struct Stack* stack);
 
-// Function to view the top item in the stack
+/*
+ * 	get_top:
+ * 		- displays top item of stack
+ *
+ * 	params:
+ * 		- stack: Stack struct to display
+ *
+ * 	returns:
+ * 		- value of top item
+ */
 double get_top(struct Stack* stack);
 
 

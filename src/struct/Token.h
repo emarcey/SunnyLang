@@ -11,28 +11,99 @@
 //implements structure to store data for a Token
 struct Token;
 
-//Function to create a token
+/*
+ * 	create_token:
+ * 		- creates a new Token struct
+ *
+ * 	params:
+ * 		- token_type: type of new token
+ * 		- token_value: value of new token
+ *
+ * 	returns:
+ * 		- newly created Token
+ *
+ */
 struct Token * create_token(char token_type,char * token_value);
 
-//Function to set a token's value; updates hash and precedence
+/*
+ * 	assign_token_value:
+ * 		- helper function to replace token value
+ *
+ * 	params:
+ * 		- token: Token to update
+ * 		- new_value: new value for token_value
+ *
+ */
 void assign_token_value(struct Token * token, char * new_value);
 
-//Function to append a string to the end of a token's value; updates hash and precedence
+/*
+ * 	append_token_value:
+ * 		- helper function to append new string to token value
+ *
+ * 	params:
+ * 		- token: Token to update
+ * 		- new_value: value to append to token_value
+ *
+ */
 void append_token_value(struct Token * token, char * new_value);
 
-//Function to assign a type to a token
+/*
+ * 	assign_token_type:
+ * 		- helper function to replace token type
+ *
+ * 	params:
+ * 		- token: Token to update
+ * 		- new_type: new value for token_type
+ *
+ */
 void assign_token_type(struct Token * token, char new_type);
 
-//Function returns a token's type
+/*
+ * 	get_token_type:
+ * 		- helper function to get a Token's type
+ *
+ * 	params:
+ * 		- token: Token to get type from
+ *
+ * 	returns:
+ * 		- char value of token_type
+ */
 char get_token_type(struct Token * token);
 
-//Function returns a token's value
+/*
+ * 	get_token_value:
+ * 		- helper function to get a Token's value
+ *
+ * 	params:
+ * 		- token: Token to get value from
+ *
+ * 	returns:
+ * 		- char* value of token_value
+ */
 char * get_token_value(struct Token * token);
 
-//Function returns a token's hash value
+/*
+ * 	get_token_hash:
+ * 		- helper function to get hash of Token's value
+ *
+ * 	params:
+ * 		- token: Token to get hash from
+ *
+ * 	returns:
+ * 		- unsigned int value of token_hash
+ */
 unsigned int get_token_hash(struct Token * token);
 
-//Function returns a token's precedence
+/*
+ * 	get_token_precedence:
+ * 		- helper function to get hash of Token's precedence
+ *
+ * 	params:
+ * 		- token: Token to get precedence from
+ *
+ * 	returns:
+ * 		- int value of token_precedence
+ */
 int get_token_precedence(struct Token * token);
 
 #endif /* STRUCT_TOKEN_H_ */

@@ -368,30 +368,35 @@ struct Variable * eval_line(struct Token ** tokens,
 				tmp_num_variables++;
 			}
 			else {
-				struct Variable* tmp = eval_infix(tokens,num_tokens,4,variables,tmp_num_variables,
+				struct Variable* tmp_eval_new_var = eval_infix(tokens,num_tokens,4,variables,tmp_num_variables,
 						token_array,num_token_rows,token_array_lengths,
 						&tmp_depth,control_flow_stack);
-				if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[2]))==0)
-					MismatchedTypesError(get_token_value(tokens[1]),get_token_value(tokens[2]),get_variable_type(tmp),__LINE__,__FILE__);
-				if (strcmp(get_variable_type(tmp),"string")!=0) {
+				if (variable_types_compatible(get_variable_type(tmp_eval_new_var),get_token_value(tokens[2]))==0)
+					MismatchedTypesError(get_token_value(tokens[1]),get_token_value(tokens[2]),get_variable_type(tmp_eval_new_var),__LINE__,__FILE__);
+				if (strcmp(get_variable_type(tmp_eval_new_var),"string")!=0) {
 					int tmp_int = 0;
 					float tmp_f = 0;
 					unsigned token_hash = get_token_hash(tokens[2]);
 
 					if (token_hash == 104431 || token_hash == -891985903) {
-						if (strcmp(get_variable_type(tmp),"float")==0) {
-							tmp_int = get_variable_fval(tmp);
+						if (strcmp(get_variable_type(tmp_eval_new_var),"float")==0) {
+							tmp_int = get_variable_fval(tmp_eval_new_var);
 						} else {
-							tmp_int = get_variable_ival(tmp);
+							tmp_int = get_variable_ival(tmp_eval_new_var);
 						}
 
 					} else {
-						tmp_f = get_variable_fval(tmp);
+						tmp_f = get_variable_fval(tmp_eval_new_var);
 					}
 					struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),tmp_int,tmp_f,"",-1,tmp_depth);
 					variables[tmp_num_variables] = tmp_var;
 					tmp_num_variables++;
+				} else {
+					struct Variable * tmp_var = create_variable(get_token_value(tokens[2]),get_token_value(tokens[1]),0,0,get_variable_cval(tmp_eval_new_var),-1,tmp_depth);
+					variables[tmp_num_variables] = tmp_var;
+					tmp_num_variables++;
 				}
+				free(tmp_eval_new_var);
 			}
 		} else if (get_token_hash(tokens[0])==499119488) { //ForBegin
 			int validate_for = validate_for_statement(tokens,num_tokens,variables,tmp_num_variables,control_flow_stack);
@@ -567,7 +572,7 @@ struct Variable * eval_line(struct Token ** tokens,
 					struct Variable* tmp = eval_infix(tokens,num_tokens,2,variables,tmp_num_variables,
 							token_array,num_token_rows,token_array_lengths,
 							&tmp_depth,control_flow_stack);
-					if (variable_types_compatible(get_variable_type(tmp),get_token_value(tokens[0]))==0)
+					if (variable_types_compatible(get_variable_type(tmp),get_variable_type(variables[tmp_variable_index]))==0)
 						MismatchedTypesError(get_token_value(tokens[0]),
 								get_variable_type(variables[tmp_variable_index]),
 								get_variable_type(tmp),
@@ -583,7 +588,6 @@ struct Variable * eval_line(struct Token ** tokens,
 					} else {
 						tmp_assign = tmp;
 					}
-
 					float tmp_float = get_variable_fval(tmp_assign);
 					int tmp_int = tmp_float;
 

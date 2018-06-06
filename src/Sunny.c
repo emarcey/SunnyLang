@@ -44,23 +44,25 @@ int main(int argc, char* argv[]) {
 	if (strcmp(argv[1]+(file_name_length-3),".st\0")!=0)
 		CommandArgumentError("File type not recognized. Use .st files.",__LINE__,__FILE__);
 
+	//load the file
 	char * s_file_name = malloc(sizeof(char)*file_name_length+1);
 	s_file_name = argv[1];
 
 	int sdata_num_rows;
 	char ** s_data = load_file(s_file_name,&sdata_num_rows);
 
+	//create our variable pointer arrays
 	struct Variable ** variables = malloc(sizeof(struct Variable *)*sdata_num_rows);
 	struct VariableStack * control_flow_stack = vs_create_stack(sdata_num_rows);
 
 	int num_variables = 0;
 	int i = 0;
 
+	//first, we tokenize the entire script
 	struct Token *** token_array = malloc(sizeof(struct Token **)*sdata_num_rows);
 	int token_array_lengths[sdata_num_rows];
 	while (i < sdata_num_rows) {
 		int num_tokens = 0;
-		//fprintf(stdout,"Initial phrase: %s\n",s_data[i]);
 		token_array[i] = tokenize_line(s_data[i],
 				&num_tokens,
 				cmds,
@@ -82,6 +84,7 @@ int main(int argc, char* argv[]) {
 	fprintf(stdout,"\n");
 	i = 0;
 	int depth = 0;
+	//then we execute
 	while (i < sdata_num_rows) {
 		int line_number = i;
 		eval_line(token_array[i],
@@ -101,18 +104,6 @@ int main(int argc, char* argv[]) {
 
 	}
 
-	/*
-	fprintf(stdout,"VARIABLES:\n");
-	for (int k = 0; k < num_variables;k++) {
-		fprintf(stdout,"\t%s\t%s\n",get_variable_name(variables[k]),get_variable_type(variables[k]));
-		if (strcmp(get_variable_type(variables[k]),"function")==0) {
-			fprintf(stdout,"\t\t%d %d %d %d\n",get_variable_func_num_arguments(variables[k]),
-					get_variable_func_num_returns(variables[k]),
-					get_variable_func_start_line(variables[k]),
-					get_variable_func_end_line(variables[k]));
-		}
-	}
-	*/
 	free(s_data);
 	free(variables);
 
