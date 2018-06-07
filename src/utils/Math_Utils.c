@@ -20,8 +20,6 @@
 #include "Misc_Utils.h"
 
 int get_precedence(unsigned int c) {
-	// regular operators have positive precedence
-	// looping operators have negative precedence
 	int precedence[][2] = {
 				{94,4}, // ^
 				{42,3}, // *
@@ -77,48 +75,37 @@ struct Variable* eval_op_numeric(struct Variable* op1,
 			if (tmp_op1==op1_val && tmp_op2 == op2_val) tmp_val = tmp_op1%tmp_op2;
 			else ModularArithmeticError(op1_val, op2_val,__LINE__,__FILE__);
 			break;
-
 		case 42: // *
 			tmp_val = op1_val*op2_val;
 			break;
-
 		case 43: // +
 			tmp_val = op1_val+op2_val;
 			break;
-
 		case 45: // -
 			tmp_val = op1_val-op2_val;
 			break;
-
 		case 47: // /
 			if (op2 != 0) tmp_val = op1_val/op2_val;
 			else DivideByZeroError(op1_val, op2_val,__LINE__,__FILE__);
 			break;
-
 		case 60: // <
 			tmp_val = op1_val < op2_val;
 			break;
-
 		case 62: // >
 			tmp_val = op1_val > op2_val;
 			break;
-
 		case 94: // ^
 			tmp_val = pow(op1_val,op2_val);
 			break;
-
 		case 1921: // <=
 			tmp_val = op1_val <= op2_val;
 			break;
-
 		case 1952: // ==
 			tmp_val = op1_val == op2_val;
 			break;
-
 		case 1983: // >=
 			tmp_val = op1_val >= op2_val;
 			break;
-
 		case 3555: // or
 			if (op1_val+op2_val == 1 || op1_val+op2_val == 2) tmp_val = 1;
 			else if (op1_val + op2_val == 0) tmp_val = 0;
@@ -128,7 +115,6 @@ struct Variable* eval_op_numeric(struct Variable* op1,
 				InvalidValueError(info,__LINE__,__FILE__);
 			}
 			break;
-
 		case 96727: //and
 			if (op1_val+op2_val == 2) tmp_val = 1;
 			else if (op1_val+op2_val == 1 || op1_val+op2_val == 0) tmp_val = 0;
@@ -183,20 +169,17 @@ struct Variable* eval_op_string(struct Variable* op1, struct Variable* op2, doub
 					strcmp(get_variable_cval(op1),get_variable_cval(op2))==1,
 					0,"");
 			break;
-
 		case 1921: // <=
 			assign_variable_value(tmp_var,
 				strcmp(get_variable_cval(op1),get_variable_cval(op2))==-1 ||
 				strcmp(get_variable_cval(op1),get_variable_cval(op2))==0,
 				0,"");
 			break;
-
 		case 1952: // ==
 			assign_variable_value(tmp_var,
 				strcmp(get_variable_cval(op1),get_variable_cval(op2))==0,
 				0,"");
 			break;
-
 		case 1983: // >=
 			assign_variable_value(tmp_var,
 				strcmp(get_variable_cval(op1),get_variable_cval(op2))==1 ||
@@ -393,6 +376,10 @@ struct Variable * eval_infix(struct Token ** tokens,
 			struct Variable* tmp_var = create_variable("string","string",0,0,tmp_token_val,-1,-1);
 			vs_push(operand_stack,tmp_var);
 		} else if (tmp_token_type == 'v') { //if token is variable
+			printf("TEST VARIABLES\n");
+			for (int f = 0; f < variable_count; f ++) {
+				printf("%d. %s\n",f,get_variable_name(variables[f]));
+			}
 			int var_index = variable_index(variables,variable_count,tmp_token_hash);
 			// if variable is not found
 			if (var_index==-1) {

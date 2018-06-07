@@ -29,7 +29,7 @@ static char * df = "./cmds.csv";
 
 int main(int argc, char* argv[]) {
 
-	clock_t start = clock(), diff;
+	//clock_t start = clock(), diff;
 
 	int cmd_num_rows, cmd_num_fields;
 	char *** cmds = load_csv(df,',',&cmd_num_fields,&cmd_num_rows);
@@ -70,14 +70,14 @@ int main(int argc, char* argv[]) {
 				cmd_num_fields);
 
 		token_array_lengths[i] = num_tokens;
-
+		/*
 		fprintf(stdout,"Translated: ");
 		for (int j = 0; j < num_tokens; j++) {
 			struct Token * t = token_array[i][j];
 			fprintf(stdout,"%s ",get_token_value(t));
 		}
 		fprintf(stdout,"\n");
-
+		*/
 		i++;
 	}
 
@@ -106,11 +106,11 @@ int main(int argc, char* argv[]) {
 
 	free(s_data);
 	free(variables);
-
+	/*
 	diff = clock() - start;
 
 	int msec = diff * 1000/CLOCKS_PER_SEC;
 	fprintf(stdout,"\nTime taken %d seconds %d milliseconds", msec/1000, msec%1000);
-
+	*/
 	return 0;
 }
