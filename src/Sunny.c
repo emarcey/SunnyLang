@@ -29,7 +29,7 @@ static char * df = "./cmds.csv";
 
 int main(int argc, char* argv[]) {
 
-	clock_t start = clock(), diff;
+	//clock_t start = clock(), diff;
 
 	int cmd_num_rows, cmd_num_fields;
 	char *** cmds = load_csv(df,',',&cmd_num_fields,&cmd_num_rows);

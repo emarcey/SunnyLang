@@ -1,7 +1,16 @@
-JoinTheGang tempVar Charlie Milksteak "test"
+TheBirdsOfWar Frank FizzBuzz
+JoinTheGang i Dennis Milksteak 1
+Rickety i 0 MagnumCondoms 100 1
+Dayman BlastMe BlastMe i PayTheTrollToll 3 InTheAss ReadyToPlow 0 InTheAss LiamMcPoyle BlastMe BlastMe i PayTheTrollToll 5 InTheAss ReadyToPlow 0 InTheAss
+"FizzBuzz"
+FighterOfTheNightman BlastMe i PayTheTrollToll 3 InTheAss ReadyToPlow 0
+"Fizz"
+FighterOfTheNightman BlastMe i PayTheTrollToll 5 InTheAss ReadyToPlow 0
+"Buzz"
+ChampionOfTheSun
+i
+MasterOfKarateAndFriendshipForEveryone
+Cricket
+TheTrashman
 
-BangTheWaitress tempVar ReadyToPlow "test"
-
-BangTheWaitress tempVar WadOfHundredsReadyToPlow "test"
-
-BangTheWaitress tempVar WadOfHundredsReadyToPlow "thisisatest"
+FizzBuzz

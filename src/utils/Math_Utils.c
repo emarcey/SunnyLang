@@ -391,6 +391,10 @@ struct Variable * eval_infix(struct Token ** tokens,
 			struct Variable* tmp_var = create_variable("string","string",0,0,tmp_token_val,-1,-1);
 			vs_push(operand_stack,tmp_var);
 		} else if (tmp_token_type == 'v') { //if token is variable
+			printf("TEST VARIABLES\n");
+			for (int f = 0; f < variable_count; f ++) {
+				printf("%d. %s\n",f,get_variable_name(variables[f]));
+			}
 			int var_index = variable_index(variables,variable_count,tmp_token_hash);
 			// if variable is not found
 			if (var_index==-1) {
