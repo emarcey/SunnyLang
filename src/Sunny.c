@@ -78,10 +78,14 @@ int main(int argc, char* argv[]) {
 		}
 		fprintf(stdout,"\n");
 		*/
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2d162c67f82d98bbc0499cf45b36ee7cacf33b32
 		i++;
 	}
 
-	fprintf(stdout,"\n");
+	//fprintf(stdout,"\n");
 	i = 0;
 	int depth = 0;
 	//then we execute
