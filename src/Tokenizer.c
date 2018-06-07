@@ -647,6 +647,12 @@ struct Variable * eval_line(struct Token ** tokens,
 					token_array,num_token_rows,token_array_lengths,
 					&tmp_depth,control_flow_stack);
 			return tmp_return_var;
+		} else if (get_token_hash(tokens[0])==77382285) { // Print
+			struct Variable* tmp_print_var = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables,
+					token_array,num_token_rows,token_array_lengths,
+					&tmp_depth,control_flow_stack);
+			if (return_variable_value_as_char(tmp_print_var) != NULL)
+				fprintf(stdout,"%s\n",return_variable_value_as_char(tmp_print_var));
 		} else {
 			struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables,
 					token_array,num_token_rows,token_array_lengths,
