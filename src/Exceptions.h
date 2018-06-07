@@ -10,6 +10,8 @@
 
 void RaiseError(char * error_type, char * message, int line_number, char * file_name);
 
+void RaiseSunnyError(char * error_type, char * message, int line_number, char * file_name);
+
 void DivideByZeroError(double op1, double op2, int line_number, char * file_name);
 
 void ModularArithmeticError(double op1, double op2, int line_number, char * file_name);

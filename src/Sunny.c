@@ -24,14 +24,14 @@
 
 #include "Exceptions.h"
 #include "Tokenizer.h"
+#include "GlobalVariables.h"
 
 static char * df = "./cmds.csv";
+int SunnyLineNumber = 0;
 
 int main(int argc, char* argv[]) {
 
 	//clock_t start = clock(), diff;
-
-	printf("Print: %u\n",hash("Print"));
 
 	int cmd_num_rows, cmd_num_fields;
 	char *** cmds = load_csv(df,',',&cmd_num_fields,&cmd_num_rows);
@@ -58,20 +58,20 @@ int main(int argc, char* argv[]) {
 	struct VariableStack * control_flow_stack = vs_create_stack(sdata_num_rows);
 
 	int num_variables = 0;
-	int i = 0;
+	SunnyLineNumber = 0;
 
 	//first, we tokenize the entire script
 	struct Token *** token_array = malloc(sizeof(struct Token **)*sdata_num_rows);
 	int token_array_lengths[sdata_num_rows];
-	while (i < sdata_num_rows) {
+	while (SunnyLineNumber < sdata_num_rows) {
 		int num_tokens = 0;
-		token_array[i] = tokenize_line(s_data[i],
+		token_array[SunnyLineNumber] = tokenize_line(s_data[SunnyLineNumber],
 				&num_tokens,
 				cmds,
 				cmd_num_rows,
 				cmd_num_fields);
 
-		token_array_lengths[i] = num_tokens;
+		token_array_lengths[SunnyLineNumber] = num_tokens;
 		/*
 		fprintf(stdout,"Translated: ");
 		for (int j = 0; j < num_tokens; j++) {
@@ -80,17 +80,17 @@ int main(int argc, char* argv[]) {
 		}
 		fprintf(stdout,"\n");
 		*/
-		i++;
+		SunnyLineNumber++;
 	}
 
 	//fprintf(stdout,"\n");
-	i = 0;
+	SunnyLineNumber = 0;
 	int depth = 0;
 	//then we execute
-	while (i < sdata_num_rows) {
-		int line_number = i;
-		eval_line(token_array[i],
-				token_array_lengths[i],
+	while (SunnyLineNumber < sdata_num_rows) {
+		int line_number = SunnyLineNumber;
+		eval_line(token_array[SunnyLineNumber],
+				token_array_lengths[SunnyLineNumber],
 				variables,
 				&num_variables,
 				control_flow_stack,
@@ -99,10 +99,10 @@ int main(int argc, char* argv[]) {
 				token_array,
 				sdata_num_rows,
 				token_array_lengths);
-		if (line_number != i) {
-			i = line_number;
+		if (line_number != SunnyLineNumber) {
+			SunnyLineNumber = line_number;
 		}
-		else i++;
+		else SunnyLineNumber++;
 
 	}
 

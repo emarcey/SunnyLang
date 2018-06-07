@@ -91,7 +91,7 @@ struct Variable* eval_op_numeric(struct Variable* op1,
 			break;
 
 		case 47: // /
-			if (op2 != 0) tmp_val = op1_val/op2_val;
+			if (op2_val != 0) tmp_val = op1_val/op2_val;
 			else DivideByZeroError(op1_val, op2_val,__LINE__,__FILE__);
 			break;
 
