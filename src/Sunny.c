@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 		i++;
 	}
 
-	fprintf(stdout,"\n");
+	//fprintf(stdout,"\n");
 	i = 0;
 	int depth = 0;
 	//then we execute

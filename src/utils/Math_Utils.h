@@ -22,21 +22,71 @@
  * returns:
  *  - precedence for character
  */
-int get_precedence(char c);
+int get_precedence(unsigned int c);
 
-//Function that handles eval_op when both operands are numeric types
+/*
+ *  eval_op_numeric:
+ *  	- function that handles eval_op when both operands are numeric types
+ *
+ *  params:
+ *  	- op1: first numeric variable to evaluate
+ *  	- op2: second numeric variable to evaluate
+ *  	- op: hash value of operator
+ *
+ *  returns:
+ *  	- Variable with value as result of evaluation
+ */
 struct Variable* eval_op_numeric(struct Variable* op1, struct Variable* op2, double op);
 
-//Function that handles eval_op when both operands are string types
+/*
+ *  eval_op_string:
+ *  	- function that handles eval_op when both operands are string types
+ *
+ *  params:
+ *  	- op1: first string variable to evaluate
+ *  	- op2: second string variable to evaluate
+ *  	- op: hash value of operator
+ *
+ *  returns:
+ *  	- Variable with value as result of evaluation
+ */
 struct Variable* eval_op_string(struct Variable* op1, struct Variable* op2, double op);
 
 /*
- * Function that handles eval_op when one operand is a string type and one is numeric
- * op1 is string
- * op2 is numeric
+ *  eval_op_num_string:
+ *  	- function that handles eval_op when both operands are string types
+ *
+ *  params:
+ *  	- op1: string variable to evaluate
+ *  	- op2: numeric variable to evaluate
+ *  	- op: hash value of operator
+ *
+ *  returns:
+ *  	- Variable with value as result of evaluation
  */
 struct Variable* eval_op_num_string(struct Variable* op1, struct Variable* op2, double op) ;
 
+/*
+ *	eval_function:
+ *		- function that evaluates a custom SunnyLang function
+ *
+ *	params:
+ *		- eval_func: Variable for function to evaluate
+ *		- tokens: pointer to array of Tokens for current line in input script
+ *		- num_tokens: number of Tokens in tokens
+ *		- token_index: index in tokens where function is called
+ *		- variables: pointer to array of Variables in environment
+ *		- variable_count: number of variables in variables
+ *		- token_array: pointer to array of arrays of Tokens for entire input script
+ *		- num_token_rows: number of tokens in token_array
+ *		- token_array_lengths: number of tokens in each line of token_array
+ *		- depth: environment function nest depth
+ *		- control_flow_stack: VariableStack containing nested control flow elements
+ *
+ *	returns:
+ *		- variable containing output of eval_func
+ *
+ */
 struct Variable * eval_function(struct Variable * eval_func,
 		struct Token ** tokens,
 		int num_tokens,

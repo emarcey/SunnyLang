@@ -520,12 +520,11 @@ struct Variable * eval_line(struct Token ** tokens,
 			}
 		} else if (get_token_type(tokens[0])=='v') {
 			if (num_tokens < 2) {
-				struct Variable* tmp_eval_default1 = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables,
+				struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables,
 						token_array,num_token_rows,token_array_lengths,
 						&tmp_depth,control_flow_stack);
-				if (return_variable_value_as_char(tmp_eval_default1) != NULL)
-					fprintf(stdout,"%s\n",return_variable_value_as_char(tmp_eval_default1));
-				free(tmp_eval_default1);
+				if (return_variable_value_as_char(tmp) != NULL)
+					fprintf(stdout,"%s\n",return_variable_value_as_char(tmp));
 			}
 			else {
 				if (get_token_hash(tokens[1])==1376 || // ++
@@ -626,7 +625,7 @@ struct Variable * eval_line(struct Token ** tokens,
 
 			struct Variable * tmp_control = create_variable("function",get_token_value(tokens[2]),0,0,"",tmp_line_number,tmp_depth);
 			vs_push(control_flow_stack,tmp_control);
-		} else if (get_token_hash(tokens[0])==4016346563) { // End function
+		} else if (get_token_hash(tokens[0])==4016346563) { //End function
 
 			if (num_tokens > 1)
 				SyntaxError("FunctionEnd statement cannot have additional information on the line.",__LINE__,__FILE__);
@@ -640,25 +639,20 @@ struct Variable * eval_line(struct Token ** tokens,
 			assign_variable_func_end_line(variables[end_variable_index],tmp_line_number);
 
 		} else if (get_token_hash(tokens[0])==2444437840) { // Return
+			//printf("TEST: %s\n",get_variable_type(vs_get_top(control_flow_stack)));
+			//if (vs_is_empty(control_flow_stack) || strcmp(get_variable_type(vs_get_top(control_flow_stack)),"function")!=0)
+			//	SyntaxError("Return found while not within Function statement",__LINE__,__FILE__);
 
 			struct Variable * tmp_return_var = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables,
 					token_array,num_token_rows,token_array_lengths,
 					&tmp_depth,control_flow_stack);
 			return tmp_return_var;
-		} else if (get_token_hash(tokens[0])==77382285) { // Print
-			struct Variable* tmp_print = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables,
-					token_array,num_token_rows,token_array_lengths,
-					&tmp_depth,control_flow_stack);
-			if (return_variable_value_as_char(tmp_print) != NULL)
-				fprintf(stdout,"%s\n",return_variable_value_as_char(tmp_print));
-			free(tmp_print);
 		} else {
-			struct Variable* tmp_eval_default = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables,
+			struct Variable* tmp = eval_infix(tokens,num_tokens,0,variables,tmp_num_variables,
 					token_array,num_token_rows,token_array_lengths,
 					&tmp_depth,control_flow_stack);
-			if (return_variable_value_as_char(tmp_eval_default) != NULL)
-				fprintf(stdout,"%s\n",return_variable_value_as_char(tmp_eval_default));
-			free(tmp_eval_default);
+			if (return_variable_value_as_char(tmp) != NULL)
+				fprintf(stdout,"%s\n",return_variable_value_as_char(tmp));
 		}
 
 	} else if (get_variable_ival(vs_get_top(control_flow_stack))==2) { // if the control flow stack says the task is already complete
