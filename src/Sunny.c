@@ -28,16 +28,15 @@
 #include "Tokenizer.h"
 #include "GlobalVariables.h"
 
-#include "testing/TestingCustomLists.h"
+//#include "testing/TestingCustomLists.h"
 
-//static char * df = "./cmds.csv";
+static char * df = "./cmds.csv";
 int SunnyLineNumber = 0;
 
 int main(int argc, char* argv[]) {
 
-	clock_t start = clock(), diff;
-	printf("Test Results: %d\n",test_CustomList());
-	/*
+	//clock_t start = clock(), diff;
+	//printf("Test Results: %d\n",test_CustomList());
 	int cmd_num_rows, cmd_num_fields;
 	char *** cmds = load_csv(df,',',&cmd_num_fields,&cmd_num_rows);
 
@@ -112,10 +111,11 @@ int main(int argc, char* argv[]) {
 
 	free(s_data);
 	free(variables);
-	*/
+	/*
 	diff = clock() - start;
 
 	int msec = diff * 1000/CLOCKS_PER_SEC;
 	fprintf(stdout,"\nTime taken %d seconds %d milliseconds", msec/1000, msec%1000);
+	*/
 	return 0;
 }
