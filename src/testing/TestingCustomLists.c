@@ -121,7 +121,7 @@ int test_ListItem() {
 	print_list_item(tmp4);
 	printf("\n");
 
-	return 1;
+	return 0;
 }
 
 
@@ -220,5 +220,40 @@ int test_CustomList() {
 	}
 	cl_print_list(tmp_customlist);
 
-	return 1;
+	return 0;
+}
+
+int test_nested_CustomLists() {
+	// create a few list items
+	struct ListItem * tmp1 = create_ListItem("string","test_string",0,0,NULL); //create string
+	struct ListItem * tmp2 = create_ListItem("int","test_string",1,0,NULL); //create int
+	struct ListItem * tmp3 = create_ListItem("boolean","test_string",1,0,NULL); //create boolean
+	struct ListItem * tmp4 = create_ListItem("float","test_string",0,1.1,NULL); //create float
+
+	//create a new CustomList
+	struct CustomList * tmp_customlist = create_CustomList();
+	struct CustomList * tmp_customlist2 = create_CustomList();
+	cl_insert_back(tmp_customlist,tmp1);
+	cl_insert_back(tmp_customlist,tmp2);
+	cl_insert_back(tmp_customlist,tmp3);
+	cl_insert_back(tmp_customlist,tmp4);
+
+	for (int i = 0; i < 5; i++) {
+		struct ListItem * tmp_iter = create_ListItem("int","",i,0,NULL);
+		cl_insert_back(tmp_customlist2,tmp_iter);
+	}
+	cl_print_list(tmp_customlist);
+	cl_print_list(tmp_customlist2);
+
+	//create the CustomList ListItem
+	struct ListItem * tmp5 = create_ListItem("list","",0,1.1,tmp_customlist2); //create customlist
+	printf("Print CustomList ListItem: ");
+	print_list_item(tmp5);
+	printf("\n");
+	cl_insert_back(tmp_customlist,tmp5);
+
+	printf("Print nested CustomList: ");
+	cl_print_list(tmp_customlist);
+
+	return 0;
 }
