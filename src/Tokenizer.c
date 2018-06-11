@@ -300,7 +300,7 @@ int validate_declare_function_syntax(struct Token ** tokens,
 		sprintf(info,"FunctionBegin requires a function definition");
 		SyntaxError(info,__LINE__,__FILE__);
 	}
-	if (get_token_type(tokens[1])!='d') { //check that it has a variable name
+	if (get_token_type(tokens[1])!='d') { //check that it has a data type
 		char * info = malloc(sizeof(char)*1024);
 		sprintf(info,"FunctionBegin requires data type to return, not token %s of type %c.\n",
 				get_token_value(tokens[1]),
@@ -468,6 +468,12 @@ struct Variable * eval_line(struct Token ** tokens,
 					token_array,num_token_rows,token_array_lengths,
 					&tmp_depth,control_flow_stack);
 			int tmp_result_int = get_variable_val_as_int_condition(while_tmp);
+
+			if (tmp_result_int != 1 && tmp_result_int != 0) {
+				char * info = malloc(sizeof(char)*1024);
+				sprintf(info,"While statement cannot interpret value: %d",tmp_result_int);
+				InvalidValueError(info,__LINE__,__FILE__);
+			}
 			free(while_tmp);
 			struct Variable * push_to_stack = create_variable("control","while",tmp_result_int,0,"",tmp_line_number,tmp_depth);
 			vs_push(control_flow_stack,push_to_stack);
@@ -639,10 +645,6 @@ struct Variable * eval_line(struct Token ** tokens,
 			assign_variable_func_end_line(variables[end_variable_index],tmp_line_number);
 
 		} else if (get_token_hash(tokens[0])==2444437840) { // Return
-			//printf("TEST: %s\n",get_variable_type(vs_get_top(control_flow_stack)));
-			//if (vs_is_empty(control_flow_stack) || strcmp(get_variable_type(vs_get_top(control_flow_stack)),"function")!=0)
-			//	SyntaxError("Return found while not within Function statement",__LINE__,__FILE__);
-
 			struct Variable * tmp_return_var = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables,
 					token_array,num_token_rows,token_array_lengths,
 					&tmp_depth,control_flow_stack);
@@ -675,6 +677,8 @@ struct Variable * eval_line(struct Token ** tokens,
 				vs_push(control_flow_stack,tmp_control);
 			}
 		} else if (get_token_hash(tokens[0])==499119488) { // ForBegin
+			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"for")!=0)
+				SyntaxError("Mismatched control flow arguments in your expression",__LINE__,__FILE__);
 
 			int tmp_var_index = variable_index(variables,tmp_num_variables,get_token_hash(tokens[1]));
 			double interval = atof(get_token_value(tokens[num_tokens-1]));
@@ -700,6 +704,8 @@ struct Variable * eval_line(struct Token ** tokens,
 			assign_variable_value(vs_get_top(control_flow_stack),tmp_result_int,0,"");
 
 		} else if (get_token_hash(tokens[0])==3714707480) { // WhileBegin
+			if (strcmp(get_variable_name(vs_get_top(control_flow_stack)),"while")!=0)
+				SyntaxError("Mismatched control flow arguments in your expression",__LINE__,__FILE__);
 			struct Variable * tmp_while = eval_infix(tokens,num_tokens,1,variables,tmp_num_variables,
 					token_array,num_token_rows,token_array_lengths,
 					&tmp_depth,control_flow_stack);
@@ -777,7 +783,6 @@ struct Variable * eval_line(struct Token ** tokens,
 
 			assign_variable_func_end_line(variables[end_variable_index],tmp_line_number);
 		}
-
 	} else SyntaxError("Something is wrong with your expression!",__LINE__,__FILE__);
 
 	*num_variables = tmp_num_variables;

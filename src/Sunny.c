@@ -21,18 +21,23 @@
 #include "struct/Token.h"
 #include "struct/Variable.h"
 #include "struct/VariableStack.h"
+#include "struct/CustomList.h"
+#include "struct/ListItem.h"
 
 #include "Exceptions.h"
 #include "Tokenizer.h"
 #include "GlobalVariables.h"
 
-static char * df = "./cmds.csv";
+#include "testing/TestingCustomLists.h"
+
+//static char * df = "./cmds.csv";
 int SunnyLineNumber = 0;
 
 int main(int argc, char* argv[]) {
 
-	//clock_t start = clock(), diff;
-
+	clock_t start = clock(), diff;
+	printf("Test Results: %d\n",test_ListItem());
+	/*
 	int cmd_num_rows, cmd_num_fields;
 	char *** cmds = load_csv(df,',',&cmd_num_fields,&cmd_num_rows);
 
@@ -72,14 +77,13 @@ int main(int argc, char* argv[]) {
 				cmd_num_fields);
 
 		token_array_lengths[SunnyLineNumber] = num_tokens;
-		/*
-		fprintf(stdout,"Translated: ");
-		for (int j = 0; j < num_tokens; j++) {
-			struct Token * t = token_array[i][j];
-			fprintf(stdout,"%s ",get_token_value(t));
-		}
-		fprintf(stdout,"\n");
-		*/
+
+		//fprintf(stdout,"Translated: ");
+		//for (int j = 0; j < num_tokens; j++) {
+		//	struct Token * t = token_array[i][j];
+		//	fprintf(stdout,"%s ",get_token_value(t));
+		//}
+		//fprintf(stdout,"\n");
 		SunnyLineNumber++;
 	}
 
@@ -108,11 +112,10 @@ int main(int argc, char* argv[]) {
 
 	free(s_data);
 	free(variables);
-	/*
+	*/
 	diff = clock() - start;
 
 	int msec = diff * 1000/CLOCKS_PER_SEC;
 	fprintf(stdout,"\nTime taken %d seconds %d milliseconds", msec/1000, msec%1000);
-	*/
 	return 0;
 }
