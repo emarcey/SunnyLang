@@ -35,7 +35,7 @@ int cl_is_empty(struct CustomList * customlist) {
 	return customlist->index==-1;
 }
 
-void realloc_list(struct CustomList * customlist) {
+void cl_realloc_list(struct CustomList * customlist) {
 	customlist->capacity = customlist->capacity*1.5;
 	realloc(customlist->list, sizeof(struct ListItem*)*customlist->capacity);
 }
@@ -46,7 +46,7 @@ struct ListItem * cl_get_item(struct CustomList * customlist, int v_index) {
 
 void cl_insert_back(struct CustomList * customlist, struct ListItem * listitem) {
 	if (cl_is_full(customlist))
-		realloc_list(customlist);
+		cl_realloc_list(customlist);
 	customlist->index++;
 	customlist->list[customlist->index]=listitem;
 }
@@ -60,6 +60,8 @@ struct ListItem * cl_remove_back(struct CustomList * customlist) {
 void cl_update(struct CustomList * customlist, struct ListItem * listitem, unsigned int v_index) {
 	if (v_index > customlist->index || v_index < 0)
 		IndexOutOfBoundsError(v_index,customlist->index,__LINE__,__FILE__);
+	struct ListItem * tmp_list_item = customlist->list[v_index];
+	free(tmp_list_item);
 	customlist->list[v_index]=listitem;
 }
 
@@ -67,7 +69,7 @@ void cl_insert(struct CustomList * customlist, struct ListItem * listitem, unsig
 	if (v_index > customlist->index || v_index < 0)
 		IndexOutOfBoundsError(v_index,customlist->index,__LINE__,__FILE__);
 	if (cl_is_full(customlist))
-		realloc_list(customlist);
+		cl_realloc_list(customlist);
 
 	int tmp_index = customlist->index;
 	customlist->index++;
@@ -95,8 +97,11 @@ struct ListItem * cl_remove(struct CustomList * customlist, unsigned int v_index
 }
 
 void cl_print_list(struct CustomList * customlist) {
+	printf("list_open_brackets");
 	for (int i = 0; i < customlist->index; i++) {
 		print_list_item(customlist->list[i]);
+		printf(" ");
 	}
+	printf("list_close_brackets\n");
 }
 

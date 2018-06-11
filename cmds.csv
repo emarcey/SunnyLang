@@ -4,6 +4,12 @@ float,Mac,d
 string,Charlie,d
 boolean,Dee,d
 void,Frank,d
+list,PaddysPub,d
+list_open_bracket,list_open_bracket,c
+list_close_bracket,list_close_bracket,c
+list_index,list_index,c
+list_append,list_append,c
+list_remove,list_remove,c
 declare,JoinTheGang,f
 assign,Milksteak,a
 +=,LittleGreenGhouls,a

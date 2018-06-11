@@ -79,9 +79,9 @@ void update_ListItem(struct ListItem * listitem,
 }
 
 void print_list_item(struct ListItem * listitem) {
-	if (strcmp(listitem->type,"string")==0) printf("%s\n",listitem->u_item.c_item);
-		else if (strcmp(listitem->type,"int")==0 || strcmp(listitem->type,"boolean")==0) printf("%d\n",listitem->u_item.i_item);
-		else if (strcmp(listitem->type,"float")==0) printf("%f\n",listitem->u_item.f_item);
+	if (strcmp(listitem->type,"string")==0) printf("%s",listitem->u_item.c_item);
+		else if (strcmp(listitem->type,"int")==0 || strcmp(listitem->type,"boolean")==0) printf("%d",listitem->u_item.i_item);
+		else if (strcmp(listitem->type,"float")==0) printf("%f",listitem->u_item.f_item);
 		else if (strcmp(listitem->type,"list")==0) cl_print_list(listitem->u_item.cl_item);
 		else ListTypeNotRecognizedError(listitem->type, "ListItem", __LINE__,__FILE__);
 }
