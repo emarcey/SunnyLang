@@ -26,6 +26,12 @@ void InvalidValueError(char * info, int line_number, char * file_name);
 
 void TypeNotRecognizedError(char * v_type, char * name, char * struct_name, int line_number, char * file_name);
 
+void ListTypeNotRecognizedError(char * v_type, char * struct_name, int line_number, char * file_name);
+
+void InvalidTypeReturnError(char * v_type, char * struct_name, char * value_type, int line_number, char * file_name);
+
+void IndexOutOfBoundsError(unsigned int v_index, unsigned int length, int line_number, char * file_name);
+
 void InvalidVariableName(char * name, int line_number, char * file_name);
 
 void TokenizationError(char * token, char * info, int line_number, char * file_name);
@@ -37,6 +43,8 @@ void SyntaxError(char * info, int line_number, char * file_name);
 void VariableNotFoundError(char * variable_name, int line_number, char * file_name);
 
 void EmptyStackError(int line_number, char * file_name);
+
+void EmptyListError(int line_number, char * file_name);
 
 void FullStackError(char * item_name, int line_number, char * file_name);
 

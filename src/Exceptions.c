@@ -78,6 +78,33 @@ void TypeNotRecognizedError(char * v_type, char * name, char * struct_name, int 
 	RaiseSunnyError(type, message, line_number, file_name);
 }
 
+void ListTypeNotRecognizedError(char * v_type, char * struct_name, int line_number, char * file_name) {
+	char * type = "ListTypeNotRecognizedError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Attempted to instantiate %s with unrecognized type %s.",struct_name,v_type);
+
+	RaiseSunnyError(type, message, line_number, file_name);
+}
+
+void InvalidTypeReturnError(char * v_type, char * struct_name, char * value_type, int line_number, char * file_name) {
+	char * type = "InvalidTypeReturnError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Attempted to call value for %s with %s of type %s.",value_type,struct_name,v_type);
+
+	RaiseSunnyError(type, message, line_number, file_name);
+}
+
+void IndexOutOfBoundsError(unsigned int v_index, unsigned int length, int line_number, char * file_name) {
+	char * type = "IndexOutOfBoundsError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"Index %u is outside bounds of array with length %u",v_index,length);
+
+	RaiseSunnyError(type, message, line_number, file_name);
+}
+
 void InvalidVariableName(char * name, int line_number, char * file_name){
 	char * type = "InvalidVariableName";
 	char * message = malloc(sizeof(char)*1024);
@@ -125,6 +152,14 @@ void EmptyStackError(int line_number, char * file_name) {
 
 	sprintf(message,"You can't pop an empty stack.");
 	RaiseError(type, message, line_number, file_name);
+}
+
+void EmptyListError(int line_number, char * file_name) {
+	char * type = "EmptyStackError";
+	char * message = malloc(sizeof(char)*1024);
+
+	sprintf(message,"You can't remove an item from an empty list.");
+	RaiseSunnyError(type, message, line_number, file_name);
 }
 
 void FullStackError(char * item_name, int line_number, char * file_name) {
