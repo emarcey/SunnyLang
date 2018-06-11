@@ -100,7 +100,7 @@ void IndexOutOfBoundsError(unsigned int v_index, unsigned int length, int line_n
 	char * type = "IndexOutOfBoundsError";
 	char * message = malloc(sizeof(char)*1024);
 
-	sprintf(message,"Index %u is outside bounds of array with length %u",v_index,length);
+	sprintf(message,"Index %u is out of bounds of array with length %u",v_index,length);
 
 	RaiseSunnyError(type, message, line_number, file_name);
 }

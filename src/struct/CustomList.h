@@ -69,6 +69,42 @@ void cl_realloc_list(struct CustomList * customlist);
 struct ListItem * cl_get_item(struct CustomList * customlist, int v_index);
 
 /*
+ * 	cl_get_index:
+ * 		- retrieves the current index of a CustomList object
+ *
+ * 	params:
+ * 		- customlist: CustomList object whose current index we want
+ *
+ * 	returns:
+ * 		- index of CustomList object
+ */
+unsigned int cl_get_index(struct CustomList * customlist);
+
+/*
+ * 	cl_get_length:
+ * 		- retrieves the current length of a CustomList object
+ *
+ * 	params:
+ * 		- customlist: CustomList object whose current length we want
+ *
+ * 	returns:
+ * 		- index of CustomList object + 1
+ */
+unsigned int cl_get_length(struct CustomList * customlist);
+
+/*
+ * 	cl_get_capacity:
+ * 		- retrieves the capacity of a CustomList object
+ *
+ * 	params:
+ * 		- customlist: CustomList object whose capacity we want
+ *
+ * 	returns:
+ * 		- capacity of CustomList object
+ */
+unsigned int cl_get_capacity(struct CustomList * customlist);
+
+/*
  * 	cl_insert_back:
  * 		- inserts an item at the end of a CustomList
  *

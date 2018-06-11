@@ -10,4 +10,6 @@
 
 int test_ListItem();
 
+int test_CustomList();
+
 #endif /* TESTING_TESTINGCUSTOMLISTS_H_ */

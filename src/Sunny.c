@@ -36,7 +36,7 @@ int SunnyLineNumber = 0;
 int main(int argc, char* argv[]) {
 
 	clock_t start = clock(), diff;
-	printf("Test Results: %d\n",test_ListItem());
+	printf("Test Results: %d\n",test_CustomList());
 	/*
 	int cmd_num_rows, cmd_num_fields;
 	char *** cmds = load_csv(df,',',&cmd_num_fields,&cmd_num_rows);
